@@ -1,0 +1,6 @@
+struct CCredits 0x14
+0x00 float x
+0x04 float y
+0x08 void* m_pFontTexture
+0x0c void* m_pLogoTexture
+0x10 void* m_pVB            # one quad per character of g_CreditsText

@@ -1,0 +1,5 @@
+struct CSoundtrack 0x4c
+0x00 wchar_t name[32]
+0x40 int songCount
+0x44 BOOL isGameSoundtrack  # the built-in fallback (g_DefaultSongs)
+0x48 DWORD id

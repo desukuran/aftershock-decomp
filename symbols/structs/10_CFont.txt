@@ -1,0 +1,3 @@
+struct CFont 0x8
+0x00 void* m_pFont          # XFONT*
+0x04 void* m_pBackBuffer

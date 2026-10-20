@@ -1,0 +1,6 @@
+struct CSound 0x14
+0x00 void* m_pEngine        # IXACTEngine*
+0x04 DWORD dwUnused
+0x08 void* m_pWaveBank      # IXACTWaveBank*
+0x0c void* m_pSoundBankData
+0x10 void* m_pSoundBank     # IXACTSoundBank*

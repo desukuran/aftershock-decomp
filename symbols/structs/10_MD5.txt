@@ -1,0 +1,5 @@
+struct MD5 0x5c
+0x00 void* vftable
+0x04 BYTE buffer[64]
+0x44 DWORD count[2]
+0x4c DWORD state[4]

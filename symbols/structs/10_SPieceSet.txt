@@ -1,0 +1,3 @@
+struct SPieceSet 0x8        # the meshes in D:\media\custom\<mats|cushions|bigpieces>
+0x00 CMesh* meshes
+0x04 int count

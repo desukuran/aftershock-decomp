@@ -1,0 +1,227 @@
+# Hand-curated names for AfterShock Pool SX (default.xbe).
+# "<address> <name> [signature | data | data:<type>]"; later lines override
+# earlier ones and the generated files (xdklib.txt, xdk.txt, consts.txt).
+# Names are reconstructed: the binary has no symbols beyond the XDK libraries.
+
+# ---- CCamera (0x104 bytes; one instance, g_Game.camera) -----------------------
+00011010 CCamera::CCamera CCamera * __thiscall CCamera::CCamera(CCamera *this)
+000111c0 CCamera::SetView void __thiscall CCamera::SetView(CCamera *this)
+00011220 CCamera::UpdateOrientation void __thiscall CCamera::UpdateOrientation(CCamera *this)
+00011320 CCamera::FreeLook_unused void __thiscall CCamera::FreeLook_unused(CCamera *this)
+
+# ---- CFont: an XFONT bitmap font (g_Game.font) --------------------------------
+00011840 CFont::Create void __thiscall CFont::Create(CFont *this)
+00011860 CFont::DrawText void __thiscall CFont::DrawText(CFont *this, ushort *text, float x, float y, DWORD r, DWORD g, DWORD b)
+
+# ---- CInput: four XBGAMEPADs, as in the XDK samples' XBInput (g_Game.input) ----
+00011910 CInput::GetPad XBGAMEPAD * __thiscall CInput::GetPad(CInput *this, int pad)
+00011930 CInput::CreateGamepads_unused HRESULT __thiscall CInput::CreateGamepads_unused(CInput *this)
+000119c0 CInput::Init void __thiscall CInput::Init(CInput *this)
+000119e0 CInput::BlackPressed bool __thiscall CInput::BlackPressed(CInput *this, int pad)
+00011a00 CInput::WhitePressed bool __thiscall CInput::WhitePressed(CInput *this, int pad)
+00011a20 CInput::YPressed bool __thiscall CInput::YPressed(CInput *this, int pad)
+00011a40 CInput::BPressed bool __thiscall CInput::BPressed(CInput *this, int pad)
+00011a60 CInput::XPressed bool __thiscall CInput::XPressed(CInput *this, int pad)
+00011a80 CInput::APressed bool __thiscall CInput::APressed(CInput *this, int pad)
+00011aa0 CInput::StartDown bool __thiscall CInput::StartDown(CInput *this, int pad)
+00011ac0 CInput::BackDown bool __thiscall CInput::BackDown(CInput *this, int pad)
+00011ae0 CInput::LeftThumbUp float __thiscall CInput::LeftThumbUp(CInput *this, int pad)
+00011b10 CInput::LeftThumbDown float __thiscall CInput::LeftThumbDown(CInput *this, int pad)
+00011b40 CInput::LeftThumbLeft float __thiscall CInput::LeftThumbLeft(CInput *this, int pad)
+00011b70 CInput::LeftThumbRight float __thiscall CInput::LeftThumbRight(CInput *this, int pad)
+00011ba0 CInput::DPadUp bool __thiscall CInput::DPadUp(CInput *this, int pad)
+00011bc0 CInput::DPadDown bool __thiscall CInput::DPadDown(CInput *this, int pad)
+00011be0 CInput::DPadRight bool __thiscall CInput::DPadRight(CInput *this, int pad)
+00011c00 CInput::DPadLeft bool __thiscall CInput::DPadLeft(CInput *this, int pad)
+00011c20 CInput::RightThumbUp float __thiscall CInput::RightThumbUp(CInput *this, int pad)
+00011c60 CInput::RightThumbDown float __thiscall CInput::RightThumbDown(CInput *this, int pad)
+00011ca0 CInput::RightThumbLeft float __thiscall CInput::RightThumbLeft(CInput *this, int pad)
+00011cd0 CInput::RightThumbRight float __thiscall CInput::RightThumbRight(CInput *this, int pad)
+00011d00 CInput::Update void __thiscall CInput::Update(CInput *this)
+
+# ---- CCredits: the intro's scrolling credits and logo (g_Credits) --------------
+00012080 CCredits::Reset void __thiscall CCredits::Reset(CCredits *this)
+000120d0 CCredits::Render HRESULT __thiscall CCredits::Render(CCredits *this, void *device)
+00012400 CCredits::Init void __thiscall CCredits::Init(CCredits *this, void *device)
+
+# ---- std::basic_string<char> members instantiated in the game's code ----------
+000122f0 std::string::compare int __thiscall std::string::compare(std_string *this, uint pos, uint n, char *s, uint count)
+00012370 std::string::_Tidy void __thiscall std::string::_Tidy(std_string *this, bool built, uint newsize)
+000123d0 std::string::~string void __thiscall std::string::~string(std_string *this)
+0002ea10 std::string::_Copy_unused void __thiscall std::string::_Copy_unused(std_string *this, uint newsize, uint oldlen)
+0002ea90 std::string::_Grow bool __thiscall std::string::_Grow(std_string *this, uint newsize, bool trim)
+0002f790 std::string::assign_str std_string * __thiscall std::string::assign_str(std_string *this, std_string *right, uint pos, uint n)
+0002f880 std::string::assign std_string * __thiscall std::string::assign(std_string *this, char *s, uint n)
+0002fad0 std::string::assign_cstr std_string * __thiscall std::string::assign_cstr(std_string *this, char *s)
+00036810 std::string::append std_string * __thiscall std::string::append(std_string *this, std_string *right, uint pos, uint n)
+00036900 std::string::string_cstr std_string * __thiscall std::string::string_cstr(std_string *this, char *s)
+00038340 std::string::string_copy std_string * __thiscall std::string::string_copy(std_string *this, std_string *right)
+
+# ---- math helpers --------------------------------------------------------------
+00012af0 Vec3Length float __cdecl Vec3Length(D3DXVECTOR3 *v)
+00012b20 Vec3Cross_unused void __cdecl Vec3Cross_unused(D3DXVECTOR3 *out, D3DXVECTOR3 *a, D3DXVECTOR3 *b)
+
+# ---- STablePiece: the table editor's pieces, a linked list ---------------------
+00012bb0 STablePiece::Append void __thiscall STablePiece::Append(STablePiece *this, float x, float y, float z, int type)
+00012ca0 STablePiece::Save void __thiscall STablePiece::Save(STablePiece *this, FILE *f)
+00012e30 STablePiece::Load void __thiscall STablePiece::Load(STablePiece *this, FILE *f)
+00012ea0 STablePiece::Render void __thiscall STablePiece::Render(STablePiece *this, void *device, SPieceSet *sets)
+00012fa0 SBall::SBall SBall * __thiscall SBall::SBall(SBall *this)
+
+# ---- balls and physics ---------------------------------------------------------
+00013000 DrawAimGuide void __cdecl DrawAimGuide(void)
+00013b60 RackBalls void __cdecl RackBalls(void)
+00013f00 BallBallCollisionTime float __cdecl BallBallCollisionTime(int a, int b)
+000140e0 BallBallCollide void __cdecl BallBallCollide(int a, int b)
+000143c0 MoveBall void __cdecl MoveBall(int ball, float time)
+00014910 UpdateBallInPocket void __cdecl UpdateBallInPocket(int ball)
+000159e0 ClampBallToPocket void __cdecl ClampBallToPocket(int ball)
+00015a90 CollideBallWithBarriers void __cdecl CollideBallWithBarriers(int ball)
+
+# ---- setup ---------------------------------------------------------------------
+00016120 InitD3D void __cdecl InitD3D(void)
+00016350 LoadBallTextures void __cdecl LoadBallTextures(void)
+00016460 SaveTable void __cdecl SaveTable(int slot)
+000167e0 DrawRect void __cdecl DrawRect(float x, float y, float w, float h, void *texture)
+00016990 LoadTextures void __cdecl LoadTextures(void)
+00016ee0 RenderRoom void __cdecl RenderRoom(void)
+00017800 BuildTableBarriers void __cdecl BuildTableBarriers(void)
+00023650 BuildTablePockets void __cdecl BuildTablePockets(void)
+00024be0 RenderMusicHud void __cdecl RenderMusicHud(void)
+00024e50 UpdatePhysics void __cdecl UpdatePhysics(void)
+000254e0 CreateQuadBuffers void __cdecl CreateQuadBuffers(void)
+00025ba0 RenderGame void __cdecl RenderGame(void)
+00027a50 UpdateGame void __cdecl UpdateGame(void)
+00028420 RenderMenu void __cdecl RenderMenu(void)
+0002ac30 RenderEditor void __cdecl RenderEditor(void)
+0002ebd0 Render void __cdecl Render(void)
+0002f050 CMesh::ClearName_unused void __thiscall CMesh::ClearName_unused(CMesh *this)
+0002f090 LoadCustomPieces void __cdecl LoadCustomPieces(void)
+0002f970 CGame::CGame CGame * __thiscall CGame::CGame(CGame *this)
+0002fa30 CGame::~CGame void __thiscall CGame::~CGame(CGame *this)
+0002fb00 LoadDefaultTable void __cdecl LoadDefaultTable(int slot, STablePiece *head)
+0002ff30 LoadSavedTable void __cdecl LoadSavedTable(int slot, STablePiece *head)
+00030370 LoadDefaultTableNames void __cdecl LoadDefaultTableNames(void)
+00030420 LoadSavedTableName void __cdecl LoadSavedTableName(int slot)
+000304c0 LoadSavedTableNames void __cdecl LoadSavedTableNames(void)
+00030530 UpdateMenu void __cdecl UpdateMenu(void)
+00031ad0 UpdateEditor void __cdecl UpdateEditor(void)
+00034b90 Update void __cdecl Update(void)
+
+# ---- CMesh: a .bin model and its texture (0x38 bytes) --------------------------
+00036520 CMesh::Load HRESULT __thiscall CMesh::Load(CMesh *this, void *device, char *file, char *texture, bool noTexture)
+00036770 CMesh::Render HRESULT __thiscall CMesh::Render(CMesh *this, void *device, void *defaultTexture)
+000367c0 CMesh::~CMesh void __thiscall CMesh::~CMesh(CMesh *this)
+
+# ---- CMusicManager: the XDK BackgroundMusic sample's soundtrack player ---------
+00036940 CMusicManager::FlushStream_unused void __cdecl CMusicManager::FlushStream_unused(void *stream, DWORD a, DWORD b)
+00036960 CMusicManager::CMusicManager CMusicManager * __thiscall CMusicManager::CMusicManager(CMusicManager *this)
+000369c0 CMusicManager::SetRandom HRESULT __thiscall CMusicManager::SetRandom(CMusicManager *this, BOOL random)
+000369d0 CMusicManager::GetCurrentInfo HRESULT __thiscall CMusicManager::GetCurrentInfo(CMusicManager *this, ushort *soundtrack, ushort *song, DWORD *length)
+00036a20 CMusicManager::GetPlaybackPosition float __thiscall CMusicManager::GetPlaybackPosition(CMusicManager *this)
+00036a40 CMusicManager::LoadSoundtracks HRESULT __thiscall CMusicManager::LoadSoundtracks(CMusicManager *this)
+00036bd0 CMusicManager::Cleanup HRESULT __thiscall CMusicManager::Cleanup(CMusicManager *this)
+00036c10 CMusicManager::FindFreePacket BOOL __thiscall CMusicManager::FindFreePacket(CMusicManager *this, DWORD *packet, DWORD stream)
+00036c80 CMusicManager::GetSongInfo void __thiscall CMusicManager::GetSongInfo(CMusicManager *this, DWORD index, DWORD *songId, DWORD *length, ushort *name)
+00036ce0 CMusicManager::~CMusicManager void __thiscall CMusicManager::~CMusicManager(CMusicManager *this)
+00036d60 CMusicManager::Stop HRESULT __thiscall CMusicManager::Stop(CMusicManager *this, void *unused)
+00036dd0 CMusicManager::Prepare HRESULT __thiscall CMusicManager::Prepare(CMusicManager *this)
+00036e60 CMusicManager::Initialize HRESULT __thiscall CMusicManager::Initialize(CMusicManager *this)
+00036fe0 CMusicManager::Play HRESULT __thiscall CMusicManager::Play(CMusicManager *this, void *unused)
+00037040 CMusicManager::NextSong HRESULT __thiscall CMusicManager::NextSong(CMusicManager *this)
+00037080 CMusicManager::PrevSong HRESULT __thiscall CMusicManager::PrevSong(CMusicManager *this)
+000370d0 CMusicManager::SelectSoundtrack HRESULT __thiscall CMusicManager::SelectSoundtrack(CMusicManager *this, DWORD soundtrack)
+00037100 CMusicManager::FindNextSong HRESULT __thiscall CMusicManager::FindNextSong(CMusicManager *this)
+000371e0 CMusicManager::ProcessSource HRESULT __thiscall CMusicManager::ProcessSource(CMusicManager *this, DWORD packet, void *xmp)
+000372c0 CMusicManager::NextSoundtrack HRESULT __thiscall CMusicManager::NextSoundtrack(CMusicManager *this)
+00037310 CMusicManager::Process HRESULT __thiscall CMusicManager::Process(CMusicManager *this)
+
+# ---- settings (T:\pool.cfg) ----------------------------------------------------
+00037400 SaveSettings void __cdecl SaveSettings(void)
+000375a0 LoadSettings void __cdecl LoadSettings(void)
+
+# ---- CSound: XACT sound effects (g_Sound) --------------------------------------
+000376b0 LoadFile HRESULT __cdecl LoadFile(char *path, void **data, DWORD *size)
+000377f0 CSound::Play void __thiscall CSound::Play(CSound *this, DWORD cue)
+00037830 CSound::Init void __thiscall CSound::Init(CSound *this)
+
+# ---- MD5 (RSA reference MD5 wrapped in a class, with a std::string digest) ------
+00037950 MD5::Transform void __thiscall MD5::Transform(MD5 *this, BYTE *block)
+00038240 MD5::MD5 MD5 * __thiscall MD5::MD5(MD5 *this)
+00038280 MD5::Update void __thiscall MD5::Update(MD5 *this, BYTE *input, uint length)
+00038370 MD5::Final std_string * __thiscall MD5::Final(MD5 *this, std_string *out)
+000385d0 MD5String std_string * __cdecl MD5String(std_string *out, char *text, uint length)
+
+# ---- static initializers and atexit destructors --------------------------------
+0004af50 dynamic_initializer_g_Balls void __cdecl dynamic_initializer_g_Balls(void)
+0004b190 dynamic_initializer_g_RackBalls void __cdecl dynamic_initializer_g_RackBalls(void)
+0004b360 dynamic_initializer_g_Game void __cdecl dynamic_initializer_g_Game(void)
+0004b380 dynamic_initializer_g_BallRadius void __cdecl dynamic_initializer_g_BallRadius(void)
+0004b5f0 dynamic_atexit_destructor_g_Game void __cdecl dynamic_atexit_destructor_g_Game(void)
+
+# ---- globals ---------------------------------------------------------------------
+000b1118 MD5::vftable data
+000b6247 g_CreditsText data
+000b6a88 g_RackX data:float[16]
+000b6ac8 g_RackZ data:float[16]
+000b6c18 g_BallDiameter data:float
+000b6c20 g_TableHeight data:float
+000b6c4c g_DefaultSongs data
+000b6c68 MD5_PADDING data:BYTE[64]
+000ba0a0 g_ShotPower data:float
+000ba0a4 g_ShotPowerDir data:float
+000ba0a8 g_PocketRadius data:float
+000ba0b4 g_CueDistance data:float
+000ba0b8 g_Lights data:D3DLIGHT8[3]
+000ba1fc g_NumBalls data:int
+000ba200 g_CueMaxDistance data:float
+000ba218 g_BallTextures data:void *[16]
+000ba258 g_RedBallTexture data:void *
+000ba25c g_BlueBallTexture data:void *
+000ba260 g_BlackBallTexture data:void *
+000ba264 g_Credits data:CCredits
+000ba278 g_CueRestDistance data:float
+000ba294 g_NumPockets data:int
+000ba3f0 g_Barriers data:D3DXVECTOR3[400]
+000bb6b0 g_Pockets data:SPocket[20]
+000bb9e8 g_BallRadius data:float
+000bbc20 g_Game data:CGame
+000bc914 g_TrashMesh data:CMesh
+000bca70 g_RackBalls data:SBall[16]
+000bd170 g_AimDir data:D3DXVECTOR3
+000bd298 g_Balls data:SBall[40]
+000be418 g_GhostBalls data:SBall[2]
+000be4f8 g_GhostBallsInit data:int
+000be508 g_Sound data:CSound
+
+# Meshes, in declaration order (from their atexit destructors).
+000bb7f0 g_BallMesh data:CMesh
+000ba380 g_ShadowMesh data:CMesh
+000bd25c g_UnusedMesh data:CMesh
+000bd224 g_PocketMesh data:CMesh
+000bb860 g_CueMesh data:CMesh
+000bc984 g_SkyboxMesh data:CMesh
+000bd1b4 g_RoofMesh data:CMesh
+000bc94c g_BarTableMesh data:CMesh
+000bb9ec g_BarStoolMesh data:CMesh
+000bba94 g_OverLightMesh data:CMesh
+000bb9b0 g_DartboardMesh data:CMesh
+000bba24 g_PoolTableMesh data:CMesh
+000bd1ec g_TableChairMesh data:CMesh
+000bbb08 g_PosterMeshes data:CMesh[5]
+000bb940 g_DeerMesh data:CMesh
+000bb908 g_DeerBackMesh data:CMesh
+000ba310 g_DeerLabelMeshes data:CMesh[2]
+000ba2a0 g_LaptopMesh data:CMesh
+000bb978 g_XbinsMesh data:CMesh
+000bc9bc g_CrierMesh data:CMesh
+000bba5c g_BeerFridgeMesh data:CMesh
+000bca38 g_FanMesh data:CMesh
+000bb898 g_OutsideMesh data:CMesh
+000bbacc g_WindowMesh data:CMesh
+000bc9f4 g_GlassMesh data:CMesh
+000bb828 g_DoorMesh data:CMesh
+000bb8d0 g_TapMesh data:CMesh
+000ba3b8 g_SinkMesh data:CMesh
+000bd17c g_XboxMesh data:CMesh
+000ba2d8 g_ArrowMesh data:CMesh

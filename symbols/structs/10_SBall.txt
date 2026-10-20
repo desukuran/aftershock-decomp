@@ -1,0 +1,11 @@
+struct SBall 0x70
+0x00 int type               # BALLTYPE_*: 0 cue, 1 solid/red, 2 stripe/blue, 3 eight/black, 4-6 cut throat groups
+0x04 D3DXVECTOR3 pos
+0x10 D3DXVECTOR3 dir        # unit direction of travel
+0x1c D3DXMATRIX rot         # rolling orientation
+0x5c int inPocket
+0x60 int pocket             # index into g_Pockets once inPocket
+0x64 float speed
+0x68 bool onTable
+0x69 bool needsReplace      # pocketed by mistake (cue ball): put back on the table
+0x6c int number             # texture index

@@ -1,0 +1,6 @@
+struct STablePiece 0x1c     # a piece placed in the table editor; singly linked
+0x00 D3DXVECTOR3 pos
+0x0c int type               # 0 mat (cloth), 1 cushion, 2 big piece
+0x10 int mesh               # index into the piece set of that type
+0x14 float rotation         # in quarter turns
+0x18 STablePiece* next
