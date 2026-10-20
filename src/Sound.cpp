@@ -2,6 +2,8 @@
 #include "Sound.h"
 #include "Game.h"
 
+CSound g_Sound;     // 0x000BE508
+
 // 0x000376B0
 // Reads a whole file into memory (rounded up to 2 KB sectors, as the file
 // is opened unbuffered).
