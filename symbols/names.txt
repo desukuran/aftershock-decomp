@@ -7,7 +7,7 @@
 00011010 CCamera::CCamera CCamera * __thiscall CCamera::CCamera(CCamera *this)
 000111c0 CCamera::SetView void __thiscall CCamera::SetView(CCamera *this)
 00011220 CCamera::UpdateOrientation void __thiscall CCamera::UpdateOrientation(CCamera *this)
-00011320 CCamera::FreeLook_unused void __thiscall CCamera::FreeLook_unused(CCamera *this)
+00011320 CCamera::FreeLook void __thiscall CCamera::FreeLook(CCamera *this)
 
 # ---- CFont: an XFONT bitmap font (g_Game.font) --------------------------------
 00011840 CFont::Create void __thiscall CFont::Create(CFont *this)
@@ -15,7 +15,7 @@
 
 # ---- CInput: four XBGAMEPADs, as in the XDK samples' XBInput (g_Game.input) ----
 00011910 CInput::GetPad XBGAMEPAD * __thiscall CInput::GetPad(CInput *this, int pad)
-00011930 CInput::CreateGamepads_unused HRESULT __thiscall CInput::CreateGamepads_unused(CInput *this)
+00011930 CInput::CreateGamepads HRESULT __thiscall CInput::CreateGamepads(CInput *this)
 000119c0 CInput::Init void __thiscall CInput::Init(CInput *this)
 000119e0 CInput::BlackPressed bool __thiscall CInput::BlackPressed(CInput *this, int pad)
 00011a00 CInput::WhitePressed bool __thiscall CInput::WhitePressed(CInput *this, int pad)
@@ -48,7 +48,7 @@
 000122f0 std::string::compare int __thiscall std::string::compare(std_string *this, uint pos, uint n, char *s, uint count)
 00012370 std::string::_Tidy void __thiscall std::string::_Tidy(std_string *this, bool built, uint newsize)
 000123d0 std::string::~string void __thiscall std::string::~string(std_string *this)
-0002ea10 std::string::_Copy_unused void __thiscall std::string::_Copy_unused(std_string *this, uint newsize, uint oldlen)
+0002ea10 std::string::_Copy void __thiscall std::string::_Copy(std_string *this, uint newsize, uint oldlen)
 0002ea90 std::string::_Grow bool __thiscall std::string::_Grow(std_string *this, uint newsize, bool trim)
 0002f790 std::string::assign_str std_string * __thiscall std::string::assign_str(std_string *this, std_string *right, uint pos, uint n)
 0002f880 std::string::assign std_string * __thiscall std::string::assign(std_string *this, char *s, uint n)
@@ -58,8 +58,9 @@
 00038340 std::string::string_copy std_string * __thiscall std::string::string_copy(std_string *this, std_string *right)
 
 # ---- math helpers --------------------------------------------------------------
-00012af0 Vec3Length float __cdecl Vec3Length(D3DXVECTOR3 *v)
-00012b20 Vec3Cross_unused void __cdecl Vec3Cross_unused(D3DXVECTOR3 *out, D3DXVECTOR3 *a, D3DXVECTOR3 *b)
+00012af0 D3DXVec3Length float __cdecl D3DXVec3Length(D3DXVECTOR3 *v)
+00012b20 D3DXVec3Cross D3DXVECTOR3 * __cdecl D3DXVec3Cross(D3DXVECTOR3 *out, D3DXVECTOR3 *a, D3DXVECTOR3 *b)
+0005e459 D3DXMatrixLookAtLH D3DXMATRIX * __stdcall D3DXMatrixLookAtLH(D3DXMATRIX *out, D3DXVECTOR3 *eye, D3DXVECTOR3 *at, D3DXVECTOR3 *up)
 
 # ---- STablePiece: the table editor's pieces, a linked list ---------------------
 00012bb0 STablePiece::Append void __thiscall STablePiece::Append(STablePiece *this, float x, float y, float z, int type)
@@ -95,7 +96,8 @@
 00028420 RenderMenu void __cdecl RenderMenu(void)
 0002ac30 RenderEditor void __cdecl RenderEditor(void)
 0002ebd0 Render void __cdecl Render(void)
-0002f050 CMesh::ClearName_unused void __thiscall CMesh::ClearName_unused(CMesh *this)
+0002f050 CMesh::CMesh CMesh * __thiscall CMesh::CMesh(CMesh *this)
+0002f070 std::string::string std_string * __thiscall std::string::string(std_string *this)
 0002f090 LoadCustomPieces void __cdecl LoadCustomPieces(void)
 0002f970 CGame::CGame CGame * __thiscall CGame::CGame(CGame *this)
 0002fa30 CGame::~CGame void __thiscall CGame::~CGame(CGame *this)
@@ -114,15 +116,16 @@
 000367c0 CMesh::~CMesh void __thiscall CMesh::~CMesh(CMesh *this)
 
 # ---- CMusicManager: the XDK BackgroundMusic sample's soundtrack player ---------
-00036940 CMusicManager::FlushStream_unused void __cdecl CMusicManager::FlushStream_unused(void *stream, DWORD a, DWORD b)
+00036940 IDirectSoundStream::FlushEx HRESULT __thiscall IDirectSoundStream::FlushEx(void *this, DWORD timestamp, DWORD flags)
 00036960 CMusicManager::CMusicManager CMusicManager * __thiscall CMusicManager::CMusicManager(CMusicManager *this)
-000369c0 CMusicManager::SetRandom HRESULT __thiscall CMusicManager::SetRandom(CMusicManager *this, BOOL random)
+000369c0 CMusicManager::SetGlobal HRESULT __thiscall CMusicManager::SetGlobal(CMusicManager *this, BOOL global)
+00036c60 StreamCallback void __stdcall StreamCallback(CMusicManager *context, DWORD packetContext, DWORD status)
 000369d0 CMusicManager::GetCurrentInfo HRESULT __thiscall CMusicManager::GetCurrentInfo(CMusicManager *this, ushort *soundtrack, ushort *song, DWORD *length)
 00036a20 CMusicManager::GetPlaybackPosition float __thiscall CMusicManager::GetPlaybackPosition(CMusicManager *this)
 00036a40 CMusicManager::LoadSoundtracks HRESULT __thiscall CMusicManager::LoadSoundtracks(CMusicManager *this)
 00036bd0 CMusicManager::Cleanup HRESULT __thiscall CMusicManager::Cleanup(CMusicManager *this)
 00036c10 CMusicManager::FindFreePacket BOOL __thiscall CMusicManager::FindFreePacket(CMusicManager *this, DWORD *packet, DWORD stream)
-00036c80 CMusicManager::GetSongInfo void __thiscall CMusicManager::GetSongInfo(CMusicManager *this, DWORD index, DWORD *songId, DWORD *length, ushort *name)
+00036c80 CSoundtrack::GetSongInfo void __thiscall CSoundtrack::GetSongInfo(CSoundtrack *this, DWORD index, DWORD *songId, DWORD *length, ushort *name)
 00036ce0 CMusicManager::~CMusicManager void __thiscall CMusicManager::~CMusicManager(CMusicManager *this)
 00036d60 CMusicManager::Stop HRESULT __thiscall CMusicManager::Stop(CMusicManager *this, void *unused)
 00036dd0 CMusicManager::Prepare HRESULT __thiscall CMusicManager::Prepare(CMusicManager *this)
@@ -161,12 +164,12 @@
 
 # ---- globals ---------------------------------------------------------------------
 000b1118 MD5::vftable data
-000b6247 g_CreditsText data
+000b6248 g_CreditsText data
 000b6a88 g_RackX data:float[16]
 000b6ac8 g_RackZ data:float[16]
 000b6c18 g_BallDiameter data:float
 000b6c20 g_TableHeight data:float
-000b6c4c g_DefaultSongs data
+000b6c4c g_GameSongs data
 000b6c68 MD5_PADDING data:BYTE[64]
 000ba0a0 g_ShotPower data:float
 000ba0a4 g_ShotPowerDir data:float

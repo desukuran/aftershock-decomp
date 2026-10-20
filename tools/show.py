@@ -35,9 +35,35 @@ def constants():
     return out
 
 
+D3D_TEXTURESTATE = 0x0005AEE0    # DWORD D3D__TextureState[4][D3DTSS_MAX=32]
+D3D_RENDERSTATE = 0x0005B0E0     # DWORD D3D__RenderState[D3DRS_MAX]
+
+
+def d3d_states():
+    """DAT_ names of the Xbox D3D state arrays -> D3D__RenderState[D3DRS_x] etc.
+    The XDK's inline SetRenderState/SetTextureStageState write them directly."""
+    path = os.path.join(ROOT, 'reference/5558/xbox/include/D3D8Types.h')
+    if not os.path.exists(path):
+        return {}
+    rs, tss = {}, {}
+    for m in re.finditer(r'^\s*(D3D(RS|TSS)_\w+)\s*=\s*(\d+)\s*,', open(path, errors='replace').read(), re.M):
+        name, kind, val = m.group(1), m.group(2), int(m.group(3))
+        if name.endswith('_MAX') or 'FORCE' in name:
+            continue
+        (rs if kind == 'RS' else tss).setdefault(val, name)
+    out = {}
+    for i, name in rs.items():
+        out[f'DAT_{D3D_RENDERSTATE + 4 * i:08x}'] = f'D3D__RenderState[{name}]'
+    for stage in range(4):
+        for i, name in tss.items():
+            out[f'DAT_{D3D_TEXTURESTATE + 0x80 * stage + 4 * i:08x}'] = f'D3D__TextureState[{stage}][{name}]'
+    return out
+
+
 def main():
     consts = constants()
-    pat = re.compile(r'\b_*(?:flt|dbl)_000[0-9a-f]{5}\b')
+    consts.update(d3d_states())
+    pat = re.compile(r'\b_*(?:(?:flt|dbl)_000[0-9a-f]{5}|DAT_0005[ab][0-9a-f]{3})\b')
     funcs = []
     for path in sorted(glob.glob(os.path.join(ROOT, 'build/export/decomp/*.c'))):
         for part in re.split(r'(?m)^// ==== ', open(path).read())[1:]:

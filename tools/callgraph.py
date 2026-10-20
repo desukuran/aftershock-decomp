@@ -27,7 +27,7 @@ def main():
             continue
         out = []
         for ins in md.disasm(img[a - 0x10000:a - 0x10000 + size], a):
-            if ins.mnemonic == 'call' and ins.op_str.startswith('0x'):
+            if ins.mnemonic in ('call', 'jmp') and ins.op_str.startswith('0x') and int(ins.op_str, 16) in funcs:
                 t = int(ins.op_str, 16)
                 out.append(t)
                 callers.setdefault(t, []).append(a)

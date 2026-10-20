@@ -1,0 +1,84 @@
+# The Xbox build: default.xbe from src/ with the XDK's compiler (MSVC 7.1),
+# linker and imagebld. On Linux they run under Wine.
+#
+#   make -f Makefile.xbox -j4          build/xbox/default.xbe
+#   make -f Makefile.xbox info         show what was found
+#
+# XDK is the XDK's folder (default ./xdk): an installed one (xbox/bin,
+# xbox/include, xbox/lib) or a flat copy (bin, include, lib). The game was
+# built with XDK 5558.
+
+XDK ?= xdk
+OUT := build/xbox
+OBJ := $(OUT)/obj
+
+ifeq ($(OS),Windows_NT)
+WINE :=
+else
+WINE ?= WINEDEBUG=-all wine
+endif
+PYTHON ?= python3
+
+XDK_ROOT := $(firstword $(wildcard $(XDK)/xbox/include $(XDK)/Xbox/include $(XDK)/Xbox/Include))
+XDK_ROOT := $(if $(XDK_ROOT),$(patsubst %/,%,$(dir $(XDK_ROOT))),$(XDK))
+XDK_INC := $(firstword $(wildcard $(XDK_ROOT)/include $(XDK_ROOT)/Include))
+XDK_LIB := $(firstword $(wildcard $(XDK_ROOT)/lib $(XDK_ROOT)/Lib))
+XDK_BIN := $(firstword $(wildcard $(XDK_ROOT)/bin $(XDK_ROOT)/Bin))
+find_tool = $(firstword $(wildcard $(addprefix $(1)/,$(2))))
+CL_EXE := $(call find_tool,$(XDK_BIN)/vc71,CL.Exe CL.exe cl.exe)
+LINK_EXE := $(call find_tool,$(XDK_BIN)/vc71,Link.Exe LINK.EXE Link.exe link.exe)
+IMAGEBLD_EXE := $(call find_tool,$(XDK_BIN),imagebld.exe ImageBld.exe IMAGEBLD.EXE)
+
+CL = $(WINE) $(CL_EXE)
+LINK = $(WINE) $(LINK_EXE)
+IMAGEBLD = $(WINE) $(abspath $(IMAGEBLD_EXE))
+
+# As the original: optimized, buffer security checks, SSE, C++ exceptions
+# (for std::string), no RTTI.
+CFLAGS := /nologo /c /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 /I$(XDK_INC)
+
+SRCS := $(sort $(wildcard src/*.cpp))
+OBJS := $(patsubst src/%.cpp,$(OBJ)/%.obj,$(SRCS))
+HEADERS := $(wildcard src/*.h)
+
+LIBS := xapilib.lib d3d8.lib d3dx8.lib xgraphics.lib dsound.lib xacteng.lib xboxkrnl.lib libcmt.lib libcpmt.lib
+
+all: $(OUT)/default.xbe
+
+info:
+	@echo "XDK:        $(XDK)"
+	@echo "  include:  $(or $(XDK_INC),(not found))"
+	@echo "  lib:      $(or $(XDK_LIB),(not found))"
+	@echo "  cl:       $(or $(CL_EXE),(not found))"
+	@echo "  link:     $(or $(LINK_EXE),(not found))"
+	@echo "  imagebld: $(or $(IMAGEBLD_EXE),(not found))"
+	@echo "Wine:       $(or $(WINE),(not used))"
+
+# Compiles one file; the full output goes to <object>.log.
+$(OBJ)/%.obj: src/%.cpp $(HEADERS)
+	@mkdir -p $(dir $@)
+	@$(CL) $(CFLAGS) /Fo$@ $< > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
+		if [ $$status -ne 0 ]; then rm -f $@; exit 1; fi
+
+objs: $(OBJS)
+
+$(OUT)/default.exe: $(OBJS)
+	@echo "Linking $@"
+	@$(LINK) /nologo /SUBSYSTEM:XBOX /FIXED:NO /DEBUG /INCREMENTAL:NO /OUT:$@ /MAP:$(OUT)/default.map \
+		/LIBPATH:$(XDK_LIB) $(OBJS) $(LIBS) > $(OUT)/link.log 2>&1 || (cat $(OUT)/link.log; false)
+
+# The original's certificate: title ID, media types, regions, version 1.00;
+# init flags: mount the utility drive (T: settings and saved tables, Z:).
+IMAGEBLD_FLAGS := /NOLOGO /NOLIBWARN /STACK:0x10000 /INITFLAGS:0x1 /TESTID:0x07398CDC \
+	"/TESTNAME:AfterShock Pool SX" /TESTMEDIATYPES:0x207 /TESTREGION:0x80000007 /TESTRATINGS:0xFFFFFFFF \
+	/TESTVERSION:0x100
+
+$(OUT)/default.xbe: $(OUT)/default.exe
+	cd $(OUT) && $(IMAGEBLD) $(IMAGEBLD_FLAGS) /IN:default.exe /OUT:debug.xbe
+	$(PYTHON) -I tools/xbe.py retail $(OUT)/debug.xbe $@
+	@echo "Built $@"
+
+clean:
+	rm -rf $(OUT)
+
+.PHONY: all info objs clean
