@@ -87,5 +87,79 @@ def quadbuffers():
             print(f'  pos ({x:g}, {y:g}, {z:g}) normal {nx:08x} {ny:08x} {nz:08x} color {color:08x} uv ({tu:g}, {tv:g})')
 
 
+
+TABLE_HEAD = 0x000BBC38     # g_Game.table
+NUM_POCKETS = 0x000BA294
+POCKETS = 0x000BB6B0
+NUM_BARRIERS = 0x000BA208
+BARRIERS = 0x000BA3F0
+
+
+def run_piece(fn, ptype, mesh, rot, pos=(0.0, 0.0, 0.0)):
+    """Runs a table builder on a table of one piece; returns the emulator."""
+    emu = Emu()
+    emu.uc.mem_write(TABLE_HEAD, struct.pack('<fffiifI', pos[0], pos[1], pos[2], ptype, mesh, rot, 0))
+    emu.call(fn)
+    return emu
+
+
+def rotate(ox, oz, rot):
+    c, s = {0: (1, 0), 1: (0, -1), 2: (-1, 0), 3: (0, 1)}[rot]
+    return ox * c - oz * s, oz * c + ox * s
+
+
+def piece_points(fn, count_addr, array_addr, stride):
+    """{(type, mesh): [(x, z), ...]} at rotation 0, checked at rotations 1-3."""
+    out = {}
+    for ptype in range(3):
+        for mesh in range(32):
+            emu = run_piece(fn, ptype, mesh, 0.0)
+            n = emu.read(count_addr, 'i')[0]
+            if n <= 0:
+                continue
+            pts = [emu.read(array_addr + i * stride, 'fff') for i in range(min(n, 400))]
+            out[(ptype, mesh)] = (n, pts)
+            for rot in (1, 2, 3):
+                e2 = run_piece(fn, ptype, mesh, float(rot), pos=(100.0, 7.0, -50.0))
+                n2 = e2.read(count_addr, 'i')[0]
+                assert n2 == n, (ptype, mesh, rot, n, n2)
+                for i, (x, y, z) in enumerate(pts):
+                    x2, y2, z2 = e2.read(array_addr + i * stride, 'fff')
+                    if (x, y, z) == (0.0, 0.0, 0.0) and (x2, y2, z2) == (0.0, 0.0, 0.0):
+                        continue    # a separator
+                    rx, rz = rotate(x, z, rot)
+                    assert abs(x2 - (100 + rx)) < 1e-3 and abs(z2 - (-50 + rz)) < 1e-3 and abs(y2 - (7 + y)) < 1e-3, \
+                        (ptype, mesh, rot, i, (x, y, z), (x2, y2, z2))
+    return out
+
+
+def barriers():
+    """Each piece's barrier points (S marks a (0,0,0) separator)."""
+    for ptype in range(3):
+        for mesh in range(32):
+            emu = run_piece(0x00017800, ptype, mesh, 0.0)
+            n = emu.read(NUM_BARRIERS, 'i')[0]
+            if n <= 0:
+                continue
+            e2 = run_piece(0x00017800, ptype, mesh, 1.0, pos=(100.0, 7.0, -50.0))
+            pts = []
+            for i in range(n + 1):
+                x, y, z = emu.read(BARRIERS + i * 12, 'fff')
+                x2, y2, z2 = e2.read(BARRIERS + i * 12, 'fff')
+                if (x2, y2, z2) == (0.0, 0.0, 0.0):
+                    assert (x, y, z) == (0.0, 0.0, 0.0)
+                    pts.append('S')
+                    continue
+                rx, rz = rotate(x, z, 1)
+                assert abs(x2 - (100 + rx)) < 1e-3 and abs(z2 - (-50 + rz)) < 1e-3 and y == 0.0 and y2 == 7.0, (ptype, mesh, i)
+                pts.append(f'{x:.9g},{z:.9g}')
+            print(ptype, mesh, n, ' '.join(pts))
+
+
+def pockets():
+    for (ptype, mesh), (n, pts) in sorted(piece_points(0x00023650, NUM_POCKETS, POCKETS, 16).items()):
+        print(ptype, mesh, n, ' '.join(f'({x:g},{z:g})' for x, y, z in pts))
+
+
 if __name__ == '__main__':
-    {'quadbuffers': quadbuffers}[sys.argv[1]]()
+    {'quadbuffers': quadbuffers, 'pockets': pockets, 'barriers': barriers}[sys.argv[1]]()

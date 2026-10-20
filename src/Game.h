@@ -269,7 +269,7 @@ public:
     float        savedFriction;         // +0xCD0 friction is zeroed during the intro
     int          flickerFilter;         // +0xCD4 0-5
     bool         bSoftFilter;           // +0xCD8
-    D3DXVECTOR3  unknownCDC;            // +0xCDC
+    D3DXVECTOR3  pieceOffset;           // +0xCDC scratch: a point of a piece, rotated (BuildTableBarriers/Pockets)
     D3DXVECTOR3  unknownCE8;            // +0xCE8
 };                                      // 0xCF4 bytes
 
