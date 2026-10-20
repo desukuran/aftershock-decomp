@@ -165,8 +165,8 @@ void __cdecl main()
     g_Sound.Init();
     g_Game.tableMinX = 0.0f;
     g_Game.unknown06C = false;
-    g_Game.tableMaxX = 0.0f;
     g_Game.tableMinZ = 0.0f;
+    g_Game.tableMaxX = 0.0f;
     g_Game.tableMaxZ = 0.0f;
     swprintf(g_Game.tableName, L"Table");
     g_Game.nextPlayer = 0;

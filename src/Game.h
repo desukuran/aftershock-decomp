@@ -114,6 +114,8 @@ struct STablePiece
     float        rotation;      // +0x14 in quarter turns
     STablePiece* next;          // +0x18
 
+    STablePiece();
+    ~STablePiece();
     void Append(float x, float y, float z, int type);
     void Save(FILE* f);
     void Load(FILE* f);
@@ -154,9 +156,9 @@ public:
     bool         unknown058;            // +0x058
     bool         bSound;                // +0x059
     bool         bMusic;                // +0x05A
-    float        tableMinX;             // +0x05C TODO: verify
-    float        tableMaxX;             // +0x060
-    float        tableMinZ;             // +0x064
+    float        tableMinX;             // +0x05C the loaded tables' pieces' extent (never reset)
+    float        tableMinZ;             // +0x060
+    float        tableMaxX;             // +0x064
     float        tableMaxZ;             // +0x068
     bool         unknown06C;            // +0x06C editor
 
@@ -254,11 +256,11 @@ public:
     int          unknownA78;            // +0xA78
     int          unknownA7C;            // +0xA7C
     int          unknownA80;            // +0xA80
-    std::string  defaultTableNames[NUM_TABLE_SLOTS];    // +0xA84 D:\media\tables\N.cfg
-    std::string  savedTableNames[NUM_TABLE_SLOTS];      // +0xB9C T:\N.cfg
+    std::string  savedTableNames[NUM_TABLE_SLOTS];      // +0xA84 T:\N.cfg
+    std::string  defaultTableNames[NUM_TABLE_SLOTS];    // +0xB9C D:\media\tables\N.cfg
 
     int          gameType;              // +0xCB4 GAME_*
-    int          unknownCB8;            // +0xCB8
+    int          editGameType;          // +0xCB8 the game type of the table in the editor
     float        unknownCBC;            // +0xCBC
     float        friction;              // +0xCC0
     float        ballMass;              // +0xCC4
