@@ -112,7 +112,7 @@ void UpdateGame()
                     g_Game.state = STATE_MENU;
                 g_Game.lastInputTime = GetTickCount();
             }
-            g_Game.unknownA18 = g_TableHeight * 15.0f;
+            g_Game.editCursor.y = g_TableHeight * 15.0f;
 
             if (g_Game.players[g_Game.curPlayer].pad < 4 && g_ViewMode == 0)
             {

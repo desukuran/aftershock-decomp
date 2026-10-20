@@ -20,7 +20,7 @@ float       g_CueMaxPull;               // 0x000BA214
 float       g_CamDefaultAngle;          // 0x000BA278
 float       g_CamDistance;              // 0x000BA27C
 int         g_ViewMode;                 // 0x000BA280 0 the table camera, 1 the free camera (Start)
-int         g_unknownBA284;             // 0x000BA284
+int         g_EditorScreen;             // 0x000BA284 EDIT_*
 float       g_CamHeightSpeed;           // 0x000BA288
 float       g_CamAngleSpeed;            // 0x000BA28C
 bool        g_bCueMode;                 // 0x000BA290 the stick moves the cue (A toggles)

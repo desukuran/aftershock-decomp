@@ -22,7 +22,7 @@ static void SetWorldTranslation(float x, float y, float z)
 // Are the lights over the tables drawn?
 static bool ShowOverLights()
 {
-    return !g_Game.bPlacingBall && (g_Game.state != STATE_EDITOR || g_unknownBA284 == 6);
+    return !g_Game.bPlacingBall && (g_Game.state != STATE_EDITOR || g_EditorScreen == EDIT_TEST);
 }
 
 // 0x00016EE0
@@ -38,7 +38,7 @@ void RenderRoom()
     g_SkyboxMesh.Render(pDevice, NULL);
     if (g_Game.state != STATE_EDITOR)
         g_RoofMesh.Render(pDevice, NULL);
-    else if (g_Game.unknownA18 < 100.0f)
+    else if (g_Game.editCursor.y < 100.0f)
         g_RoofMesh.Render(pDevice, NULL);
     g_GlassMesh.Render(pDevice, NULL);
     g_WindowMesh.Render(pDevice, NULL);

@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "Credits.h"
 
+// Its constructor (0x0002F970) and destructor (0x0002FA30) are compiler-generated.
 CGame g_Game;
 
 // The models, in their original declaration order.
@@ -46,6 +47,11 @@ const float kRackShape16X[16] = { -0.8f, 0.0f, 0.24f, 0.06f, 0.18f, 0.24f, 0.18f
                                   0.12f, 0.18f, 0.12f, 0.12f, 0.24f, 0.24f, 0.06f, 0.24f };
 const float kRackShape16Z[16] = { 0.0f, 0.0f, -0.07f, -0.035f, -0.035f, 0.14f, 0.105f, -0.105f,
                                   0.0f, 0.035f, -0.07f, 0.07f, 0.07f, 0.0f, 0.035f, -0.14f };
+
+// 0x000B1388
+// The 9 ball diamond with the cue ball (for the editor).
+const float kRackShape10X[10] = { -0.8f, 0.0f, 0.06f, 0.06f, 0.12f, 0.18f, 0.12f, 0.18f, 0.24f, 0.12f };
+const float kRackShape10Z[10] = { 0.0f, 0.0f, 0.035f, -0.035f, 0.07f, 0.035f, -0.07f, -0.035f, 0.0f, 0.0f };
 
 // The intro's barriers: a fixed square around the balls, then a box around
 // each paragraph of the scrolling credits (z follows the scroll), each a
@@ -164,7 +170,7 @@ void __cdecl main()
     g_Game.gameType = GAME_8BALL;
     g_Sound.Init();
     g_Game.tableMinX = 0.0f;
-    g_Game.unknown06C = false;
+    g_Game.bEditorHelp = false;
     g_Game.tableMinZ = 0.0f;
     g_Game.tableMaxX = 0.0f;
     g_Game.tableMaxZ = 0.0f;
@@ -188,13 +194,13 @@ void __cdecl main()
         g_Game.defaultTableNames[i] = "empty";
         g_Game.savedTableNames[i] = "empty";
     }
-    g_Game.cursorX = 0.0f;
+    g_Game.editCursor.x = 0.0f;
     g_Game.players[0].profile = 0;
     g_Game.players[1].profile = 1;
     g_Game.players[2].profile = 2;
     g_Game.tableSlot = 0;
-    g_Game.unknownA18 = 40.0f;
-    g_Game.cursorZ = 0.0f;
+    g_Game.editCursor.y = 40.0f;
+    g_Game.editCursor.z = 0.0f;
     g_Game.input.Init();
     GetTickCount();
 

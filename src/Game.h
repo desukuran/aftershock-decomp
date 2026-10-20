@@ -39,6 +39,21 @@ enum
     STATE_PLAYERSETUP = 12, // profiles and controllers
 };
 
+// Editor screens (g_EditorScreen)
+enum
+{
+    EDIT_MENU       = 0,
+    EDIT_BARRIERS   = 1,    // the cushion lines ("poles")
+    EDIT_POCKETS    = 2,
+    EDIT_PIECES     = 3,    // the table's visible pieces ("geometry")
+    EDIT_BALLS      = 4,    // where the balls are racked
+    EDIT_INFO       = 5,    // game type and room rendering
+    EDIT_TEST       = 6,    // play on the table
+    EDIT_SAVENAME   = 7,
+    EDIT_SAVE       = 8,
+    EDIT_LOAD       = 9,
+};
+
 // Game types (CGame::gameType)
 enum
 {
@@ -177,7 +192,7 @@ public:
     float        tableMinZ;             // +0x060
     float        tableMaxX;             // +0x064
     float        tableMaxZ;             // +0x068
-    bool         unknown06C;            // +0x06C editor
+    bool         bEditorHelp;           // +0x06C editor: Start held, show the help page
 
     LPDIRECT3DTEXTURE8 texMainMenu;     // +0x070 menu\mainmenu.tga
     LPDIRECT3DTEXTURE8 texMenuPages[6]; // +0x074 menu\1.tga (only the first is loaded)
@@ -255,11 +270,9 @@ public:
     DWORD        unknownA00;            // +0xA00
     LPDIRECT3DDEVICE8 device;           // +0xA04
     DWORD        frameMs;               // +0xA08
-    int          unknownA0C;            // +0xA0C
-    bool         unknownA10;            // +0xA10
-    float        cursorX;               // +0xA14 TODO: verify
-    float        unknownA18;            // +0xA18
-    float        cursorZ;               // +0xA1C
+    int          editSel;               // +0xA0C editor: the highlighted barrier point or pocket
+    bool         bEditGrab;             // +0xA10 editor: the highlighted item is picked up (A)
+    D3DXVECTOR3  editCursor;            // +0xA14 editor: the camera, looking down from y at (x, z)
     LPDIRECT3DVERTEXBUFFER8 quadVB;     // +0xA20 unit quads (CreateQuadBuffers)
     LPDIRECT3DVERTEXBUFFER8 quadMirroredVB;  // +0xA24 the same, mirrored left-right
     LPDIRECT3DVERTEXBUFFER8 quadFlippedVB;   // +0xA28 flipped upside down
@@ -312,9 +325,10 @@ extern D3DXVECTOR3  g_CamTarget;
 extern float        g_CuePitch;
 extern float        g_RollFactor;
 extern int          g_ViewMode;
-extern int          g_unknownBA1F4, g_unknownBA284, g_unknownBA298;
+extern int          g_unknownBA1F4, g_EditorScreen, g_unknownBA298;
 extern bool         g_bCueMode;
 extern const float  kRackShape16X[16], kRackShape16Z[16];
+extern const float  kRackShape10X[10], kRackShape10Z[10];
 extern float        g_RackX[NUM_RACK_BALLS];
 extern float        g_RackZ[NUM_RACK_BALLS];
 extern D3DLIGHT8    g_Lights[3];

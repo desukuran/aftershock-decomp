@@ -124,7 +124,7 @@ void UpdateMenu()
                 return;
             case 2:     // Create a Table
                 g_Game.tableSlot = 0;
-                g_unknownBA284 = 0;
+                g_EditorScreen = 0;
                 g_Game.state = STATE_EDITOR;
                 return;
             case 3:
