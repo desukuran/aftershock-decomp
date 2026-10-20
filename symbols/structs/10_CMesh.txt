@@ -1,9 +1,0 @@
-struct CMesh 0x38           # a .bin model (TRIANGLELIST, FVF XYZ|NORMAL|DIFFUSE|TEX1) and its texture
-0x00 float m_fRadius        # largest vertex distance from the origin
-0x04 float m_fMaxX          # largest |x|, |y|, |z|
-0x08 float m_fMaxY
-0x0c float m_fMaxZ
-0x10 void* m_pTexture
-0x14 int m_nTriangles
-0x18 void* m_pVB
-0x1c std_string m_strName   # set by LoadCustomPieces for the editor's piece list

@@ -171,20 +171,12 @@
 000b6c20 g_TableHeight data:float
 000b6c4c g_GameSongs data
 000b6c68 MD5_PADDING data:BYTE[64]
-000ba0a0 g_ShotPower data:float
-000ba0a4 g_ShotPowerDir data:float
-000ba0a8 g_PocketRadius data:float
-000ba0b4 g_CueDistance data:float
 000ba0b8 g_Lights data:D3DLIGHT8[3]
-000ba1fc g_NumBalls data:int
-000ba200 g_CueMaxDistance data:float
 000ba218 g_BallTextures data:void *[16]
 000ba258 g_RedBallTexture data:void *
 000ba25c g_BlueBallTexture data:void *
 000ba260 g_BlackBallTexture data:void *
 000ba264 g_Credits data:CCredits
-000ba278 g_CueRestDistance data:float
-000ba294 g_NumPockets data:int
 000ba3f0 g_Barriers data:D3DXVECTOR3[400]
 000bb6b0 g_Pockets data:SPocket[20]
 000bb9e8 g_BallRadius data:float
@@ -228,3 +220,34 @@
 000ba3b8 g_SinkMesh data:CMesh
 000bd17c g_XboxMesh data:CMesh
 000ba2d8 g_ArrowMesh data:CMesh
+000b1308 kRackShape16X data:float[16]
+000b1348 kRackShape16Z data:float[16]
+000b1388 kRackShape10X data:float[10]
+000b13b0 kRackShape10Z data:float[10]
+000b6c58 FADE_TIME data:float
+
+# Scalar globals (src/Globals.cpp).
+000ba0a0 g_ShotPower data:float
+000ba0a4 g_CamHeightMin data:float
+000ba0a8 g_PocketRadius data:float
+000ba0ac g_CamDistanceMax data:float
+000ba0b0 g_CueMinPull data:float
+000ba0b4 g_CueDistance data:float
+000ba1f4 g_unknownBA1F4 data:int
+000ba1f8 g_CamDistanceMin data:float
+000ba1fc g_NumBalls data:int
+000ba200 g_CamHeightMax data:float
+000ba204 g_CamHeight data:float
+000ba208 g_NumBarriers data:int
+000ba20c g_bAiming data:bool
+000ba210 g_CamAngle data:float
+000ba214 g_CueMaxPull data:float
+000ba278 g_CamDefaultAngle data:float
+000ba27c g_CamDistance data:float
+000ba280 g_ViewMode data:int
+000ba284 g_unknownBA284 data:int
+000ba288 g_CamHeightSpeed data:float
+000ba28c g_CamAngleSpeed data:float
+000ba290 g_unknownBA290 data:bool
+000ba298 g_unknownBA298 data:int
+000b6c1c g_unknownB6C1C data:float

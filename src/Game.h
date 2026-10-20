@@ -93,9 +93,9 @@ struct SBall
 
 struct SPocket
 {
-    D3DXVECTOR3 pos;
-    int         color;          // 0, or the only ball type it accepts (Red vs Blue)
-};
+    D3DXVECTOR3 pos;            // +0x00
+    int         color;          // +0x0C 0, or the only ball type it accepts (Red vs Blue)
+};                              // 0x10 bytes
 
 // A piece placed in the table editor. Tables are singly linked lists of
 // them, saved in the .cfg files.
@@ -122,9 +122,9 @@ struct STablePiece
 
 struct SPieceSet
 {
-    CMesh* meshes;
-    int    count;
-};
+    CMesh* meshes;              // +0x00
+    int    count;               // +0x04
+};                              // 0x08 bytes
 
 struct SProfile
 {
@@ -228,7 +228,7 @@ public:
     CMusicManager music;                // +0x3AC
     bool         bShowMusicHud;         // +0x510
     DWORD        musicHudTime;          // +0x514
-    DWORD        unknown518;            // +0x518
+    DWORD        musicTime;             // +0x518 when the music started
     LPDIRECT3DTEXTURE8 texMusic;        // +0x51C music.tga
     CFont        font;                  // +0x520
     CCamera      camera;                // +0x528
@@ -242,10 +242,10 @@ public:
     float        cursorX;               // +0xA14 TODO: verify
     float        unknownA18;            // +0xA18
     float        cursorZ;               // +0xA1C
-    LPDIRECT3DVERTEXBUFFER8 quadVB;     // +0xA20 a unit quad
-    LPDIRECT3DVERTEXBUFFER8 unknownVB1; // +0xA24
-    LPDIRECT3DVERTEXBUFFER8 unknownVB2; // +0xA28
-    LPDIRECT3DVERTEXBUFFER8 unknownVB3; // +0xA2C
+    LPDIRECT3DVERTEXBUFFER8 quadVB;     // +0xA20 unit quads (CreateQuadBuffers)
+    LPDIRECT3DVERTEXBUFFER8 quadMirroredVB;  // +0xA24 the same, mirrored left-right
+    LPDIRECT3DVERTEXBUFFER8 quadFlippedVB;   // +0xA28 flipped upside down
+    LPDIRECT3DVERTEXBUFFER8 quadShadedVB;    // +0xA2C shaded gray on the right
     float        frameTime;             // +0xA30 seconds the last frame took
     WCHAR        tableName[14];         // +0xA34 TODO: verify length
     BYTE         unknownA50[4];         // +0xA50
@@ -284,6 +284,17 @@ extern float        g_BallDiameter;
 extern float        g_BallRadius;
 extern float        g_TableHeight;
 extern float        g_PocketRadius;
+extern int          g_NumBarriers;
+extern float        g_ShotPower;
+extern float        g_CueDistance, g_CueMinPull, g_CueMaxPull;
+extern float        g_CamHeight, g_CamHeightMin, g_CamHeightMax, g_CamHeightSpeed;
+extern float        g_CamAngle, g_CamDefaultAngle, g_CamAngleSpeed;
+extern float        g_CamDistance, g_CamDistanceMin, g_CamDistanceMax;
+extern bool         g_bAiming;
+extern int          g_ViewMode;
+extern int          g_unknownBA1F4, g_unknownBA284, g_unknownBA298;
+extern bool         g_unknownBA290;
+extern const float  kRackShape16X[16], kRackShape16Z[16];
 extern float        g_RackX[NUM_RACK_BALLS];
 extern float        g_RackZ[NUM_RACK_BALLS];
 extern D3DLIGHT8    g_Lights[3];

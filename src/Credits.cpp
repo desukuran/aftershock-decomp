@@ -204,7 +204,7 @@ HRESULT CCredits::Render(LPDIRECT3DDEVICE8 pDevice)
     pDevice->SetTexture(0, m_pLogoTexture);
     pDevice->SetStreamSource(0, g_Game.quadVB, sizeof(MESHVERTEX));
     pDevice->SetVertexShader(D3DFVF_MESHVERTEX);
-    pDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, 2);
+    pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
     pDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
     return S_OK;

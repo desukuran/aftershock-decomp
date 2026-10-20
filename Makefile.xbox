@@ -60,9 +60,16 @@ $(OBJ)/%.obj: src/%.cpp $(HEADERS)
 	@$(CL) $(CFLAGS) /Fo$@ $< > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
 		if [ $$status -ne 0 ]; then rm -f $@; exit 1; fi
 
-objs: $(OBJS)
+# Every member offset and class size written in src/*.h, checked by the compiler.
+$(OBJ)/layout_check.obj: $(HEADERS) tools/gen_src_structs.py
+	@mkdir -p $(dir $@)
+	@$(PYTHON) -I tools/gen_src_structs.py > /dev/null
+	@$(CL) $(CFLAGS) /Isrc /Fo$@ build/layout_check.cpp > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
+		if [ $$status -ne 0 ]; then rm -f $@; exit 1; fi
 
-$(OUT)/default.exe: $(OBJS)
+objs: $(OBJS) $(OBJ)/layout_check.obj
+
+$(OUT)/default.exe: $(OBJS) $(OBJ)/layout_check.obj
 	@echo "Linking $@"
 	@$(LINK) /nologo /SUBSYSTEM:XBOX /FIXED:NO /DEBUG /INCREMENTAL:NO /OUT:$@ /MAP:$(OUT)/default.map \
 		/LIBPATH:$(XDK_LIB) $(OBJS) $(LIBS) > $(OUT)/link.log 2>&1 || (cat $(OUT)/link.log; false)

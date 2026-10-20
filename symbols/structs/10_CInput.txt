@@ -1,5 +1,0 @@
-struct CInput 0x3d0
-0x00 DWORD dwUnused0
-0x04 DWORD dwUnused4
-0x08 XINPUT_STATE states[4]
-0x60 XBGAMEPAD pads[4]

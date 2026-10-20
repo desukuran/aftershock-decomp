@@ -1,5 +1,0 @@
-struct SPlayer 0x74
-0x00 wchar_t name[50]
-0x64 int group              # ball type this player must sink (0 = table still open)
-0x68 int pad                # controller
-0x70 int profile            # index into g_Game.profiles

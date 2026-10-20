@@ -1,4 +1,0 @@
-struct SProfile 0x24        # a saved player profile (T:\pool.cfg)
-0x00 std_string name
-0x1c int wins
-0x20 int losses

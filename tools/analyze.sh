@@ -12,8 +12,8 @@ mkdir -p "$BUILD/ghidra" "$BUILD/export"
 python3 -I "$ROOT/tools/xbe.py" flat "$XBE" "$BUILD/default.flat"
 python3 -I "$ROOT/tools/xbe.py" layout "$XBE" "$BUILD/layout.txt"
 
-python3 -I "$ROOT/tools/gen_structs.py"
-cat "$ROOT/symbols/types.h" "$BUILD/structs.h" > "$BUILD/types_all.h"
+python3 -I "$ROOT/tools/gen_src_structs.py"
+cat "$ROOT/symbols/types.h" "$BUILD/src_structs.h" > "$BUILD/types_all.h"
 
 "$GHIDRA/support/analyzeHeadless" "$BUILD/ghidra" AftershockPool \
 	-overwrite \
