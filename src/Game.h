@@ -26,17 +26,17 @@ enum
 {
     STATE_LOADING   = 0,    // the splash screen while loading
     STATE_INTRO     = 1,    // balls bouncing on the AFTERSHOCK letters, credits
-    STATE_MENU      = 2,    // main menu; 6-12 are its sub-screens
+    STATE_MENU      = 2,    // the main menu
     STATE_PLAYING   = 3,
     STATE_GAMEOVER  = 4,
     STATE_EDITOR    = 5,
-    STATE_MENU6     = 6,    // TODO: name the menu sub-screens
-    STATE_MENU7     = 7,
-    STATE_MENU8     = 8,
-    STATE_MENU9     = 9,
-    STATE_MENU10    = 10,
-    STATE_MENU11    = 11,
-    STATE_MENU12    = 12,
+    STATE_OPTIONS   = 6,
+    STATE_PHYSICS   = 7,
+    STATE_PROFILES  = 8,
+    STATE_PROFILENAME = 9,  // entering a profile's name
+    STATE_NEWGAME   = 10,   // picking one of the built-in tables
+    STATE_CUSTOMGAME = 11,  // picking one of the player's tables
+    STATE_PLAYERSETUP = 12, // profiles and controllers
 };
 
 // Game types (CGame::gameType)
@@ -265,14 +265,12 @@ public:
     LPDIRECT3DVERTEXBUFFER8 quadFlippedVB;   // +0xA28 flipped upside down
     LPDIRECT3DVERTEXBUFFER8 quadShadedVB;    // +0xA2C shaded gray on the right
     float        frameTime;             // +0xA30 seconds the last frame took
-    WCHAR        tableName[14];         // +0xA34 TODO: verify length
-    BYTE         unknownA50[4];         // +0xA50
-    float        introScroll;           // +0xA54
-    WCHAR        unknownA58[14];        // +0xA58
-    BYTE         unknownA74[4];         // +0xA74
-    int          unknownA78;            // +0xA78
-    int          unknownA7C;            // +0xA7C
-    int          unknownA80;            // +0xA80
+    WCHAR        tableName[15];         // +0xA34 the loaded table's name; edited in the editor
+    float        introScroll;           // +0xA54 the intro's barriers scroll with the credits
+    WCHAR        editName[15];          // +0xA58 the profile name being entered
+    int          editNameCursor;        // +0xA78
+    int          tableSlot;             // +0xA7C the slot being picked (0-9)
+    int          tableNameCursor;       // +0xA80
     std::string  savedTableNames[NUM_TABLE_SLOTS];      // +0xA84 T:\N.cfg
     std::string  defaultTableNames[NUM_TABLE_SLOTS];    // +0xB9C D:\media\tables\N.cfg
 

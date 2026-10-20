@@ -180,7 +180,7 @@ void __cdecl main()
         g_Game.profiles[i].wins = 0;
         g_Game.profiles[i].losses = 0;
     }
-    g_Game.unknownA80 = 0;
+    g_Game.tableNameCursor = 0;
     g_NumBalls = 16;
     g_Game.fanAngle = 0.0f;
     for (int i = 0; i < NUM_TABLE_SLOTS; i++)
@@ -192,7 +192,7 @@ void __cdecl main()
     g_Game.players[0].profile = 0;
     g_Game.players[1].profile = 1;
     g_Game.players[2].profile = 2;
-    g_Game.unknownA7C = 0;
+    g_Game.tableSlot = 0;
     g_Game.unknownA18 = 40.0f;
     g_Game.cursorZ = 0.0f;
     g_Game.input.Init();
@@ -410,9 +410,9 @@ void Update()
     {
         UpdateGame();
     }
-    else if (g_Game.state == STATE_MENU || g_Game.state == STATE_MENU9 || g_Game.state == STATE_MENU7 ||
-             g_Game.state == STATE_MENU8 || g_Game.state == STATE_MENU6 || g_Game.state == STATE_MENU10 ||
-             g_Game.state == STATE_MENU11 || g_Game.state == STATE_MENU12)
+    else if (g_Game.state == STATE_MENU || g_Game.state == STATE_PROFILENAME || g_Game.state == STATE_PHYSICS ||
+             g_Game.state == STATE_PROFILES || g_Game.state == STATE_OPTIONS || g_Game.state == STATE_NEWGAME ||
+             g_Game.state == STATE_CUSTOMGAME || g_Game.state == STATE_PLAYERSETUP)
     {
         UpdateMenu();
     }
@@ -463,9 +463,9 @@ void Render()
         g_Credits.Render(pDevice);
     }
 
-    if (g_Game.state == STATE_MENU || g_Game.state == STATE_MENU9 || g_Game.state == STATE_MENU7 ||
-        g_Game.state == STATE_MENU8 || g_Game.state == STATE_MENU6 || g_Game.state == STATE_MENU10 ||
-        g_Game.state == STATE_MENU11 || g_Game.state == STATE_MENU12)
+    if (g_Game.state == STATE_MENU || g_Game.state == STATE_PROFILENAME || g_Game.state == STATE_PHYSICS ||
+        g_Game.state == STATE_PROFILES || g_Game.state == STATE_OPTIONS || g_Game.state == STATE_NEWGAME ||
+        g_Game.state == STATE_CUSTOMGAME || g_Game.state == STATE_PLAYERSETUP)
         RenderMenu();
     if (g_Game.state == STATE_PLAYING || g_Game.state == STATE_GAMEOVER)
         RenderGame();
