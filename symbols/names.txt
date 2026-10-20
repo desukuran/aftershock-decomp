@@ -239,7 +239,7 @@
 000ba200 g_CamHeightMax data:float
 000ba204 g_CamHeight data:float
 000ba208 g_NumBarriers data:int
-000ba20c g_bAiming data:bool
+000ba20c g_bBallsStopped data:bool
 000ba210 g_CamAngle data:float
 000ba214 g_CueMaxPull data:float
 000ba278 g_CamDefaultAngle data:float
@@ -250,4 +250,4 @@
 000ba28c g_CamAngleSpeed data:float
 000ba290 g_unknownBA290 data:bool
 000ba298 g_unknownBA298 data:int
-000b6c1c g_unknownB6C1C data:float
+000b6c1c g_RollFactor data:float

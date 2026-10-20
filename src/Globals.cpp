@@ -14,7 +14,7 @@ int         g_NumBalls;                 // 0x000BA1FC
 float       g_CamHeightMax;             // 0x000BA200
 float       g_CamHeight;                // 0x000BA204
 int         g_NumBarriers;              // 0x000BA208
-bool        g_bAiming;                  // 0x000BA20C TODO: verify
+bool        g_bBallsStopped;            // 0x000BA20C every ball on the table has stopped
 float       g_CamAngle;                 // 0x000BA210 around the table, radians
 float       g_CueMaxPull;               // 0x000BA214
 float       g_CamDefaultAngle;          // 0x000BA278
@@ -29,6 +29,7 @@ int         g_unknownBA298;             // 0x000BA298
 
 D3DXVECTOR3 g_Barriers[MAX_BARRIERS];   // 0x000BA3F0 the table's cushion lines
 SPocket     g_Pockets[MAX_POCKETS];     // 0x000BB6B0
+D3DXVECTOR3 g_AimDir;                   // 0x000BD170 from the cue ball toward the cue
 
 // 0x000B6A88
 // Where each ball is racked, in table units; set per table (its .cfg).
@@ -38,6 +39,6 @@ float g_RackZ[NUM_RACK_BALLS] = { 0.0f, 0.0f, -0.07f, -0.035f, -0.035f, 0.14f, 0
                                   0.0f, 0.035f, -0.07f, 0.07f, 0.07f, 0.0f, 0.035f, -0.14f };
 
 float g_BallDiameter = 2.25f;           // 0x000B6C18
-float g_unknownB6C1C = 1.0f;            // 0x000B6C1C
+float g_RollFactor = 1.0f;              // 0x000B6C1C how fast the balls spin as they roll
 float g_TableHeight = 5.0f;             // 0x000B6C20
 float g_BallRadius = g_BallDiameter * 0.5f;   // 0x000BB9E8 (set by a static initializer)

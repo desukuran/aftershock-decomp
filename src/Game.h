@@ -206,24 +206,23 @@ public:
     SPlayer      players[MAX_PLAYERS];  // +0x1A0
     int          curPlayer;             // +0x370
     int          numPlayers;            // +0x374
-    bool         unknown378;            // +0x378
-    bool         unknown379;            // +0x379
-    bool         unknown37A;            // +0x37A
-    bool         unknown37B;            // +0x37B
-    int          unknown37C;            // +0x37C
+    bool         bPottedOwnBall;        // +0x378 sank one of their own: shoots again
+    bool         bFirstHitDone;         // +0x379 the cue ball has touched a ball this shot
+    bool         bHitLowestFirst;       // +0x37A 9 ball: the first ball hit was the lowest
+    bool         bHitOwnGroupFirst;     // +0x37B 8 ball, Red vs Blue: the first ball hit was legal
+    bool         bShotInProgress;       // +0x37C
     int          unknown380;            // +0x380
     int          unknown384;            // +0x384
     int          aimBall;               // +0x388
-    DWORD        unknown38C;            // +0x38C
+    DWORD        turnStartTime;         // +0x38C
     bool         unknown390;            // +0x390
-    bool         unknown391;            // +0x391
-    int          unknown394;            // +0x394
-    int          unknown398;            // +0x398
+    bool         bBallsMoving;          // +0x391
+    int          shots[2];              // +0x394 shots taken by players 1 and 2 (Mini-Golf's score)
     int          nextPlayer;            // +0x39C
     int          tableGameType;         // +0x3A0 saved with a table
     bool         unknown3A4;            // +0x3A4
-    bool         unknown3A5;            // +0x3A5
-    int          unknown3A8;            // +0x3A8
+    bool         bUnstickBalls;         // +0x3A5 push overlapping balls apart (see MoveBall)
+    int          unstickCount;          // +0x3A8
 
     CMusicManager music;                // +0x3AC
     bool         bShowMusicHud;         // +0x510
@@ -290,7 +289,9 @@ extern float        g_CueDistance, g_CueMinPull, g_CueMaxPull;
 extern float        g_CamHeight, g_CamHeightMin, g_CamHeightMax, g_CamHeightSpeed;
 extern float        g_CamAngle, g_CamDefaultAngle, g_CamAngleSpeed;
 extern float        g_CamDistance, g_CamDistanceMin, g_CamDistanceMax;
-extern bool         g_bAiming;
+extern bool         g_bBallsStopped;
+extern D3DXVECTOR3  g_AimDir;
+extern float        g_RollFactor;
 extern int          g_ViewMode;
 extern int          g_unknownBA1F4, g_unknownBA284, g_unknownBA298;
 extern bool         g_unknownBA290;
