@@ -235,7 +235,7 @@ static void LoadTable(const char* strFormat, int slot, STablePiece* pHead, bool 
     if (bSaved)
         fscanf(f, "%d ", &nTableGameType);
     else
-        fscanf(f, "%d ", &g_Game.tableGameType);
+        fscanf(f, "%d ", &g_Game.roomMode);
 
     int nPieces = 0;
     fscanf(f, "%d", &nPieces);
@@ -260,7 +260,7 @@ static void LoadTable(const char* strFormat, int slot, STablePiece* pHead, bool 
     if (pHead == &g_Game.table)
     {
         if (bSaved)
-            g_Game.tableGameType = nTableGameType;
+            g_Game.roomMode = nTableGameType;
         fscanf(f, "%d ", &g_Game.gameType);
         switch (g_Game.gameType)
         {
@@ -329,7 +329,7 @@ void SaveTable(int slot)
 
     fwprintf(f, L"%s", g_Game.tableName);
     fwprintf(f, L" ");
-    fprintf(f, "%d", g_Game.tableGameType);
+    fprintf(f, "%d", g_Game.roomMode);
     fwprintf(f, L" ");
     int nPieces = 0;
     g_Game.pCurPiece = &g_Game.table;

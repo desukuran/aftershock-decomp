@@ -248,6 +248,30 @@
 000ba284 g_unknownBA284 data:int
 000ba288 g_CamHeightSpeed data:float
 000ba28c g_CamAngleSpeed data:float
-000ba290 g_unknownBA290 data:bool
+000ba290 g_bCueMode data:bool
 000ba298 g_unknownBA298 data:int
 000b6c1c g_RollFactor data:float
+
+# XDK library functions with the prototypes from the 5558 headers, so the
+# decompiler shows float arguments as floats.
+0005db8d D3DXVec3TransformNormal D3DXVECTOR3 * __stdcall D3DXVec3TransformNormal(D3DXVECTOR3 *out, D3DXVECTOR3 *v, D3DXMATRIX *m)
+0005dbec D3DXMatrixScaling D3DXMATRIX * __stdcall D3DXMatrixScaling(D3DXMATRIX *out, float sx, float sy, float sz)
+0005dc48 D3DXMatrixTranslation D3DXMATRIX * __stdcall D3DXMatrixTranslation(D3DXMATRIX *out, float x, float y, float z)
+0005dca4 D3DXMatrixRotationX D3DXMATRIX * __stdcall D3DXMatrixRotationX(D3DXMATRIX *out, float angle)
+0005dd1e D3DXMatrixRotationY D3DXMATRIX * __stdcall D3DXMatrixRotationY(D3DXMATRIX *out, float angle)
+0005dd99 D3DXMatrixRotationQuaternion D3DXMATRIX * __stdcall D3DXMatrixRotationQuaternion(D3DXMATRIX *out, D3DXQUATERNION *q)
+0005de7b D3DXMatrixPerspectiveFovLH D3DXMATRIX * __stdcall D3DXMatrixPerspectiveFovLH(D3DXMATRIX *out, float fovy, float aspect, float zn, float zf)
+0005df0f D3DXQuaternionRotationYawPitchRoll D3DXQUATERNION * __stdcall D3DXQuaternionRotationYawPitchRoll(D3DXQUATERNION *out, float yaw, float pitch, float roll)
+0005dfe8 D3DXQuaternionMultiply D3DXQUATERNION * __stdcall D3DXQuaternionMultiply(D3DXQUATERNION *out, D3DXQUATERNION *a, D3DXQUATERNION *b)
+0005e10d D3DXVec3Normalize D3DXVECTOR3 * __stdcall D3DXVec3Normalize(D3DXVECTOR3 *out, D3DXVECTOR3 *v)
+0005e189 D3DXVec3TransformCoord D3DXVECTOR3 * __stdcall D3DXVec3TransformCoord(D3DXVECTOR3 *out, D3DXVECTOR3 *v, D3DXMATRIX *m)
+0005e23e D3DXMatrixMultiply D3DXMATRIX * __stdcall D3DXMatrixMultiply(D3DXMATRIX *out, D3DXMATRIX *a, D3DXMATRIX *b)
+0005e321 D3DXMatrixRotationAxis D3DXMATRIX * __stdcall D3DXMatrixRotationAxis(D3DXMATRIX *out, D3DXVECTOR3 *axis, float angle)
+0005e420 D3DXMatrixRotationYawPitchRoll D3DXMATRIX * __stdcall D3DXMatrixRotationYawPitchRoll(D3DXMATRIX *out, float yaw, float pitch, float roll)
+0004b670 D3DDevice_SetTransform HRESULT __stdcall D3DDevice_SetTransform(DWORD state, D3DXMATRIX *m)
+0004f250 D3DDevice_Clear HRESULT __stdcall D3DDevice_Clear(DWORD count, void *rects, DWORD flags, DWORD color, float z, DWORD stencil)
+0004f920 D3DDevice_SetVertexData4f HRESULT __stdcall D3DDevice_SetVertexData4f(int reg, float a, float b, float c, float d)
+000b6c24 g_unknownB6C24 data:float
+000b6c28 g_unknownB6C28 data:float
+000b6c2c g_CuePitch data:float
+000bca2c g_CamTarget data:D3DXVECTOR3

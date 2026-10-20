@@ -23,7 +23,7 @@ SBall::SBall()
 // balls' types as the last game set them.
 void RackBalls()
 {
-    g_Game.unknown390 = false;
+    g_Game.bPlacingBall = false;
     g_Game.bUnstickBalls = true;
     g_Game.unstickCount = 0;
 
@@ -376,7 +376,7 @@ void UpdatePhysics()
         g_unknownBA1F4 = 0;
         g_bBallsStopped = false;
         g_ShotPower = 0.0f;
-        g_unknownBA290 = false;
+        g_bCueMode = false;
         g_Game.bShotInProgress = true;
         g_Game.bPottedOwnBall = false;
         g_Game.unknown380 = 0;

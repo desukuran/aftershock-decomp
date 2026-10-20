@@ -14,6 +14,9 @@ typed: few significant digits).
 import os
 import re
 import struct
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = 0x10000
@@ -31,6 +34,29 @@ def clean(v, digits, cast=float):
     return cast(float(f'{v:.{digits}g}')) == v
 
 
+def operand_sizes(img):
+    """{address: 'float'|'double'} from how the game code's instructions read
+    .rdata (dword ptr / qword ptr). Needs capstone (tools/venv)."""
+    try:
+        from capstone import Cs, CS_ARCH_X86, CS_MODE_32
+    except ImportError:
+        return {}
+    md = Cs(CS_ARCH_X86, CS_MODE_32)
+    out = {}
+    code = img[GAME[0] - BASE:GAME[1] - BASE]
+    for ins in md.disasm(code, GAME[0]):
+        for m in re.finditer(r'(dword|qword) ptr \[0x([0-9a-f]+)\]', ins.op_str):
+            a = int(m.group(2), 16)
+            if not RDATA[0] <= a < RDATA[1]:
+                continue
+            if m.group(1) == 'qword':
+                out[a] = 'double'
+            elif ins.mnemonic.startswith(('f', 'movss', 'addss', 'subss', 'mulss', 'divss', 'comiss', 'ucomiss',
+                                          'maxss', 'minss', 'sqrtss', 'cvtss')):
+                out.setdefault(a, 'float')
+    return out
+
+
 def main():
     img = open(os.path.join(ROOT, 'build/default.flat'), 'rb').read()
     f32 = lambda a: struct.unpack_from('<f', img, a - BASE)[0]
@@ -39,6 +65,7 @@ def main():
 
     names = {}
     kinds = {}
+    used = operand_sizes(img)
     for line in open(os.path.join(ROOT, 'symbols/xdklib.txt')):
         m = re.match(r'([0-9a-f]{8}) (_real(?:@([0-9a-f]+))?) data', line)
         if m and RDATA[0] <= int(m.group(1), 16) < RDATA[1]:
@@ -58,11 +85,11 @@ def main():
                 a = int(m.group(1), 16)
                 if RDATA[0] <= a < RDATA[1]:
                     refs.add(a)
-    refs |= set(names)
+    refs |= set(names) | set(used)
 
     out = []
     for a in sorted(refs):
-        kind = kinds.get(a)
+        kind = kinds.get(a) or used.get(a)
         if kind is None:
             fv, dv = f32(a), f64(a)
             if clean(fv, 6, as_f32) and (fv != 0 or a + 4 in refs):

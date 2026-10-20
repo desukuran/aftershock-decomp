@@ -49,6 +49,14 @@ enum
     GAME_CUTTHROAT  = 4,
 };
 
+// Room render modes (CGame::roomMode), set per table in the editor
+enum
+{
+    ROOM_EXTERIOR   = 0,    // "Exterior Only": just the walls
+    ROOM_NOTABLES   = 1,    // "No Tables": the furniture, no other pool tables
+    ROOM_ENTIRE     = 2,    // "Entire Room"
+};
+
 // Ball types (SBall::type, SPlayer::group)
 enum
 {
@@ -73,6 +81,15 @@ enum
 #define NUM_PROFILES    3
 #define MAX_PLAYERS     4
 #define NUM_TABLE_SLOTS 10
+
+// A screen-space vertex (DrawRect and the HUD panels).
+struct SCREENVERTEX
+{
+    float x, y, z, rhw;
+    D3DCOLOR color;
+    float tu, tv;
+};
+#define D3DFVF_SCREENVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 // ---------------------------------------------------------------------------
 struct SBall
@@ -217,12 +234,12 @@ public:
     int          unknown384;            // +0x384
     int          aimBall;               // +0x388
     DWORD        turnStartTime;         // +0x38C
-    bool         unknown390;            // +0x390
+    bool         bPlacingBall;          // +0x390 ball in hand: moving a replaced ball
     bool         bBallsMoving;          // +0x391
     int          shots[2];              // +0x394 shots taken by players 1 and 2 (Mini-Golf's score)
     int          nextPlayer;            // +0x39C
-    int          tableGameType;         // +0x3A0 saved with a table
-    bool         unknown3A4;            // +0x3A4
+    int          roomMode;              // +0x3A0 ROOM_*: how much of the room to draw (saved with a table)
+    bool         bShowPottedBalls;      // +0x3A4 the potted balls in a row by the table TODO: verify
     bool         bUnstickBalls;         // +0x3A5 push overlapping balls apart (see MoveBall)
     int          unstickCount;          // +0x3A8
 
@@ -261,7 +278,7 @@ public:
 
     int          gameType;              // +0xCB4 GAME_*
     int          editGameType;          // +0xCB8 the game type of the table in the editor
-    float        unknownCBC;            // +0xCBC
+    float        fanAngle;              // +0xCBC the ceiling fans turn at 5x this
     float        friction;              // +0xCC0
     float        ballMass;              // +0xCC4
     float        stickForce;            // +0xCC8
@@ -270,7 +287,7 @@ public:
     int          flickerFilter;         // +0xCD4 0-5
     bool         bSoftFilter;           // +0xCD8
     D3DXVECTOR3  pieceOffset;           // +0xCDC scratch: a point of a piece, rotated (BuildTableBarriers/Pockets)
-    D3DXVECTOR3  unknownCE8;            // +0xCE8
+    D3DXVECTOR3  camEye;                // +0xCE8 the table camera's position
 };                                      // 0xCF4 bytes
 
 // ---------------------------------------------------------------------------
@@ -293,10 +310,12 @@ extern float        g_CamAngle, g_CamDefaultAngle, g_CamAngleSpeed;
 extern float        g_CamDistance, g_CamDistanceMin, g_CamDistanceMax;
 extern bool         g_bBallsStopped;
 extern D3DXVECTOR3  g_AimDir;
+extern D3DXVECTOR3  g_CamTarget;
+extern float        g_CuePitch;
 extern float        g_RollFactor;
 extern int          g_ViewMode;
 extern int          g_unknownBA1F4, g_unknownBA284, g_unknownBA298;
-extern bool         g_unknownBA290;
+extern bool         g_bCueMode;
 extern const float  kRackShape16X[16], kRackShape16Z[16];
 extern float        g_RackX[NUM_RACK_BALLS];
 extern float        g_RackZ[NUM_RACK_BALLS];

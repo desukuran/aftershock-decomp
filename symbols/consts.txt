@@ -33,10 +33,6 @@
 000b113c flt_000b113c data:float
 000b1140 flt_000b1140 data:float
 000b1144 flt_000b1144 data:float
-000b1308 flt_000b1308 data:float
-000b1348 dbl_000b1348 data:double
-000b1388 flt_000b1388 data:float
-000b13b0 dbl_000b13b0 data:double
 000b13f4 flt_000b13f4 data:float
 000b13f8 flt_000b13f8 data:float
 000b13fc flt_000b13fc data:float
@@ -50,7 +46,7 @@
 000b141c flt_000b141c data:float
 000b1420 flt_000b1420 data:float
 000b1424 flt_000b1424 data:float
-000b1780 flt_000b1780 data:float
+000b1780 dbl_000b1780 data:double
 000b1788 dbl_000b1788 data:double
 000b1790 dbl_000b1790 data:double
 000b1798 dbl_000b1798 data:double
@@ -189,6 +185,7 @@
 000b19b0 flt_000b19b0 data:float
 000b19b4 flt_000b19b4 data:float
 000b19b8 flt_000b19b8 data:float
+000b1a00 flt_000b1a00 data:float
 000b1a04 flt_000b1a04 data:float
 000b1a08 flt_000b1a08 data:float
 000b1a0c flt_000b1a0c data:float
@@ -242,6 +239,12 @@
 000b3300 flt_000b3300 data:float
 000b3304 flt_000b3304 data:float
 000b3308 flt_000b3308 data:float
+000b330c flt_000b330c data:float
+000b3310 flt_000b3310 data:float
+000b3314 flt_000b3314 data:float
+000b3318 flt_000b3318 data:float
+000b331c flt_000b331c data:float
+000b3320 flt_000b3320 data:float
 000b3454 flt_000b3454 data:float
 000b37b8 flt_000b37b8 data:float
 000b37bc flt_000b37bc data:float
@@ -281,6 +284,7 @@
 000b3948 flt_000b3948 data:float
 000b394c flt_000b394c data:float
 000b40cc flt_000b40cc data:float
+000b40f0 flt_000b40f0 data:float
 000b4814 flt_000b4814 data:float
 000b4818 dbl_000b4818 data:double
 000b4820 dbl_000b4820 data:double

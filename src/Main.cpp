@@ -182,7 +182,7 @@ void __cdecl main()
     }
     g_Game.unknownA80 = 0;
     g_NumBalls = 16;
-    g_Game.unknownCBC = 0.0f;
+    g_Game.fanAngle = 0.0f;
     for (int i = 0; i < NUM_TABLE_SLOTS; i++)
     {
         g_Game.defaultTableNames[i] = "empty";

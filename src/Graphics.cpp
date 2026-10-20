@@ -6,15 +6,6 @@ LPDIRECT3DTEXTURE8 g_RedBallTexture;        // the Red vs Blue and cut throat ba
 LPDIRECT3DTEXTURE8 g_BlueBallTexture;
 LPDIRECT3DTEXTURE8 g_BlackBallTexture;
 
-// A screen-space vertex for DrawRect.
-struct SCREENVERTEX
-{
-    float x, y, z, rhw;
-    D3DCOLOR color;
-    float tu, tv;
-};
-#define D3DFVF_SCREENVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
-
 // Most textures load the same way: full size, managed, magenta transparent.
 static void LoadTexture(const char* strFile, LPDIRECT3DTEXTURE8* ppTexture)
 {
