@@ -388,6 +388,15 @@ void RenderMusicHud();
 // Menu.cpp, MenuRender.cpp
 void UpdateMenu();
 void RenderMenu();
+void SetMenuView();
+void DrawMenuQuad(LPDIRECT3DVERTEXBUFFER8 pVB, LPDIRECT3DTEXTURE8 pTexture, bool bTexture, float x, float y,
+                  float sx, float sy);
+void DrawMenuBackground();
+void DrawMenuPanel(float x, float h);
+void DrawMenuButton(float x, LPDIRECT3DTEXTURE8 pTexture, const WCHAR* strLabel);
+void SpinCursorBall();
+void DrawCursorBallAt(float x, float y);
+void SetViewport(DWORD x, DWORD y, DWORD w, DWORD h);
 
 // Editor.cpp, EditorRender.cpp
 void UpdateEditor();
