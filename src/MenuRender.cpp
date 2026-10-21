@@ -330,8 +330,12 @@ void RenderMenu()
         g_Game.font.DrawText(L"Enter Profile Name:", 100.0f, 120.0f, 0, 0, 0);
         for (int i = 0; i < 15; i++)
         {
-            // TODO: verify: the original passes a two-character buffer whose
-            // second character is left over on the stack.
+            // Not reproduced: the original writes the character into the low
+            // half of a stack slot it also uses for DrawRect's x argument and
+            // passes that as the string, so a second character follows: the
+            // top 16 bits of the last float stored there (e.g. U+43BE from
+            // 380.0f on the Profiles screen). Stack garbage, usually a glyph
+            // the font doesn't have.
             WCHAR strChar[2] = { g_Game.editName[i], 0 };
             g_Game.font.DrawText(strChar, (float)(280 + 13 * i), 120.0f, i == g_Game.editNameCursor ? 255 : 0, 0, 0);
         }

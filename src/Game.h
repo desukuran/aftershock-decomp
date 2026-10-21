@@ -332,10 +332,7 @@ extern const float  kRackShape10X[10], kRackShape10Z[10];
 extern float        g_RackX[NUM_RACK_BALLS];
 extern float        g_RackZ[NUM_RACK_BALLS];
 extern D3DLIGHT8    g_Lights[3];
-extern LPDIRECT3DTEXTURE8 g_BallTextures[16];
-extern LPDIRECT3DTEXTURE8 g_RedBallTexture;
-extern LPDIRECT3DTEXTURE8 g_BlueBallTexture;
-extern LPDIRECT3DTEXTURE8 g_BlackBallTexture;
+extern LPDIRECT3DTEXTURE8 g_BallTextures[16 + 3];   // numbered balls, then BALLTEX_*
 extern CSound       g_Sound;
 
 extern CMesh g_BallMesh, g_ShadowMesh, g_UnusedMesh, g_PocketMesh, g_CueMesh, g_SkyboxMesh,

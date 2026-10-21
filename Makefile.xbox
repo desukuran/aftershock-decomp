@@ -35,7 +35,7 @@ IMAGEBLD = $(WINE) $(abspath $(IMAGEBLD_EXE))
 
 # As the original: optimized, buffer security checks, SSE, C++ exceptions
 # (for std::string), no RTTI.
-CFLAGS := /nologo /c /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 /I$(XDK_INC)
+CFLAGS := /nologo /c /Z7 /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 /I$(XDK_INC)
 
 SRCS := $(sort $(wildcard src/*.cpp))
 OBJS := $(patsubst src/%.cpp,$(OBJ)/%.obj,$(SRCS))

@@ -21,11 +21,12 @@ HRESULT CMesh::Load(LPDIRECT3DDEVICE8 pDevice, const char* strFile, const char* 
     v.color = 0xFFFFFFFF;
 
     FILE* f = fopen(strFile, "rb");
-    int nTriangles = 0;
-    fread(&nTriangles, 1, 4, f);
-    m_nTriangles = nTriangles;
+    // The triangle count is stored as a float.
+    float fTriangles = 0.0f;
+    fread(&fTriangles, 1, 4, f);
+    m_nTriangles = (int)fTriangles;
 
-    if (FAILED(pDevice->CreateVertexBuffer(nTriangles * 3 * sizeof(MESHVERTEX), 0, 0, 0, &m_pVB)))
+    if (FAILED(pDevice->CreateVertexBuffer((int)fTriangles * 3 * sizeof(MESHVERTEX), 0, 0, 0, &m_pVB)))
         return E_FAIL;
 
     MESHVERTEX* pVertices;

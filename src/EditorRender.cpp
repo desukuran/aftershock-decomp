@@ -480,7 +480,7 @@ void RenderEditor()
                 BeginHighlight(0x960000FF);
             D3DXMatrixTranslation(&matWorld, g_Barriers[i].x, g_TableHeight, g_Barriers[i].z);
             pDevice->SetTransform(D3DTS_WORLD, &matWorld);
-            g_PocketMesh.Render(pDevice, g_BlackBallTexture);
+            g_PocketMesh.Render(pDevice, g_BallTextures[BALLTEX_BLACK]);
             if (i == g_Game.editSel)
                 EndHighlight();
         }
@@ -515,11 +515,11 @@ void RenderEditor()
             D3DXMatrixTranslation(&matWorld, g_Pockets[i].pos.x, 5.0f, g_Pockets[i].pos.z);
             pDevice->SetTransform(D3DTS_WORLD, &matWorld);
             if (nColor == 0)
-                g_PocketMesh.Render(pDevice, g_BlackBallTexture);
+                g_PocketMesh.Render(pDevice, g_BallTextures[BALLTEX_BLACK]);
             if (nColor == 1)
-                g_PocketMesh.Render(pDevice, g_RedBallTexture);
+                g_PocketMesh.Render(pDevice, g_BallTextures[BALLTEX_RED]);
             if (nColor == 2)
-                g_PocketMesh.Render(pDevice, g_BlueBallTexture);
+                g_PocketMesh.Render(pDevice, g_BallTextures[BALLTEX_BLUE]);
             if (i == g_Game.editSel)
                 EndHighlight();
         }

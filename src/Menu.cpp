@@ -116,6 +116,8 @@ void UpdateMenu()
                 LoadDefaultTable(g_Game.tableSlot, &g_Game.editTable);
                 return;
             case 1:     // Custom Game: the player's tables
+                // Quirk (seen under xemu, same in the original): with no
+                // saved tables the preview's draw hangs D3D on the next frame.
                 g_Game.state = STATE_CUSTOMGAME;
                 g_Game.bShowPottedBalls = false;
                 g_Game.tableSlot = 0;

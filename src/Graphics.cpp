@@ -1,10 +1,11 @@
 // Device setup, texture loading and the 2D helpers.
 #include "Game.h"
 
-LPDIRECT3DTEXTURE8 g_BallTextures[16];      // Ball0..15.tga
-LPDIRECT3DTEXTURE8 g_RedBallTexture;        // the Red vs Blue and cut throat balls
-LPDIRECT3DTEXTURE8 g_BlueBallTexture;
-LPDIRECT3DTEXTURE8 g_BlackBallTexture;
+// Ball0..15.tga, then red, blue and black.tga. In the original these last
+// three are separate globals (0x000BA258..60) that happen to follow the
+// array; balls index it with BALLTEX_RED/BLUE/BLACK (16..18), so one array
+// keeps that layout whatever order the compiler picks.
+LPDIRECT3DTEXTURE8 g_BallTextures[16 + 3];  // 0x000BA218
 
 // Most textures load the same way: full size, managed, magenta transparent.
 static void LoadTexture(const char* strFile, LPDIRECT3DTEXTURE8* ppTexture)
@@ -76,11 +77,11 @@ void LoadBallTextures()
             OutputDebugStringA("fucked up loading ball texture");
     }
     D3DXCreateTextureFromFileExA(g_Game.device, "D:\\media\\balls\\red.tga", 0, 0, 0, 0, D3DFMT_UNKNOWN,
-                                 D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &g_RedBallTexture);
+                                 D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &g_BallTextures[BALLTEX_RED]);
     D3DXCreateTextureFromFileExA(g_Game.device, "D:\\media\\balls\\blue.tga", 0, 0, 0, 0, D3DFMT_UNKNOWN,
-                                 D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &g_BlueBallTexture);
+                                 D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &g_BallTextures[BALLTEX_BLUE]);
     D3DXCreateTextureFromFileExA(g_Game.device, "D:\\media\\balls\\black.tga", 0, 0, 0, 0, D3DFMT_UNKNOWN,
-                                 D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &g_BlackBallTexture);
+                                 D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &g_BallTextures[BALLTEX_BLACK]);
 }
 
 // 0x00016990

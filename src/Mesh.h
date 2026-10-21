@@ -5,7 +5,7 @@
 #include <xtl.h>
 #include <string>
 
-// .bin format: an int triangle count, then 3 vertices per triangle, each
+// .bin format: a float triangle count, then 3 vertices per triangle, each
 // 8 floats: position, normal, texture u, v. The vertex buffer adds a white
 // diffuse color.
 struct MESHVERTEX

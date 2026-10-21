@@ -137,7 +137,7 @@ void RackBalls()
     g_Game.shots[0] = 0;
     g_Game.shots[1] = 0;
     g_Game.bShotInProgress = false;
-    g_Game.bPottedOwnBall = g_Game.bFirstHitDone = g_Game.bHitLowestFirst = g_Game.bHitOwnGroupFirst = false;
+    g_Game.bPottedOwnBall = false;
 }
 
 // 0x00013F00
