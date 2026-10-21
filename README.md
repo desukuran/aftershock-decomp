@@ -42,3 +42,34 @@ the loading splash, the intro, the menus, the game and the editor.
 Borrowed code: the XDK samples' gamepad handling (`XBGAMEPAD`) and
 BackgroundMusic `CMusicManager`, and RSA's MD5, which checks that the intro's
 credits text hasn't been edited (despite the readme's "no CRC/MD5 checks").
+
+## Testing against the original
+
+* `tools/xemu_drive.py <xemu.toml> "<script>" <outdir>` boots xemu headless
+  with a virtual gamepad (uinput) and plays a script of waits, button
+  presses, stick pushes, screenshots (`shot:`), memory dumps (`mem:`) and
+  whole-RAM snapshots (`ram:`). Use a private xemu config whose `port1` is the
+  pad GUID the tool prints.
+* `tools/difftest.py` runs the original and the rebuilt XBE side by side in
+  Unicorn from a snapshot of the original's memory, with globals mapped by
+  name (`symbols/names.txt` and the `// 0x...` comments in `src/` against
+  `build/xbox/default.map` and the PDB), and compares:
+  * `physics`: `UpdatePhysics` frame by frame through whole games, shots
+    aimed by a seeded RNG;
+  * `render`: every D3D/XFONT call a render function makes;
+  * `update`: an update function fed scripted pad input, optionally rendering
+    every frame.
+* `tools/pdb.py` lists the statics the linker map leaves out (the build
+  compiles with `/Z7` for this; it doesn't change the code).
+
+Verified so far: physics bit-identical in 8 Ball, 9 Ball, Red vs Blue,
+Cut Throat and the double table, through full games; all nine built-in
+tables (golf included) played with draw calls compared every frame; 48
+random-input runs of 8000 frames from the intro, menu and a game (menus,
+options, profiles, editor, credits) identical, saved `pool.cfg` and edited
+tables byte-identical; every barrier/pocket shape at every rotation
+bit-identical.
+
+Observed quirk (both builds, under xemu): choosing Custom Game with no saved
+tables hangs in D3D while drawing the table preview; the last frame stays on
+screen and input stops being read.
