@@ -63,7 +63,7 @@ def d3d_states():
 def main():
     consts = constants()
     consts.update(d3d_states())
-    pat = re.compile(r'\b_*(?:(?:flt|dbl)_000[0-9a-f]{5}|DAT_0005[ab][0-9a-f]{3})\b')
+    pat = re.compile(r'\b_*(?:(?:flt|dbl)_000[0-9a-f]{5}|DAT_00047[9a-f][0-9a-f]{2}|DAT_00048[0-9a-f]{3})\b')
     funcs = []
     for path in sorted(glob.glob(os.path.join(ROOT, 'build/export/decomp/*.c'))):
         for part in re.split(r'(?m)^// ==== ', open(path).read())[1:]:
