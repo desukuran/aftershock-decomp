@@ -125,6 +125,19 @@ public class ApplySymbols extends GhidraScript {
 	}
 
 	private void apply(SymbolTable st, Address a, String fullName, String sig) throws Exception {
+		// "<address> !nofunc": a false function start inside another function
+		// (Ghidra's pattern search). Remove it and regrow the function before it.
+		if (fullName.equals("!nofunc")) {
+			Function bogus = getFunctionAt(a);
+			if (bogus != null) {
+				removeFunction(bogus);
+			}
+			Function owner = getFunctionBefore(a);
+			if (owner != null) {
+				ghidra.app.cmd.function.CreateFunctionCmd.fixupFunctionBody(currentProgram, owner, monitor);
+			}
+			return;
+		}
 		Namespace ns = currentProgram.getGlobalNamespace();
 		String name = fullName;
 		int sep = fullName.lastIndexOf("::");

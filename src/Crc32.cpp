@@ -5,6 +5,8 @@
 
 CCrc32 g_Crc32;     // 0x000A5D00
 
+#define NUM_ENTRIES(a) (sizeof(a) / sizeof((a)[0]))
+
 struct MEDIAFILE
 {
     const char* strPath;
@@ -211,22 +213,22 @@ void MediaError(const char* strPath)
 void VerifyMedia()
 {
     UINT i;
-    for (i = 0; i < ARRAYSIZE(g_HeadFiles); i++)
+    for (i = 0; i < NUM_ENTRIES(g_HeadFiles); i++)
     {
         if (g_Crc32.FileCrc(g_HeadFiles[i].strPath) != g_HeadFiles[i].dwCrc)
             MediaError(g_HeadFiles[i].strPath);
     }
-    for (i = 0; i < ARRAYSIZE(g_MediaFiles); i++)
+    for (i = 0; i < NUM_ENTRIES(g_MediaFiles); i++)
     {
         if (g_Crc32.FileCrc(g_MediaFiles[i].strPath) != g_MediaFiles[i].dwCrc)
             MediaError(g_MediaFiles[i].strPath);
     }
-    for (i = 0; i < ARRAYSIZE(g_LevelFiles); i++)
+    for (i = 0; i < NUM_ENTRIES(g_LevelFiles); i++)
     {
         if (g_Crc32.FileCrc(g_LevelFiles[i].strPath) != g_LevelFiles[i].dwCrc)
             MediaError(g_LevelFiles[i].strPath);
     }
-    for (i = 0; i < ARRAYSIZE(g_MenuFiles); i++)
+    for (i = 0; i < NUM_ENTRIES(g_MenuFiles); i++)
     {
         if (g_Crc32.FileCrc(g_MenuFiles[i].strPath) != g_MenuFiles[i].dwCrc)
             MediaError(g_MenuFiles[i].strPath);

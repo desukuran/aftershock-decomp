@@ -48,3 +48,69 @@
 00024f90 LoadFile HRESULT __cdecl LoadFile(char *path, void **data, DWORD *size)
 000250d0 CSound::Play void __thiscall CSound::Play(CSound *this, DWORD cue)
 00025110 CSound::Init void __thiscall CSound::Init(CSound *this)
+
+# ---- Globals ------------------------------------------------------------------
+000a5d00 g_Crc32 data:CCrc32
+000a6100 s_dwLastParticle data:DWORD
+000a6108 g_Credits data:CCredits
+000a6120 g_Config data:BYTE
+000a6121 g_unknownA6121 data:bool
+000a6128 g_Game data:CGame
+000a9e34 g_Sound data:CSound
+000a2278 g_CreditsText data
+000a2c5c g_GameSongs data
+
+# ---- Startup, media check -------------------------------------------------------
+00011000 CCrc32::CCrc32 CCrc32 * __thiscall CCrc32::CCrc32(CCrc32 *this)
+000110a0 CCrc32::FileCrc DWORD __thiscall CCrc32::FileCrc(CCrc32 *this, char *path)
+00012060 MediaError void __cdecl MediaError(char *path)
+00012120 VerifyMedia void __cdecl VerifyMedia(void)
+00011190 CFont::Create void __thiscall CFont::Create(CFont *this)
+00011570 CInput::LeftThumbClick bool __thiscall CInput::LeftThumbClick(CInput *this, int pad)
+00011590 CInput::RightThumbClick bool __thiscall CInput::RightThumbClick(CInput *this, int pad)
+00011330 CInput::SetRumble void __thiscall CInput::SetRumble(CInput *this, int pad, float left, float right)
+000119b0 CCredits::Render HRESULT __thiscall CCredits::Render(CCredits *this)
+00011c50 CCredits::Init void __thiscall CCredits::Init(CCredits *this, void *device)
+00018080 CGame::CGame CGame * __thiscall CGame::CGame(CGame *this)
+00012050 CGame::~CGame void __thiscall CGame::~CGame(CGame *this)
+0001a740 StreamCallback void __stdcall StreamCallback(void *stream, void *packet, DWORD status)
+00012200 InitDevice void __cdecl InitDevice(void)
+000123a0 LoadTextures void __cdecl LoadTextures(void)
+00024de0 CConfig::Load void __thiscall CConfig::Load(void *this)
+00024e70 CConfig::Save void __thiscall CConfig::Save(void *this)
+0001aee0 CParticles::Init void __thiscall CParticles::Init(CParticles *this)
+0001af90 CParticles::Add void __thiscall CParticles::Add(CParticles *this, float x, float y, float z, float vx, float vy, float vz, int type)
+000244f0 CSplats::Init void __thiscall CSplats::Init(CSplats *this)
+00024550 CSplats::Add void __thiscall CSplats::Add(CSplats *this, float x, float y, float vx, float vy, float unknown08, bool unknown1C)
+00014920 SCharacter::SCharacter SCharacter * __thiscall SCharacter::SCharacter(SCharacter *this)
+00011fb0 SItem::SItem SItem * __thiscall SItem::SItem(SItem *this)
+
+# ---- False function starts (Ghidra pattern search) ----------------------------
+0001fcf8 !nofunc
+
+# ---- Characters ----------------------------------------------------------------
+0001fce0 SCharacter::Spawn void __thiscall SCharacter::Spawn(SCharacter *this, float x, float y, float z, int team, int weapon, bool bJetpack, bool unknown129, bool bKeepLook)
+000272d0 SItem::Reset void __thiscall SItem::Reset(SItem *this)
+000130c0 StartGame void __cdecl StartGame(void)
+000180a0 Update void __cdecl Update(void)
+00014ac0 Render void __cdecl Render(void)
+00017b10 CreateVertexBuffers void __cdecl CreateVertexBuffers(void)
+00022f20 SCharacter::Update void __thiscall SCharacter::Update(SCharacter *this)
+00020280 SCharacter::UpdateAI void __thiscall SCharacter::UpdateAI(SCharacter *this)
+00021190 SCharacter::Move void __thiscall SCharacter::Move(SCharacter *this)
+0001ba50 SCharacter::Render void __thiscall SCharacter::Render(SCharacter *this)
+00025230 SItem::Use void __thiscall SItem::Use(SItem *this)
+000254d0 SItem::Update void __thiscall SItem::Update(SItem *this, int unknown1, int unknown2)
+00026fa0 SItem::Render void __thiscall SItem::Render(SItem *this)
+000245e0 CSplats::Update void __thiscall CSplats::Update(CSplats *this)
+00024b40 CSplats::Render void __thiscall CSplats::Render(CSplats *this)
+0001b0a0 CParticles::Update void __thiscall CParticles::Update(CParticles *this)
+0001b330 CParticles::Render void __thiscall CParticles::Render(CParticles *this)
+0001b8d0 CGame::PointInBox bool __thiscall CGame::PointInBox(CGame *this, float px, float py, float pz, float bx, float by, float bz, float hw, float hh)
+0001b930 CGame::RayCircle float __thiscall CGame::RayCircle(CGame *this, float ox, float oy, float dx, float dy, float cx, float cy, float r, float *t)
+00011960 D3DXMATRIX::operator* D3DXMATRIX * __thiscall D3DXMATRIX::operator*(D3DXMATRIX *this, D3DXMATRIX *out, D3DXMATRIX *m)
+00014040 UpdateTutorial void __cdecl UpdateTutorial(void)
+000145a0 RenderTutorialText void __cdecl RenderTutorialText(void)
+00013840 RenderMusicMenu void __cdecl RenderMusicMenu(void)
+000136a0 StartSandbox void __cdecl StartSandbox(void)
+00013ad0 StartTutorial void __cdecl StartTutorial(void)

@@ -56,17 +56,27 @@ info:
 	@echo "  imagebld: $(or $(IMAGEBLD_EXE),(not found))"
 	@echo "Wine:       $(or $(WINE),(not used))"
 
+# Text from the original release that the source doesn't carry (the credits,
+# the story and tutorial text), extracted from its default.xbe.
+ORIGINAL ?= madness_interactive_sx/default.xbe
+GEN := $(OUT)/gen
+GENERATED := $(GEN)/credits.inc $(GEN)/text.h
+
+$(GENERATED): $(ORIGINAL) tools/extract_data.py
+	@mkdir -p $(GEN)
+	$(PYTHON) -I tools/extract_data.py $(ORIGINAL) $(GEN)
+
 # Compiles one file; the full output goes to <object>.log.
-$(OBJ)/%.obj: src/%.cpp $(HEADERS)
+$(OBJ)/%.obj: src/%.cpp $(HEADERS) $(GENERATED)
 	@mkdir -p $(dir $@)
-	@$(CL) $(CFLAGS) /Fo$@ $< > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
+	@$(CL) $(CFLAGS) /I$(GEN) /Fo$@ $< > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
 		if [ $$status -ne 0 ]; then rm -f $@; exit 1; fi
 
 # Every member offset and class size written in src/*.h, checked by the compiler.
-$(OBJ)/layout_check.obj: $(HEADERS) tools/gen_src_structs.py
+$(OBJ)/layout_check.obj: $(HEADERS) $(GENERATED) tools/gen_src_structs.py
 	@mkdir -p $(dir $@)
 	@$(PYTHON) -I tools/gen_src_structs.py > /dev/null
-	@$(CL) $(CFLAGS) /Isrc /Fo$@ build/layout_check.cpp > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
+	@$(CL) $(CFLAGS) /Isrc /I$(GEN) /Fo$@ build/layout_check.cpp > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
 		if [ $$status -ne 0 ]; then rm -f $@; exit 1; fi
 
 objs: $(OBJS) $(OBJ)/layout_check.obj

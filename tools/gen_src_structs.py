@@ -19,6 +19,10 @@ void *; Xbox/STL types are mapped to their symbols/types.h equivalents.
 
 build/layout_check.cpp asserts every offset and size at compile time
 (Makefile.xbox builds it), so the C++ layouts can't drift from the binary's.
+
+With DISCOVER=1 in the environment, gaps become DWORD slots named u_XXX
+(bytes where unaligned) instead of byte arrays, so Ghidra's decompiler names
+every unknown access by its offset.
 """
 import glob
 import os
@@ -26,6 +30,22 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DISCOVER = os.environ.get('DISCOVER') == '1'
+
+
+def gap(pos, end):
+    """Declarations filling [pos, end)."""
+    if not DISCOVER:
+        return [f'\tBYTE _pad{pos:04x}[{end - pos:#x}];']
+    out = []
+    while pos < end:
+        if pos % 4 == 0 and end - pos >= 4:
+            out.append(f'\tDWORD u_{pos:03x};')
+            pos += 4
+        else:
+            out.append(f'\tBYTE u_{pos:03x};')
+            pos += 1
+    return out
 
 # Types in symbols/types.h or Ghidra's builtins, with their sizes.
 BASIC = {
@@ -133,13 +153,15 @@ def main():
         size, members, src = structs[name]
         body, pos = [], 0
         for off, typ, member, count in sorted(members):
+            if re.fullmatch(r'pad[0-9A-Fa-f]+', member):
+                continue    # explicit C++ padding: a gap
             c, n, dep = ctype(typ)
             if dep:
                 n = sizes[dep]
             if off < pos:
                 sys.exit(f'{src}: {name}::{member} at {off:#x} overlaps the previous member (ends {pos:#x})')
             if off > pos:
-                body.append(f'\tBYTE _pad{pos:04x}[{off - pos:#x}];')
+                body += gap(pos, off)
             body.append(f'\t{c} {member}{f"[{count}]" if count else ""}; /* +{off:#x} */')
             pos = off + n * (count or 1)
         if size is None:
@@ -147,7 +169,7 @@ def main():
         if pos > size:
             sys.exit(f'{src}: {name} members end at {pos:#x}, past its size {size:#x}')
         if pos < size:
-            body.append(f'\tBYTE _pad{pos:04x}[{size - pos:#x}];')
+            body += gap(pos, size)
         sizes[name] = size
         out += [f'struct {name} {{', *body, '};', '']
     os.makedirs(os.path.join(ROOT, 'build'), exist_ok=True)
@@ -159,6 +181,8 @@ def main():
     for name in order:
         size, members, _ = structs[name]
         for off, _, member, _ in members:
+            if re.fullmatch(r'pad[0-9A-Fa-f]+', member):
+                continue
             check.append(f'C_ASSERT(offsetof({name}, {member}) == {off:#x});')
         if size is not None:
             check.append(f'C_ASSERT(sizeof({name}) == {size:#x});')
