@@ -186,7 +186,7 @@ void CParticles::Render()
         case PARTICLE_TRAIL:
             g_Game.pDevice->SetTexture(0, g_Game.texBulletTrail);
             D3DXMatrixScaling(&matScale, 0.2f, (float)(age * 1.5), 0.0f);
-            D3DXMatrixRotationZ(&matRot, atan2f(p.vel.y, p.vel.x));
+            D3DXMatrixRotationZ(&matRot, (float)atan2(p.vel.y, p.vel.x));
             break;
         case PARTICLE_BIGSHELL:
             g_Game.pDevice->SetTexture(0, g_Game.texShotgunShell);
@@ -235,7 +235,7 @@ void CBullets::Init()
         SBullet& b = bullets[i];
         b.trailTimer = 0.0f;
         b.life = 0.0f;
-        b.active = 0.0f;
+        b.bActive = FALSE;
         b.vx = 0.0f;
         b.vy = 0.0f;
         b.x = 0.0f;
@@ -247,18 +247,18 @@ void CBullets::Init()
 // 0x00024550
 // Fires a bullet along (dx, dy) at ten times that speed; nothing happens
 // if all 15 are in flight.
-void CBullets::Add(float x, float y, float dx, float dy, float active, bool bFacingRight)
+void CBullets::Add(float x, float y, float dx, float dy, BOOL bActive, bool bFacingRight)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         SBullet& b = bullets[i];
-        if (b.active == 0.0f)
+        if (!b.bActive)
         {
             b.x = x;
             b.y = y;
             b.vx = dx * 10.0f;
             b.vy = dy * 10.0f;
-            b.active = active;
+            b.bActive = bActive;
             b.trailTimer = 0.1f;
             b.life = 10.0f;
             b.bFacingRight = bFacingRight;
@@ -277,7 +277,7 @@ void CBullets::Update()
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         SBullet& b = bullets[i];
-        if (b.active == 0.0f)
+        if (!b.bActive)
             continue;
 
         b.x += b.vx * g_Game.frameTime;
@@ -315,11 +315,11 @@ void CBullets::Update()
                     break;
                 }
             }
-            b.active = 0.0f;
+            b.bActive = FALSE;
         }
 
         if (b.life <= 0.0f)
-            b.active = 0.0f;
+            b.bActive = FALSE;
         if (b.trailTimer <= 0.0f)
         {
             g_Game.particles.Add(b.x, b.y, 1.0f, b.vx, b.vy, 0.0f, PARTICLE_TRAIL);
@@ -334,7 +334,7 @@ void CBullets::Render()
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         SBullet& b = bullets[i];
-        if (b.active == 0.0f)
+        if (!b.bActive)
             continue;
 
         GetTickCount();
@@ -345,7 +345,7 @@ void CBullets::Render()
         D3DXMatrixIdentity(&matRot);
         D3DXMatrixTranslation(&matTrans, b.x, b.y, 1.0f);
         D3DXMatrixScaling(&matScale, 0.5f, 0.5f, 0.0f);
-        D3DXMatrixRotationZ(&matRot, atan2f(b.vy, b.vx));
+        D3DXMatrixRotationZ(&matRot, (float)atan2(b.vy, b.vx));
         matTrans = matScale * matRot * matTrans;
         g_Game.pDevice->SetTransform(D3DTS_WORLD, &matTrans);
         g_Game.pDevice->SetStreamSource(0, b.bFacingRight ? g_Game.pQuadVB : g_Game.pVB460, sizeof(SPRITEVERTEX));

@@ -67,8 +67,12 @@ END = re.compile(r'^\};\s*(?://\s*0x([0-9A-Fa-f]+) bytes)?')
 def defines(paths):
     out = {}
     for path in paths:
-        for m in re.finditer(r'^#define\s+(\w+)\s+(.+?)\s*(?://.*)?$', open(path).read(), re.M):
+        text = open(path).read()
+        for m in re.finditer(r'^#define\s+(\w+)\s+(.+?)\s*(?://.*)?$', text, re.M):
             out[m.group(1)] = m.group(2)
+        # enum constants with explicit values ("NAME = 6,")
+        for m in re.finditer(r'^\s*([A-Z][A-Z0-9_]*)\s*=\s*(\d+)\s*,', text, re.M):
+            out.setdefault(m.group(1), m.group(2))
     return out
 
 

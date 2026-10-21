@@ -21,19 +21,39 @@
 // Game states (CGame::state)
 enum
 {
-    STATE_LOADING   = 0,
+    STATE_LOADING   = 0,    // the splash screen
     STATE_INTRO     = 1,    // the scrolling credits
-    STATE_MENU      = 2,
-    STATE_OPTIONS   = 3,
-    STATE_CUSTOMIZE = 4,    // the player's head, suit, hat, mask and eyewear
-    STATE_SETTINGS  = 5,    // sound and music on/off
+    STATE_MENU      = 2,    // New Game, Experiment, Tutorial, Options, Unlocks, Credits
+    STATE_OPTIONS   = 3,    // Character, Display/Sound, Statistics, Save Preferences, Close
+    STATE_CHARACTER = 4,    // the player's head, suit, hat, mask and eyewear
+    STATE_SOUND     = 5,    // "Display/Sound": sound and music on/off
     STATE_STATS     = 6,
     STATE_UNLOCKS   = 7,
     STATE_STORY     = 8,    // the story so far, before level 1
-    STATE_PLAYING   = 9,
+    STATE_PLAYING   = 9,    // New Game: fourteen levels
     STATE_ENDING    = 10,   // the fight with Lantus
-    STATE_SANDBOX   = 11,   // spawn weapons, dummies and enemies at will
+    STATE_EXPERIMENT = 11,  // spawn weapons, dummies and enemies at will
     STATE_TUTORIAL  = 12,
+};
+
+// Unlockable features (CGame::bUnlocked, bEnabled), as on menu\unlock1..6.tga
+enum
+{
+    UNLOCK_EXTRAHEADS   = 0,    // beat the game: enemies get random heads
+    UNLOCK_BIGHEADS     = 1,    // a head knocked over 1500 high
+    UNLOCK_HYPERMODE    = 2,
+    UNLOCK_INFBULLETTIME = 3,   // beat the game in Hyper Mode
+    UNLOCK_NERDHEADS    = 4,    // 100 decapitations: heads 30 to 34
+    UNLOCK_ALTSTORY     = 5,    // all the others
+    NUM_UNLOCKS         = 6,
+};
+
+// Menu items: menu\1..11.tga (CGame::texMenuPages); the main menu uses
+// 0..5, the options menu 6..10.
+enum
+{
+    MENU_NEWGAME = 0, MENU_EXPERIMENT, MENU_TUTORIAL, MENU_OPTIONS, MENU_UNLOCKS, MENU_CREDITS,
+    MENU_CHARACTER, MENU_DISPLAYSOUND, MENU_STATISTICS, MENU_SAVEPREFS, MENU_CLOSE,
 };
 
 // Weapon types (SItem::type, index into g_Game.pWeaponTypes)
@@ -126,6 +146,12 @@ struct SItem
     bool         unknown5E;             // +0x5E never set
     bool         bAutomatic;            // +0x5F keeps firing with the trigger held
     BOOL         bJetpack;              // +0x60 worn on the back
+
+    SItem();
+    void Reset();
+    void Use(float x, float y, float z, float dx, float dy, float dz, float extraDelay);
+    void Update(int owner, float delay);
+    void Render();
 };                                      // 0x64 bytes
 
 // Where a bullet went into a body (drawn as a blood spot). 0xC bytes.
@@ -144,16 +170,67 @@ struct SCharacter
     SWound       wounds[MAX_WOUNDS];    // +0x000
     D3DXVECTOR3  pos;                   // +0x03C
     D3DXVECTOR3  headOffset;            // +0x048 the head, relative to pos
-    BYTE         pad054[0x50];          // +0x054
+    D3DXVECTOR3  unknown054;            // +0x054
+    D3DXVECTOR3  feetOffset;            // +0x060 the feet, relative to pos
+    D3DXVECTOR3  lastPos;               // +0x06C pos in the previous frame (the player's)
+    D3DXVECTOR3  lastHandOffset;        // +0x078
+    D3DXVECTOR3  handOffset;            // +0x084 where the hand reaches (the right stick)
+    D3DXVECTOR3  vel;                   // +0x090
+    float        unknown09C;            // +0x09C
+    float        unknown0A0;            // +0x0A0
     float        fallAngle;             // +0x0A4 over 90 degrees: lying on the ground
-    BYTE         pad0A8[0x8];           // +0x0A8
+    bool         bFacingRight;          // +0x0A8
+    int          team;                  // +0x0AC 0: the player (or a dummy)
     int          health;                // +0x0B0
-    BYTE         pad0B4[0x24];          // +0x0B4
+    bool         bHolding;              // +0x0B4 has an item in the hand
+    SItem*       pHeld;                 // +0x0B8 in the hand
+    SItem*       pBack;                 // +0x0BC the spare, on the back
+    SItem*       pJetpack;              // +0x0C0
+    SItem*       pThrown;               // +0x0C4 the last item thrown (can't hit its thrower)
+    SItem*       pStuck;                // +0x0C8 a blade stuck in the body
+    bool         bImpaled;              // +0x0CC
+    bool         unknown0CD;            // +0x0CD
+    float        unknown0D0;            // +0x0D0 while above 0, unknown0CD stays set
+    float        downTime;              // +0x0D4 dead: seconds until removed
     bool         bActive;               // +0x0D8
-    BYTE         pad0D9[0x73];          // +0x0D9
+    bool         bDoubleJumped;         // +0x0D9
+    DWORD        lastHitTime;           // +0x0DC hit at most every 200 (melee) or 400 ms
+    int          mask;                  // +0x0E0 0..1
+    int          hat;                   // +0x0E4 0..2 (the player: 0..1)
+    int          glasses;               // +0x0E8 0..3
+    int          suit;                  // +0x0EC 0..numBodies-1
+    int          bodyGib;               // +0x0F0 0, or which of bodygib/bodygib2.tga (1, 2)
+    int          head;                  // +0x0F4 0..numHeads-1
+    int          headGib;               // +0x0F8 0, or which of headgib/headgib2.tga (1, 2)
+    float        groundY;               // +0x0FC where the feet stop
+    bool         bTriggerHeld;          // +0x100
+    bool         bJetpackOn;            // +0x101
+    float        unknown104;            // +0x104
+    bool         bCutscene;             // +0x108 the ending: higher ground, no walking
+    bool         bHeadless;             // +0x109
+    D3DXVECTOR3  headVel;               // +0x10C the head, knocked off
+    D3DXVECTOR3  headPos;               // +0x118
+    float        headBloodTimer;        // +0x124 to the next drop from the flying head
+    bool         bJumpHeld;             // +0x128
+    bool         unknown129;            // +0x129
+    float        unknown12C;            // +0x12C
+    float        unknown130;            // +0x130
+    float        unknown134;            // +0x134 AI timer
+    int          unknown138;            // +0x138
+    int          unknown13C;            // +0x13C
+    bool         bRespawning;           // +0x140 the player, just respawned: can't be hurt
+    float        respawnFade;           // +0x144
+    DWORD        respawnTime;           // +0x148
+
+    SCharacter();
+    void Spawn(float x, float y, float z, int team, int weapon, bool bJetpack, bool unknown129, bool bCutscene);
+    void Update();
+    void Think();
+    void Fire();
+    void Render();
 };                                      // 0x14C bytes
 
-#define STANDING_ANGLE  1.570796f       // (float)(D3DX_PI / 2)
+#define STANDING_ANGLE  (D3DX_PI / 2)   // 1.570796f
 
 // A particle. 0x2C bytes.
 struct SParticle
@@ -185,7 +262,7 @@ struct SBullet
 {
     float        life;                  // +0x00 seconds left
     float        trailTimer;            // +0x04 to the next trail particle
-    float        active;                // +0x08 nonzero: in flight
+    BOOL         bActive;               // +0x08
     float        x;                     // +0x0C
     float        y;                     // +0x10
     float        vx;                    // +0x14
@@ -199,7 +276,7 @@ public:
     SBullet      bullets[MAX_BULLETS];  // +0x000
 
     void Init();
-    void Add(float x, float y, float dx, float dy, float active, bool bFacingRight);
+    void Add(float x, float y, float dx, float dy, BOOL bActive, bool bFacingRight);
     void Update();
     void Render();
 };                                      // 0x1E0 bytes
@@ -223,17 +300,17 @@ public:
     LPDIRECT3DTEXTURE8 texArrow;        // +0x010 menu\arrow.tga
     LPDIRECT3DTEXTURE8 texUnlock;       // +0x014 menu\unlock.tga
     LPDIRECT3DTEXTURE8 texTick;         // +0x018 menu\tick.tga
-    LPDIRECT3DTEXTURE8 texUnlocks[6];   // +0x01C menu\unlock1..6.tga
-    LPDIRECT3DTEXTURE8 texMenuPages[11]; // +0x034 menu\1..11.tga
-    LPDIRECT3DTEXTURE8 texSnm[2];       // +0x060 menu\snm1..2.tga
+    LPDIRECT3DTEXTURE8 texUnlocks[NUM_UNLOCKS]; // +0x01C menu\unlock1..6.tga: UNLOCK_*
+    LPDIRECT3DTEXTURE8 texMenuPages[11]; // +0x034 menu\1..11.tga: MENU_*
+    LPDIRECT3DTEXTURE8 texSnm[2];       // +0x060 menu\snm1..2.tga: "Sound", "Music"
     int          settingsSel;           // +0x068
     int          mainMenuSel;           // +0x06C
     int          optionsSel;            // +0x070
     int          unlockSel;             // +0x074
     DWORD        levelClearTime;        // +0x078
     DWORD        storyStartTime;        // +0x07C
-    bool         bUnlocked[6];          // +0x080 saved: UNLOCK_*
-    bool         bEnabled[6];           // +0x086 saved: unlocked features switched on
+    bool         bUnlocked[NUM_UNLOCKS]; // +0x080 saved: UNLOCK_*
+    bool         bEnabled[NUM_UNLOCKS];  // +0x086 saved: unlocked features switched on
     int          cheatStep;             // +0x08C
     DWORD        whiteTime;             // +0x090
     bool         bShowMusicMenu;        // +0x094
@@ -317,6 +394,10 @@ public:
     int          numWeaponTypes;        // +0x970 11
     CParticles   particles;             // +0x974
     bool         bBlink;                // +0x3D08
+
+    // Geometry helpers (they don't use the game's state).
+    bool PointInBox(D3DXVECTOR3 p, D3DXVECTOR3 center, float halfWidth, float halfHeight);
+    float RayCircle(float ox, float oy, float dx, float dy, float cx, float cy, float r, float* t);
 };                                      // 0x3D0C bytes
 
 extern CGame g_Game;
