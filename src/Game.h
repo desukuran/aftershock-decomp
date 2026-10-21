@@ -53,14 +53,30 @@ enum
     NUM_WEAPON_TYPES    = 11,
 };
 
+// How a thrown item turns in flight (SItem::blade)
+enum
+{
+    BLADE_NONE  = 0,
+    BLADE_POINT = 1,    // knife, sword: points along its path
+    BLADE_SPIN  = 2,    // axe: spins
+};
+
 // Particle types (SParticle::type)
 enum
 {
-    PARTICLE_3          = 3,
-    PARTICLE_4          = 4,
-    PARTICLE_6          = 6,    // the intro's rising particles
-    PARTICLE_7          = 7,
+    PARTICLE_NONE       = 0,
+    PARTICLE_BLOOD      = 1,    // a drop, stretched by its size
+    PARTICLE_SHELL      = 2,    // a spent shell (shotgun, handgun, rifle)
+    PARTICLE_SMOKE      = 3,
+    PARTICLE_TRAIL      = 4,    // behind a bullet
+    PARTICLE_BIGSHELL   = 5,    // machine gun
+    PARTICLE_BUBBLE     = 6,    // the intro's rising bubbles
+    PARTICLE_GUSH       = 7,    // blood from a neck
 };
+
+// The floor and the walls of a level.
+#define GROUND_Y        -26.0f
+#define GROUND_BOUNCE_Y -25.9f
 
 #define NUM_HEADS       35      // head.tga and heads\1..34.tga
 #define NUM_BODIES      3       // body.tga and bodys\1..2.tga
@@ -68,7 +84,7 @@ enum
 #define MAX_CHARACTERS  20
 #define MAX_ITEMS       10
 #define MAX_PARTICLES   300
-#define MAX_SPLATS      15
+#define MAX_BULLETS     15
 
 // ---------------------------------------------------------------------------
 // A weapon type: its textures and properties. 0x1C bytes.
@@ -77,69 +93,115 @@ struct SWeaponType
     LPDIRECT3DTEXTURE8 pFlashTexture;   // +0x00 muzzle flash (jetpack: the exhaust)
     LPDIRECT3DTEXTURE8 pTexture;        // +0x04
     LPDIRECT3DTEXTURE8 pStuckTexture;   // +0x08 stuck in a body (knife, sword, axe)
-    DWORD        unknown0C;             // +0x0C
-    DWORD        unknown10;             // +0x10
-    DWORD        unknown14;             // +0x14
-    DWORD        unknown18;             // +0x18
+    float        width;                 // +0x0C drawn size
+    float        height;                // +0x10
+    float        unknown14;             // +0x14
+    float        unknown18;             // +0x18
 };                                      // 0x1C bytes
 
-// An item lying in the world or held. 0x64 bytes.
+// An item: a weapon or the jetpack, lying in the world, flying, held, on a
+// character's back or stuck in a body. 0x64 bytes.
 struct SItem
 {
-    int          type;                  // +0x00 WEAPON_*, 5 when unused
-    D3DXVECTOR3  pos;                   // +0x04
-    BYTE         pad10[0x54];           // +0x10
+    int          type;                  // +0x00 WEAPON_*; 5 when unused
+    D3DXVECTOR3  pos;                   // +0x04 (stuck in a body: relative to it)
+    D3DXVECTOR3  vel;                   // +0x10
+    D3DXVECTOR3  lastPos;               // +0x1C where it was when thrown
+    bool         bGun;                  // +0x28 fires bullets (handgun, shotgun, machine gun, rifle)
+    float        fireDelay;             // +0x2C between shots
+    float        unknown30;             // +0x30 only cleared
+    int          blade;                 // +0x34 BLADE_*: how it turns in flight
+    bool         bSticks;               // +0x38 sticks in a body when thrown hard (knife, sword, axe)
+    float        fireTimer;             // +0x3C time to the next shot
+    float        angle;                 // +0x40
+    int          bounces;               // +0x44 times it hit the ground since thrown
+    float        spin;                  // +0x48 axe: turning speed in flight
+    BOOL         bFacingRight;          // +0x4C
+    int          ammo;                  // +0x50 (chainsaw: fuel)
+    bool         bHeld;                 // +0x54
+    bool         bStuck;                // +0x55 in a body (drawn with it)
+    float        lifeTime;              // +0x58 lying around: seconds until it disappears
+    bool         bActive;               // +0x5C
+    bool         bSpawned;              // +0x5D sandbox: spawned and not picked up yet
+    bool         unknown5E;             // +0x5E never set
+    bool         bAutomatic;            // +0x5F keeps firing with the trigger held
+    BOOL         bJetpack;              // +0x60 worn on the back
 };                                      // 0x64 bytes
+
+// Where a bullet went into a body (drawn as a blood spot). 0xC bytes.
+struct SWound
+{
+    float        x;                     // +0x00 relative to the character (always 0)
+    float        y;                     // +0x04
+    bool         bUsed;                 // +0x08
+};                                      // 0xC bytes
+
+#define MAX_WOUNDS      5
 
 // A character (the player, enemies, dummies). 0x14C bytes.
 struct SCharacter
 {
-    BYTE         pad000[0x14C];         // +0x000
+    SWound       wounds[MAX_WOUNDS];    // +0x000
+    D3DXVECTOR3  pos;                   // +0x03C
+    D3DXVECTOR3  headOffset;            // +0x048 the head, relative to pos
+    BYTE         pad054[0x50];          // +0x054
+    float        fallAngle;             // +0x0A4 over 90 degrees: lying on the ground
+    BYTE         pad0A8[0x8];           // +0x0A8
+    int          health;                // +0x0B0
+    BYTE         pad0B4[0x24];          // +0x0B4
+    bool         bActive;               // +0x0D8
+    BYTE         pad0D9[0x73];          // +0x0D9
 };                                      // 0x14C bytes
+
+#define STANDING_ANGLE  1.570796f       // (float)(D3DX_PI / 2)
 
 // A particle. 0x2C bytes.
 struct SParticle
 {
     D3DXVECTOR3  pos;                   // +0x00
-    float        unknown0C;             // +0x0C
+    bool         bFacingRight;          // +0x0C never set: always drawn flipped
     D3DXVECTOR3  vel;                   // +0x10
-    float        size;                  // +0x1C
+    float        size;                  // +0x1C blood spreads on the ground
     bool         bActive;               // +0x20
     short        type;                  // +0x22 PARTICLE_*
-    float        unknown24;             // +0x24
-    float        unknown28;             // +0x28
+    float        gravity;               // +0x24 0: doesn't move
+    float        life;                  // +0x28 seconds left
 };                                      // 0x2C bytes
 
 class CParticles
 {
 public:
-    SParticle    particles[MAX_PARTICLES]; // +0x0000
-    DWORD        dwLastTime;            // +0x3390
+    SParticle    particles[MAX_PARTICLES];  // +0x0000
+    DWORD        dwInitTime;                // +0x3390
 
     void Init();
     void Add(float x, float y, float z, float vx, float vy, float vz, int type);
+    void Update();
+    void Render();
 };                                          // 0x3394 bytes
 
-// Something short-lived in a pool of 15 (blood splats?). 0x20 bytes.
-struct SSplat
+// A bullet in flight. 0x20 bytes.
+struct SBullet
 {
-    float        unknown00;             // +0x00
-    float        unknown04;             // +0x04
-    float        unknown08;             // +0x08 nonzero: in use
+    float        life;                  // +0x00 seconds left
+    float        trailTimer;            // +0x04 to the next trail particle
+    float        active;                // +0x08 nonzero: in flight
     float        x;                     // +0x0C
     float        y;                     // +0x10
     float        vx;                    // +0x14
     float        vy;                    // +0x18
-    bool         unknown1C;             // +0x1C
+    bool         bFacingRight;          // +0x1C
 };                                      // 0x20 bytes
 
-class CSplats
+class CBullets
 {
 public:
-    SSplat       splats[MAX_SPLATS];    // +0x000
+    SBullet      bullets[MAX_BULLETS];  // +0x000
 
     void Init();
-    void Add(float x, float y, float vx, float vy, float unknown08, bool unknown1C);
+    void Add(float x, float y, float dx, float dy, float active, bool bFacingRight);
+    void Update();
+    void Render();
 };                                      // 0x1E0 bytes
 
 // The settings file (T:\xmadness.cfg); the values are in g_Game.
@@ -186,7 +248,7 @@ public:
     LPDIRECT3DTEXTURE8 texMadnessTracks; // +0x0AC madnesstracks.tga
     float        spawnTimer;            // +0x0B0 story: seconds to the next enemy
     CMusicManager music;                // +0x0B4
-    CSplats      splats;                // +0x218
+    CBullets     bullets;               // +0x218
     LPDIRECT3DTEXTURE8 texSplash;       // +0x3F8 aftershock.jpg
     LPDIRECT3DTEXTURE8 texHealthBar;    // +0x3FC healthbar.tga
     LPDIRECT3DTEXTURE8 texHealthBar2;   // +0x400 healthbar2.tga

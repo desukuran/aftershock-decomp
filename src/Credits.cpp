@@ -67,7 +67,7 @@ void CCredits::Reset()
 
 // 0x000119B0
 // Scrolls the text up a little each frame, with the logo just below it and
-// a particle (type 6) rising from the bottom every half second. Once the
+// a bubble rising from the bottom every half second. Once the
 // text has scrolled off, on to the main menu.
 HRESULT CCredits::Render()
 {
@@ -75,7 +75,7 @@ HRESULT CCredits::Render()
     if (GetTickCount() - s_dwLastParticle >= 500)
     {
         s_dwLastParticle = GetTickCount();
-        g_Game.particles.Add((float)(rand() % 80 - 40), -40.0f, 0.0f, 0.0f, 10.0f, 0.0f, PARTICLE_6);
+        g_Game.particles.Add((float)(rand() % 80 - 40), -40.0f, 0.0f, 0.0f, 10.0f, 0.0f, PARTICLE_BUBBLE);
     }
 
     y += 0.125f;
