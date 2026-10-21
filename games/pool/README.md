@@ -1,5 +1,7 @@
 # AfterShock Pool SX — decompilation
 
+*Part of the [AfterShock decompilations](../../README.md).*
+
 A readable C++ reconstruction of **AfterShock Pool SX** (SHiZNO / AfterShock,
 2005), an original Xbox homebrew pool game: 8 Ball, 9 Ball, Cut Throat,
 Red vs Blue, Mini-Golf-Pool, a bar room to play in and a built-in table
@@ -60,7 +62,7 @@ Behavior is checked against the original binary, not by eye:
     profiles, every built-in table, the editor and the credits. 48 random
     runs of 8000 frames come out identical, and so do the files the game
     saves (`pool.cfg`, edited tables).
-* **In xemu** (`tools/xemu_drive.py`), with a virtual gamepad, for
+* **In xemu** (`../../tools/xemu_drive.py`), with a virtual gamepad, for
   screenshots and memory snapshots of the real thing.
 
 Bugs found this way and fixed in the reconstruction are in the git history;
@@ -68,78 +70,26 @@ quirks of the original that show up in testing are documented in the code.
 
 ## Building
 
-Either way you need the **Xbox XDK 5558**, which isn't included. `./xdk`
-should point at it: the folder with `xbox/bin/vc71/CL.exe`, `xbox/include`
-and `xbox/lib` (or pass `XDK=<path>` to make). `make -f Makefile.xbox info`
-shows which compiler, linker and `imagebld` it found.
+See the [repository README](../../README.md#building): with the XDK linked as
+`xdk` at the top, run `make` here. The result is `build/xbox/default.xbe`;
+`make xiso` puts it on a disc image with the original's `media/`. The build
+also compiles `build/layout_check.cpp`, which asserts that every class layout
+in `src/` matches the original's offsets.
 
-The result is `build/xbox/default.xbe`. Put it next to the original
-release's `media/` folder (on a disc image, or an Xbox/xemu hard disk) to
-play. The build also compiles `build/layout_check.cpp`, which asserts that
-every class layout in `src/` matches the original's offsets.
+The original game is **not** part of this repository. Put the release in
+`original/` (the target is `default.xbe`, sha1
+`5ed22bc296c98e1dc02cabdfc6247a47e72a2df9`).
 
-### Linux (and WSL)
+## Tools for this game
 
-The XDK's tools run under Wine:
+Beyond the shared ones in `../../tools`:
 
-```
-sudo apt install make wine python3
-ln -s /path/to/xdk5558 xdk
-make -f Makefile.xbox -j4
-```
-
-### Windows
-
-*Not tested yet. Reports welcome.*
-
-The XDK's tools run natively; the Makefile only needs a Unix-style shell for
-`mkdir`, `grep` and `rm`, which Git for Windows provides.
-
-1. Install [Git for Windows](https://gitforwindows.org) (use its **Git Bash**),
-   GNU make (`winget install ezwinports.make`, or `pacman -S make` in
-   MSYS2) and [Python 3](https://www.python.org) with "Add to PATH" ticked.
-2. Link the XDK into the repository without spaces in the path, since make
-   can't handle them. From a Command Prompt in the repository folder:
-   ```
-   mklink /J xdk "C:\Program Files\Microsoft Xbox SDK"
-   ```
-   (or copy the XDK somewhere like `C:\xdk5558` and pass `XDK=C:/xdk5558`).
-3. From Git Bash in the repository folder:
-   ```
-   make -f Makefile.xbox info
-   make -f Makefile.xbox
-   ```
-
-If the compiler can't find `mspdb71.dll`, copy it next to `CL.exe`. If make
-tries to run `wine`, your shell isn't reporting `OS=Windows_NT`; add `WINE=`
-to the command.
-
-The original game is **not** part of this repository. To use the analysis
-tools, put the release in `aftershock_pool_sx/` (the target is `default.xbe`,
-sha1 `5ed22bc296c98e1dc02cabdfc6247a47e72a2df9`).
-
-## Layout
-
-* `src/` — the game. Every function carries its original address
-  (`// 0x00012400`) and every member its offset (`// +0x1C`).
-* `symbols/` — the names database: `names.txt` (by hand), `xdklib.txt`
-  (XDK 5558 library code matched byte for byte by `tools/libmatch.py`),
-  `xdk.txt`, `consts.txt` (float constants), `types.h`.
-* `tools/` — XBE parser, headless Ghidra pipeline (`analyze.sh`, `apply.sh`),
-  `show.py` (decompiler output with constants and D3D states resolved),
-  `progress.py`, `gen_src_structs.py` (Ghidra structs and layout checks from
-  `src/*.h`), `emulate.py`, and the testing tools:
-  * `xemu_drive.py <xemu.toml> "<script>" <outdir>` — boots xemu headless
-    with a virtual (uinput) gamepad and plays a script of waits, button
-    presses, stick pushes, screenshots (`shot:`), memory dumps (`mem:`) and
-    whole-RAM snapshots (`ram:`). Use a private xemu config whose `port1` is
-    the pad GUID the tool prints.
-  * `difftest.py physics|render|update|fuzz|shapes <snapshot> ...` — the
-    side-by-side comparisons above. Globals are matched by name
-    (`symbols/names.txt` and the address comments in `src/`, against the
-    link map and the PDB).
-  * `pdb.py` — lists the statics the linker map leaves out (the build uses
-    `/Z7` for this; it doesn't change the code).
+* `tools/difftest.py physics|render|update|fuzz|shapes <snapshot> ...` — the
+  side-by-side comparisons above. Globals are matched by name
+  (`symbols/names.txt` and the address comments in `src/`, against the
+  link map and the PDB, listed by `../../tools/pdb.py`; the build uses `/Z7`
+  for this, which doesn't change the code).
+* `tools/emulate.py` — the Unicorn emulator and fake OS underneath it.
 
 ## How the game is put together
 

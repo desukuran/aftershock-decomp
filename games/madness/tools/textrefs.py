@@ -16,10 +16,10 @@ MAX_INLINE = 40
 
 
 def main():
-    sys.path.insert(0, os.path.join(ROOT, 'tools'))
+    sys.path.insert(0, os.path.join(ROOT, '../../tools'))
     from extract_data import wide_strings
     from xbe import Xbe
-    x = Xbe(os.path.join(ROOT, 'madness_interactive_sx/default.xbe'))
+    x = Xbe(os.path.join(ROOT, 'original/default.xbe'))
     by_text = {}
     for va, t in wide_strings(x):
         esc = t.replace('\\', '\\\\').replace('"', '\\"')

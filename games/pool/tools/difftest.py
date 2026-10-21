@@ -39,6 +39,7 @@ from unicorn import UC_HOOK_MEM_UNMAPPED, UcError
 from unicorn.x86_const import UC_X86_REG_EIP, UC_X86_REG_ESP
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../tools'))
 import emulate  # noqa: E402
 import pdb as pdblib  # noqa: E402
 import xbe as xbelib  # noqa: E402
@@ -528,7 +529,7 @@ ANALOG = ['A', 'B', 'X', 'Y', 'BLACK', 'WHITE', 'LT', 'RT']
 DIGITAL = {'UP': 1, 'DOWN': 2, 'LEFT': 4, 'RIGHT': 8, 'START': 0x10, 'BACK': 0x20, 'L3': 0x40, 'R3': 0x80}
 
 
-GAME_DIR = os.path.join(ROOT, 'aftershock_pool_sx')
+GAME_DIR = os.path.join(ROOT, 'original')
 FILES = 0x7D000000          # fake FILE pointers
 
 
