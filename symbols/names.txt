@@ -89,7 +89,7 @@
 0001fcf8 !nofunc
 
 # ---- Characters ----------------------------------------------------------------
-0001fce0 SCharacter::Spawn void __thiscall SCharacter::Spawn(SCharacter *this, float x, float y, float z, int team, int weapon, bool bJetpack, bool unknown129, bool bKeepLook)
+0001fce0 SCharacter::Spawn void __thiscall SCharacter::Spawn(SCharacter *this, float x, float y, float z, int team, int weapon, bool bJetpack, bool bDummy, bool bCutscene)
 000272d0 SItem::Reset void __thiscall SItem::Reset(SItem *this)
 000130c0 StartGame void __cdecl StartGame(void)
 000180a0 Update void __cdecl Update(void)
@@ -99,7 +99,7 @@
 00020280 SCharacter::Fire void __thiscall SCharacter::Fire(SCharacter *this)
 00021190 SCharacter::Think void __thiscall SCharacter::Think(SCharacter *this)
 0001ba50 SCharacter::Render void __thiscall SCharacter::Render(SCharacter *this)
-00025230 SItem::Use void __thiscall SItem::Use(SItem *this, float x, float y, float z, float dx, float dy, float dz, float extraDelay)
+00025230 SItem::Use void __thiscall SItem::Use(SItem *this, D3DXVECTOR3 pos, D3DXVECTOR3 dir, float extraDelay)
 000254d0 SItem::Update void __thiscall SItem::Update(SItem *this, int owner, float delay)
 00026fa0 SItem::Render void __thiscall SItem::Render(SItem *this)
 000245e0 CBullets::Update void __thiscall CBullets::Update(CBullets *this)

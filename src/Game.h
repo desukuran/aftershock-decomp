@@ -149,7 +149,7 @@ struct SItem
 
     SItem();
     void Reset();
-    void Use(float x, float y, float z, float dx, float dy, float dz, float extraDelay);
+    void Use(D3DXVECTOR3 pos, D3DXVECTOR3 dir, float extraDelay);
     void Update(int owner, float delay);
     void Render();
 };                                      // 0x64 bytes
@@ -189,8 +189,8 @@ struct SCharacter
     SItem*       pThrown;               // +0x0C4 the last item thrown (can't hit its thrower)
     SItem*       pStuck;                // +0x0C8 a blade stuck in the body
     bool         bImpaled;              // +0x0CC
-    bool         unknown0CD;            // +0x0CD
-    float        unknown0D0;            // +0x0D0 while above 0, unknown0CD stays set
+    bool         bMuzzleFlash;          // +0x0CD
+    float        muzzleFlashTime;       // +0x0D0
     float        downTime;              // +0x0D4 dead: seconds until removed
     bool         bActive;               // +0x0D8
     bool         bDoubleJumped;         // +0x0D9
@@ -205,25 +205,25 @@ struct SCharacter
     float        groundY;               // +0x0FC where the feet stop
     bool         bTriggerHeld;          // +0x100
     bool         bJetpackOn;            // +0x101
-    float        unknown104;            // +0x104
+    float        swingTimer;            // +0x104 the AI's swing: 0.1 s up, 0.1 s down
     bool         bCutscene;             // +0x108 the ending: higher ground, no walking
     bool         bHeadless;             // +0x109
     D3DXVECTOR3  headVel;               // +0x10C the head, knocked off
     D3DXVECTOR3  headPos;               // +0x118
     float        headBloodTimer;        // +0x124 to the next drop from the flying head
     bool         bJumpHeld;             // +0x128
-    bool         unknown129;            // +0x129
-    float        unknown12C;            // +0x12C
-    float        unknown130;            // +0x130
-    float        unknown134;            // +0x134 AI timer
-    int          unknown138;            // +0x138
-    int          unknown13C;            // +0x13C
+    bool         bDummy;                // +0x129 stands still, facing the player
+    float        reaction;              // +0x12C the AI's extra delay between shots (always 1)
+    float        swingDelay;            // +0x130 the AI swung an empty gun: no hits until 0
+    float        burstPause;            // +0x134 the AI's pause after five shots
+    int          muzzleFlashAngle;      // +0x138 0..3 radians
+    int          burstCount;            // +0x13C
     bool         bRespawning;           // +0x140 the player, just respawned: can't be hurt
     float        respawnFade;           // +0x144
     DWORD        respawnTime;           // +0x148
 
     SCharacter();
-    void Spawn(float x, float y, float z, int team, int weapon, bool bJetpack, bool unknown129, bool bCutscene);
+    void Spawn(float x, float y, float z, int team, int weapon, bool bJetpack, bool bDummy, bool bCutscene);
     void Update();
     void Think();
     void Fire();
@@ -346,7 +346,7 @@ public:
     DWORD        bulletTimeSoundTime;   // +0x440
     bool         bThumbClickHeld;       // +0x444
     bool         bBulletTime;           // +0x445
-    bool         unknown446;            // +0x446
+    bool         bSwapHeld;             // +0x446 the right stick is pressed in (one swap per press)
     DWORD        frameMs;               // +0x448 the last frame's length
     float        frameTime;             // +0x44C
     float        bulletTimeDrain;       // +0x450
@@ -399,6 +399,8 @@ public:
     bool PointInBox(D3DXVECTOR3 p, D3DXVECTOR3 center, float halfWidth, float halfHeight);
     float RayCircle(float ox, float oy, float dx, float dy, float cx, float cy, float r, float* t);
 };                                      // 0x3D0C bytes
+
+bool CornerInBox(float x, float y, float z, float dx, float dy, const D3DXVECTOR3& b, float w, float h);
 
 extern CGame g_Game;
 extern CConfig g_Config;

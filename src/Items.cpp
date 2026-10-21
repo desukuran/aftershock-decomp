@@ -213,10 +213,10 @@ void SItem::Reset()
 }
 
 // 0x00025230
-// A shot (or a chainsaw rev): restarts the trigger delay, uses up a round,
-// plays the sound and throws out a shell. extraDelay is 0 for the player,
-// who also gets the rumble. The handgun throws no shell.
-void SItem::Use(float x, float y, float z, float dx, float dy, float dz, float extraDelay)
+// A shot (or a chainsaw rev) from pos: restarts the trigger delay, uses up
+// a round, plays the sound and throws a shell out along dir. extraDelay is
+// 0 for the player, who also gets the rumble. The handgun throws no shell.
+void SItem::Use(D3DXVECTOR3 pos, D3DXVECTOR3 dir, float extraDelay)
 {
     fireTimer = fireDelay + extraDelay;
     ammo--;
@@ -228,7 +228,7 @@ void SItem::Use(float x, float y, float z, float dx, float dy, float dz, float e
         if (extraDelay == 0.0f)
             g_Game.input.SetRumble(0, 9.0f, 9.0f);
         g_Sound.Play(g_Game.bBulletTime ? SOUND_BULLETTIMESHOT : SOUND_SHOTGUN);
-        g_Game.particles.Add(x, y, z, dx, dy, dz, PARTICLE_SHELL);
+        g_Game.particles.Add(pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, PARTICLE_SHELL);
         return;
     default:
         g_Sound.Play(SOUND_SHOTGUN);
@@ -237,7 +237,7 @@ void SItem::Use(float x, float y, float z, float dx, float dy, float dz, float e
         if (extraDelay == 0.0f)
             g_Game.input.SetRumble(0, 3.0f, 1.0f);
         g_Sound.Play(g_Game.bBulletTime ? SOUND_BULLETTIMEMACHINE : SOUND_MACHINEGUN);
-        g_Game.particles.Add(x, y, z, dx * 1.5f, dy * 1.5f, dz * 1.5f, PARTICLE_BIGSHELL);
+        g_Game.particles.Add(pos.x, pos.y, pos.z, dir.x * 1.5f, dir.y * 1.5f, dir.z * 1.5f, PARTICLE_BIGSHELL);
         return;
     case WEAPON_CHAINSAW:
         if (extraDelay == 0.0f)
@@ -248,7 +248,7 @@ void SItem::Use(float x, float y, float z, float dx, float dy, float dz, float e
         if (extraDelay == 0.0f)
             g_Game.input.SetRumble(0, 3.0f, 3.0f);
         g_Sound.Play(g_Game.bBulletTime ? SOUND_BULLETTIMESHOT : SOUND_RIFLE);
-        g_Game.particles.Add(x, y, z, dx, dy, dz, PARTICLE_SHELL);
+        g_Game.particles.Add(pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, PARTICLE_SHELL);
         return;
     }
 
@@ -256,15 +256,6 @@ void SItem::Use(float x, float y, float z, float dx, float dy, float dz, float e
     if (extraDelay == 0.0f)
         g_Game.input.SetRumble(0, 5.0f, 3.0f);
     g_Sound.Play(g_Game.bBulletTime ? SOUND_BULLETTIMESHOT : SOUND_PISTOL);
-}
-
-// Whether any corner of the box (x +- dx, y +- dy) is in the box around (bx, by).
-static bool CornerInBox(float x, float y, float z, float dx, float dy, const D3DXVECTOR3& b, float w, float h)
-{
-    return g_Game.PointInBox(D3DXVECTOR3(x + dx, y + dy, z), b, w, h) ||
-           g_Game.PointInBox(D3DXVECTOR3(x - dx, y + dy, z), b, w, h) ||
-           g_Game.PointInBox(D3DXVECTOR3(x + dx, y - dy, z), b, w, h) ||
-           g_Game.PointInBox(D3DXVECTOR3(x - dx, y - dy, z), b, w, h);
 }
 
 // 0x000254D0

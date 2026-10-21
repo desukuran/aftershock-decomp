@@ -32,3 +32,13 @@ float CGame::RayCircle(float ox, float oy, float dx, float dy, float cx, float c
     t[1] = ((0.0f - b) - disc) * (1.0f / len);
     return t[0] > t[1] ? t[0] : t[1];
 }
+
+// Whether any corner of the box (x +- dx, y +- dy) is in the box around b
+// (the original repeats these four tests inline everywhere).
+bool CornerInBox(float x, float y, float z, float dx, float dy, const D3DXVECTOR3& b, float w, float h)
+{
+    return g_Game.PointInBox(D3DXVECTOR3(x + dx, y + dy, z), b, w, h) ||
+           g_Game.PointInBox(D3DXVECTOR3(x - dx, y + dy, z), b, w, h) ||
+           g_Game.PointInBox(D3DXVECTOR3(x + dx, y - dy, z), b, w, h) ||
+           g_Game.PointInBox(D3DXVECTOR3(x - dx, y - dy, z), b, w, h);
+}
