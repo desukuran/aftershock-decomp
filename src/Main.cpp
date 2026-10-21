@@ -39,7 +39,14 @@ void InitDevice()
     D3DXMATRIX matView, matProj;
     D3DXMatrixLookAtLH(&matView, &vEye, &vAt, &vUp);
     g_Game.pDevice->SetTransform(D3DTS_VIEW, &matView);
+    // A near plane of 0 puts every vertex's depth at exactly 1.0 (the far
+    // plane). Real hardware draws it; xemu clips it all away, so its build
+    // (XEMU=1) uses 1.0, which only changes depth, not where things land.
+#ifdef XEMU_FIX
+    D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 4.0f / 3.0f, 1.0f, 1000.0f);
+#else
     D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 4.0f / 3.0f, 0.0f, 1000.0f);
+#endif
     g_Game.pDevice->SetTransform(D3DTS_PROJECTION, &matProj);
     g_Game.pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 }

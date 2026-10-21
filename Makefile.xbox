@@ -4,13 +4,21 @@
 #   make -f Makefile.xbox -j4          build/xbox/default.xbe
 #   make -f Makefile.xbox info         show what was found
 #   make -f Makefile.xbox xiso         build/xbox/MadnessInteractiveSX.iso
+#   make -f Makefile.xbox XEMU=1 xiso  build/xemu/...: the same with xemu's
+#                                      workaround (see InitDevice)
+#   make -f Makefile.xbox [XEMU=1] original-xiso   the original game's disc
 #
 # XDK is the XDK's folder (default ./xdk): an installed one (xbox/bin,
 # xbox/include, xbox/lib) or a flat copy (bin, include, lib). The game was
 # built with XDK 5558.
 
 XDK ?= xdk
+ifeq ($(XEMU),1)
+OUT := build/xemu
+XEMU_DEFS := /DXEMU_FIX
+else
 OUT := build/xbox
+endif
 OBJ := $(OUT)/obj
 
 ifeq ($(OS),Windows_NT)
@@ -38,7 +46,7 @@ IMAGEBLD = $(WINE) $(abspath $(IMAGEBLD_EXE))
 
 # As the original: optimized, buffer security checks, SSE, C++ exceptions
 # (for std::string), no RTTI.
-CFLAGS := /nologo /c /Z7 /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 /I$(XDK_INC)
+CFLAGS := /nologo /c /Z7 /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 $(XEMU_DEFS) /I$(XDK_INC)
 
 SRCS := $(sort $(wildcard src/*.cpp))
 OBJS := $(patsubst src/%.cpp,$(OBJ)/%.obj,$(SRCS))
@@ -113,7 +121,24 @@ $(OUT)/MadnessInteractiveSX.iso: $(OUT)/default.xbe $(shell find $(MEDIA) -type 
 
 xiso: $(OUT)/MadnessInteractiveSX.iso
 
+# The original game on a disc, to compare against; XEMU=1 patches its
+# near plane the same way (tools/xemu_patch.py).
+ORIG_DIR := $(OUT)/disc_orig
+$(OUT)/Original.iso: $(ORIGINAL) tools/xemu_patch.py
+	rm -rf $(ORIG_DIR) && mkdir -p $(ORIG_DIR)
+	cp -r $(MEDIA) $(ORIG_DIR)/media
+ifeq ($(XEMU),1)
+	$(PYTHON) -I tools/xemu_patch.py $(ORIGINAL) $(ORIG_DIR)/default.xbe
+else
+	cp $(ORIGINAL) $(ORIG_DIR)/default.xbe
+endif
+	rm -f $@
+	$(EXTRACT_XISO) -c $(ORIG_DIR) $@ > $(OUT)/xiso_orig.log || (cat $(OUT)/xiso_orig.log; false)
+	@echo "Built $@"
+
+original-xiso: $(OUT)/Original.iso
+
 clean:
 	rm -rf $(OUT)
 
-.PHONY: all info objs clean xiso
+.PHONY: all info objs clean xiso original-xiso
