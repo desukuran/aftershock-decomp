@@ -293,7 +293,7 @@ public:
 class CGame
 {
 public:
-    int          loadStep;              // +0x000
+    int          tutorialStep;             // +0x000
     int          state;                 // +0x004 STATE_*
     LPDIRECT3DTEXTURE8 texMainMenu;     // +0x008 menu\mainmenu.tga
     LPDIRECT3DTEXTURE8 texOptionsMenu;  // +0x00C menu\optionsmenu.tga
@@ -393,7 +393,7 @@ public:
     int          maxCharacters;         // +0x96C 20
     int          numWeaponTypes;        // +0x970 11
     CParticles   particles;             // +0x974
-    bool         bBlink;                // +0x3D08
+    bool         bStartHeld;            // +0x3D08 the Tutorial: Start was down last frame
 
     // Geometry helpers (they don't use the game's state).
     bool PointInBox(D3DXVECTOR3 p, D3DXVECTOR3 center, float halfWidth, float halfHeight);
@@ -417,6 +417,7 @@ void Render();
 void StartGame();
 void StartExperiment();
 void StartTutorial();
+void LoadLevelPicture(int level);
 void UpdateTutorial();
 void RenderTutorialText();
 void RenderMusicMenu();
