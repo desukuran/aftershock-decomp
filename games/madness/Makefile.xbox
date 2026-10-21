@@ -1,0 +1,144 @@
+# The Xbox build: default.xbe from src/ with the XDK's compiler (MSVC 7.1),
+# linker and imagebld. On Linux they run under Wine.
+#
+#   make -f Makefile.xbox -j4          build/xbox/default.xbe
+#   make -f Makefile.xbox info         show what was found
+#   make -f Makefile.xbox xiso         build/xbox/MadnessInteractiveSX.iso
+#   make -f Makefile.xbox XEMU=1 xiso  build/xemu/...: the same with xemu's
+#                                      workaround (see InitDevice)
+#   make -f Makefile.xbox [XEMU=1] original-xiso   the original game's disc
+#
+# XDK is the XDK's folder (default ./xdk): an installed one (xbox/bin,
+# xbox/include, xbox/lib) or a flat copy (bin, include, lib). The game was
+# built with XDK 5558.
+
+XDK ?= xdk
+ifeq ($(XEMU),1)
+OUT := build/xemu
+XEMU_DEFS := /DXEMU_FIX
+else
+OUT := build/xbox
+endif
+OBJ := $(OUT)/obj
+
+ifeq ($(OS),Windows_NT)
+WINE :=
+# python3 is often only the Microsoft Store alias on Windows.
+PYTHON ?= python
+else
+WINE ?= WINEDEBUG=-all wine
+PYTHON ?= python3
+endif
+
+XDK_ROOT := $(firstword $(wildcard $(XDK)/xbox/include $(XDK)/Xbox/include $(XDK)/Xbox/Include))
+XDK_ROOT := $(if $(XDK_ROOT),$(patsubst %/,%,$(dir $(XDK_ROOT))),$(XDK))
+XDK_INC := $(firstword $(wildcard $(XDK_ROOT)/include $(XDK_ROOT)/Include))
+XDK_LIB := $(firstword $(wildcard $(XDK_ROOT)/lib $(XDK_ROOT)/Lib))
+XDK_BIN := $(firstword $(wildcard $(XDK_ROOT)/bin $(XDK_ROOT)/Bin))
+find_tool = $(firstword $(wildcard $(addprefix $(1)/,$(2))))
+CL_EXE := $(call find_tool,$(XDK_BIN)/vc71,CL.Exe CL.exe cl.exe)
+LINK_EXE := $(call find_tool,$(XDK_BIN)/vc71,Link.Exe LINK.EXE Link.exe link.exe)
+IMAGEBLD_EXE := $(call find_tool,$(XDK_BIN),imagebld.exe ImageBld.exe IMAGEBLD.EXE)
+
+CL = $(WINE) $(CL_EXE)
+LINK = $(WINE) $(LINK_EXE)
+IMAGEBLD = $(WINE) $(abspath $(IMAGEBLD_EXE))
+
+# As the original: optimized, buffer security checks, SSE, C++ exceptions
+# (for std::string), no RTTI.
+CFLAGS := /nologo /c /Z7 /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 $(XEMU_DEFS) /I$(XDK_INC)
+
+SRCS := $(sort $(wildcard src/*.cpp))
+OBJS := $(patsubst src/%.cpp,$(OBJ)/%.obj,$(SRCS))
+HEADERS := $(wildcard src/*.h)
+
+LIBS := xapilib.lib d3d8.lib d3dx8.lib xgraphics.lib dsound.lib xacteng.lib xboxkrnl.lib libcmt.lib libcpmt.lib
+
+all: $(OUT)/default.xbe
+
+info:
+	@echo "XDK:        $(XDK)"
+	@echo "  include:  $(or $(XDK_INC),(not found))"
+	@echo "  lib:      $(or $(XDK_LIB),(not found))"
+	@echo "  cl:       $(or $(CL_EXE),(not found))"
+	@echo "  link:     $(or $(LINK_EXE),(not found))"
+	@echo "  imagebld: $(or $(IMAGEBLD_EXE),(not found))"
+	@echo "Wine:       $(or $(WINE),(not used))"
+
+# Text from the original release that the source doesn't carry (the credits,
+# the story and tutorial text), extracted from its default.xbe.
+ORIGINAL ?= madness_interactive_sx/default.xbe
+GEN := $(OUT)/gen
+GENERATED := $(GEN)/credits.inc $(GEN)/text.h
+
+$(GENERATED): $(ORIGINAL) tools/extract_data.py
+	@mkdir -p $(GEN)
+	$(PYTHON) -I tools/extract_data.py $(ORIGINAL) $(GEN)
+
+# Compiles one file; the full output goes to <object>.log.
+$(OBJ)/%.obj: src/%.cpp $(HEADERS) $(GENERATED)
+	@mkdir -p $(dir $@)
+	@$(CL) $(CFLAGS) /I$(GEN) /Fo$@ $< > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
+		if [ $$status -ne 0 ]; then rm -f $@; exit 1; fi
+
+# Every member offset and class size written in src/*.h, checked by the compiler.
+$(OBJ)/layout_check.obj: $(HEADERS) $(GENERATED) tools/gen_src_structs.py
+	@mkdir -p $(dir $@)
+	@$(PYTHON) -I tools/gen_src_structs.py > /dev/null
+	@$(CL) $(CFLAGS) /Isrc /I$(GEN) /Fo$@ build/layout_check.cpp > $@.log 2>&1; status=$$?; grep -E " (error|warning) " $@.log | head -30; \
+		if [ $$status -ne 0 ]; then rm -f $@; exit 1; fi
+
+objs: $(OBJS) $(OBJ)/layout_check.obj
+
+$(OUT)/default.exe: $(OBJS) $(OBJ)/layout_check.obj
+	@echo "Linking $@"
+	@$(LINK) /nologo /SUBSYSTEM:XBOX /FIXED:NO /DEBUG /INCREMENTAL:NO /OUT:$@ /MAP:$(OUT)/default.map \
+		/LIBPATH:$(XDK_LIB) $(OBJS) $(LIBS) > $(OUT)/link.log 2>&1 || (cat $(OUT)/link.log; false)
+
+# The original's certificate: title ID, media types, regions, version 1.00;
+# init flags: mount the utility drive (T: xmadness.cfg, Z:).
+IMAGEBLD_FLAGS := /NOLOGO /NOLIBWARN /STACK:0x10000 /INITFLAGS:0x1 /TESTID:0x07398CDB \
+	"/TESTNAME:Madness Interactive SX" /TESTMEDIATYPES:0x207 /TESTREGION:0x80000007 /TESTRATINGS:0xFFFFFFFF \
+	/TESTVERSION:0x100
+
+$(OUT)/default.xbe: $(OUT)/default.exe
+	cd $(OUT) && $(IMAGEBLD) $(IMAGEBLD_FLAGS) /IN:default.exe /OUT:debug.xbe
+	$(PYTHON) -I tools/xbe.py retail $(OUT)/debug.xbe $@
+	@echo "Built $@"
+
+# The disc: the rebuilt default.xbe with the original game's media/ (from
+# your copy, next to ORIGINAL). extract-xiso is UnleashX's build of it.
+EXTRACT_XISO ?= $(HOME)/decomp/unleashx/build/xbox/tools/extract-xiso
+MEDIA ?= $(dir $(ORIGINAL))media
+XISO_DIR := $(OUT)/disc
+$(OUT)/MadnessInteractiveSX.iso: $(OUT)/default.xbe $(shell find $(MEDIA) -type f 2>/dev/null)
+	rm -rf $(XISO_DIR) && mkdir -p $(XISO_DIR)
+	cp -r $(MEDIA) $(XISO_DIR)/media
+	cp $(OUT)/default.xbe $(XISO_DIR)/default.xbe
+	rm -f $@
+	$(EXTRACT_XISO) -c $(XISO_DIR) $@ > $(OUT)/xiso.log || (cat $(OUT)/xiso.log; false)
+	@echo "Built $@"
+
+xiso: $(OUT)/MadnessInteractiveSX.iso
+
+# The original game on a disc, to compare against; XEMU=1 patches its
+# near plane the same way (tools/xemu_patch.py).
+ORIG_DIR := $(OUT)/disc_orig
+$(OUT)/Original.iso: $(ORIGINAL) tools/xemu_patch.py
+	rm -rf $(ORIG_DIR) && mkdir -p $(ORIG_DIR)
+	cp -r $(MEDIA) $(ORIG_DIR)/media
+ifeq ($(XEMU),1)
+	$(PYTHON) -I tools/xemu_patch.py $(ORIGINAL) $(ORIG_DIR)/default.xbe
+else
+	cp $(ORIGINAL) $(ORIG_DIR)/default.xbe
+endif
+	rm -f $@
+	$(EXTRACT_XISO) -c $(ORIG_DIR) $@ > $(OUT)/xiso_orig.log || (cat $(OUT)/xiso_orig.log; false)
+	@echo "Built $@"
+
+original-xiso: $(OUT)/Original.iso
+
+clean:
+	rm -rf $(OUT)
+
+.PHONY: all info objs clean xiso original-xiso
