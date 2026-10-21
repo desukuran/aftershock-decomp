@@ -47,16 +47,16 @@ static void SetWeaponSizes()
     t[WEAPON_BAT].width = 8.0f;         t[WEAPON_BAT].height = 2.7f;
     t[WEAPON_MACHINEGUN].width = 7.0f;  t[WEAPON_MACHINEGUN].height = 4.0f;
     t[WEAPON_SWORD].width = 15.0f;      t[WEAPON_SWORD].height = 2.5f;
-    t[WEAPON_SHOTGUN].unknown14 = 2.4f;     t[WEAPON_SHOTGUN].unknown18 = 2.4f;
-    t[WEAPON_KNIFE].unknown14 = 1.5f;       t[WEAPON_KNIFE].unknown18 = 1.5f;
-    t[WEAPON_AXE].unknown14 = 2.0f;         t[WEAPON_AXE].unknown18 = 2.0f;
-    t[WEAPON_RIFLE].unknown14 = 2.0f;       t[WEAPON_RIFLE].unknown18 = 2.0f;
-    t[WEAPON_NIGHTSTICK].unknown14 = 1.5f;  t[WEAPON_NIGHTSTICK].unknown18 = 1.5f;
-    t[WEAPON_CHAINSAW].unknown14 = 2.0f;    t[WEAPON_CHAINSAW].unknown18 = 2.0f;
-    t[WEAPON_JETPACK].unknown14 = 0.0f;     t[WEAPON_JETPACK].unknown18 = 0.0f;
-    t[WEAPON_BAT].unknown14 = 2.5f;         t[WEAPON_BAT].unknown18 = 2.5f;
-    t[WEAPON_MACHINEGUN].unknown14 = 0.0f;  t[WEAPON_MACHINEGUN].unknown18 = 0.0f;
-    t[WEAPON_HANDGUN].unknown14 = 1.0f;     t[WEAPON_HANDGUN].unknown18 = 1.0f;
+    t[WEAPON_SHOTGUN].holdOffsetX = 2.4f;     t[WEAPON_SHOTGUN].holdOffsetY = 2.4f;
+    t[WEAPON_KNIFE].holdOffsetX = 1.5f;       t[WEAPON_KNIFE].holdOffsetY = 1.5f;
+    t[WEAPON_AXE].holdOffsetX = 2.0f;         t[WEAPON_AXE].holdOffsetY = 2.0f;
+    t[WEAPON_RIFLE].holdOffsetX = 2.0f;       t[WEAPON_RIFLE].holdOffsetY = 2.0f;
+    t[WEAPON_NIGHTSTICK].holdOffsetX = 1.5f;  t[WEAPON_NIGHTSTICK].holdOffsetY = 1.5f;
+    t[WEAPON_CHAINSAW].holdOffsetX = 2.0f;    t[WEAPON_CHAINSAW].holdOffsetY = 2.0f;
+    t[WEAPON_JETPACK].holdOffsetX = 0.0f;     t[WEAPON_JETPACK].holdOffsetY = 0.0f;
+    t[WEAPON_BAT].holdOffsetX = 2.5f;         t[WEAPON_BAT].holdOffsetY = 2.5f;
+    t[WEAPON_MACHINEGUN].holdOffsetX = 0.0f;  t[WEAPON_MACHINEGUN].holdOffsetY = 0.0f;
+    t[WEAPON_HANDGUN].holdOffsetX = 1.0f;     t[WEAPON_HANDGUN].holdOffsetY = 1.0f;
 }
 
 // Shows a level's picture (levels\N.JPG), replacing the last.

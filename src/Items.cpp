@@ -56,8 +56,8 @@ void SItem::Reset()
         bSticks = true;
         pTypes[WEAPON_KNIFE].width = 5.0f;
         pTypes[WEAPON_KNIFE].height = 2.0f;
-        pTypes[WEAPON_KNIFE].unknown14 = 1.5f;
-        pTypes[WEAPON_KNIFE].unknown18 = 1.5f;
+        pTypes[WEAPON_KNIFE].holdOffsetX = 1.5f;
+        pTypes[WEAPON_KNIFE].holdOffsetY = 1.5f;
         break;
     case WEAPON_BAT:
         fireDelay = 0.0f;
@@ -69,8 +69,8 @@ void SItem::Reset()
         bStuck = false;
         pTypes[WEAPON_BAT].width = 8.0f;
         pTypes[WEAPON_BAT].height = 2.7f;
-        pTypes[WEAPON_BAT].unknown14 = 2.5f;
-        pTypes[WEAPON_BAT].unknown18 = 2.5f;
+        pTypes[WEAPON_BAT].holdOffsetX = 2.5f;
+        pTypes[WEAPON_BAT].holdOffsetY = 2.5f;
         break;
     case WEAPON_NIGHTSTICK:
         fireDelay = 0.0f;
@@ -82,8 +82,8 @@ void SItem::Reset()
         bStuck = false;
         pTypes[WEAPON_NIGHTSTICK].width = 7.0f;
         pTypes[WEAPON_NIGHTSTICK].height = 3.0f;
-        pTypes[WEAPON_NIGHTSTICK].unknown14 = 1.5f;
-        pTypes[WEAPON_NIGHTSTICK].unknown18 = 1.5f;
+        pTypes[WEAPON_NIGHTSTICK].holdOffsetX = 1.5f;
+        pTypes[WEAPON_NIGHTSTICK].holdOffsetY = 1.5f;
         break;
     case WEAPON_SWORD:
         fireDelay = 0.0f;
@@ -95,8 +95,8 @@ void SItem::Reset()
         bSticks = true;
         pTypes[WEAPON_SWORD].width = 10.0f;
         pTypes[WEAPON_SWORD].height = 2.5f;
-        pTypes[WEAPON_SWORD].unknown14 = 3.5f;
-        pTypes[WEAPON_SWORD].unknown18 = 3.5f;
+        pTypes[WEAPON_SWORD].holdOffsetX = 3.5f;
+        pTypes[WEAPON_SWORD].holdOffsetY = 3.5f;
         break;
     case WEAPON_HANDGUN:
         fireDelay = 0.3f;
@@ -109,8 +109,8 @@ void SItem::Reset()
         bGun = true;
         pTypes[WEAPON_HANDGUN].width = 5.0f;
         pTypes[WEAPON_HANDGUN].height = 3.0f;
-        pTypes[WEAPON_HANDGUN].unknown14 = 1.0f;
-        pTypes[WEAPON_HANDGUN].unknown18 = 1.0f;
+        pTypes[WEAPON_HANDGUN].holdOffsetX = 1.0f;
+        pTypes[WEAPON_HANDGUN].holdOffsetY = 1.0f;
         break;
     case WEAPON_SHOTGUN:
         fireDelay = 0.9f;
@@ -123,8 +123,8 @@ void SItem::Reset()
         bGun = true;
         pTypes[WEAPON_SHOTGUN].width = 7.0f;
         pTypes[WEAPON_SHOTGUN].height = 4.0f;
-        pTypes[WEAPON_SHOTGUN].unknown14 = 2.4f;
-        pTypes[WEAPON_SHOTGUN].unknown18 = 2.4f;
+        pTypes[WEAPON_SHOTGUN].holdOffsetX = 2.4f;
+        pTypes[WEAPON_SHOTGUN].holdOffsetY = 2.4f;
         break;
     case WEAPON_JETPACK:
         ammo = 0;
@@ -136,8 +136,8 @@ void SItem::Reset()
         bJetpack = TRUE;
         pTypes[WEAPON_JETPACK].width = 4.0f;
         pTypes[WEAPON_JETPACK].height = 4.0f;
-        pTypes[WEAPON_JETPACK].unknown14 = 0.0f;
-        pTypes[WEAPON_JETPACK].unknown18 = 0.0f;
+        pTypes[WEAPON_JETPACK].holdOffsetX = 0.0f;
+        pTypes[WEAPON_JETPACK].holdOffsetY = 0.0f;
         break;
     case WEAPON_MACHINEGUN:
         fireDelay = 0.3f;
@@ -150,8 +150,8 @@ void SItem::Reset()
         bAutomatic = true;
         pTypes[WEAPON_MACHINEGUN].width = 7.0f;
         pTypes[WEAPON_MACHINEGUN].height = 4.0f;
-        pTypes[WEAPON_MACHINEGUN].unknown14 = 0.0f;
-        pTypes[WEAPON_MACHINEGUN].unknown18 = 0.0f;
+        pTypes[WEAPON_MACHINEGUN].holdOffsetX = 0.0f;
+        pTypes[WEAPON_MACHINEGUN].holdOffsetY = 0.0f;
         break;
     case WEAPON_AXE:
         fireDelay = 0.0f;
@@ -163,8 +163,8 @@ void SItem::Reset()
         bSticks = true;
         pTypes[WEAPON_AXE].width = 5.0f;
         pTypes[WEAPON_AXE].height = 4.0f;
-        pTypes[WEAPON_AXE].unknown14 = 2.0f;
-        pTypes[WEAPON_AXE].unknown18 = 2.0f;
+        pTypes[WEAPON_AXE].holdOffsetX = 2.0f;
+        pTypes[WEAPON_AXE].holdOffsetY = 2.0f;
         break;
     case WEAPON_CHAINSAW:
         fireDelay = 0.2f;
@@ -177,8 +177,8 @@ void SItem::Reset()
         bAutomatic = true;
         pTypes[WEAPON_CHAINSAW].width = 11.0f;
         pTypes[WEAPON_CHAINSAW].height = 5.0f;
-        pTypes[WEAPON_CHAINSAW].unknown14 = 2.0f;
-        pTypes[WEAPON_CHAINSAW].unknown18 = 2.0f;
+        pTypes[WEAPON_CHAINSAW].holdOffsetX = 2.0f;
+        pTypes[WEAPON_CHAINSAW].holdOffsetY = 2.0f;
         break;
     case WEAPON_RIFLE:
         fireDelay = 0.2f;
@@ -191,8 +191,8 @@ void SItem::Reset()
         bAutomatic = true;
         pTypes[WEAPON_RIFLE].width = 10.0f;
         pTypes[WEAPON_RIFLE].height = 4.0f;
-        pTypes[WEAPON_RIFLE].unknown14 = 2.0f;
-        pTypes[WEAPON_RIFLE].unknown18 = 2.0f;
+        pTypes[WEAPON_RIFLE].holdOffsetX = 2.0f;
+        pTypes[WEAPON_RIFLE].holdOffsetY = 2.0f;
         break;
     default:
         fireDelay = 0.4f;
@@ -206,8 +206,8 @@ void SItem::Reset()
         bGun = true;
         pTypes[WEAPON_SHOTGUN].width = 7.0f;
         pTypes[WEAPON_SHOTGUN].height = 4.0f;
-        pTypes[WEAPON_SHOTGUN].unknown14 = 2.4f;
-        pTypes[WEAPON_SHOTGUN].unknown18 = 2.4f;
+        pTypes[WEAPON_SHOTGUN].holdOffsetX = 2.4f;
+        pTypes[WEAPON_SHOTGUN].holdOffsetY = 2.4f;
         break;
     }
 }

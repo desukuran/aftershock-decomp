@@ -115,8 +115,8 @@ struct SWeaponType
     LPDIRECT3DTEXTURE8 pStuckTexture;   // +0x08 stuck in a body (knife, sword, axe)
     float        width;                 // +0x0C drawn size
     float        height;                // +0x10
-    float        unknown14;             // +0x14
-    float        unknown18;             // +0x18
+    float        holdOffsetX;           // +0x14 held: the center, along the aim from the hand
+    float        holdOffsetY;           // +0x18
 };                                      // 0x1C bytes
 
 // An item: a weapon or the jetpack, lying in the world, flying, held, on a
