@@ -1,0 +1,3 @@
+# Functions that never return. Applied before analysis by XbeSetup.java;
+# Ghidra's own non-returning discovery is disabled (it wrongly flagged Sleep
+# in UnleashX). Fill in from symbols/xdklib.txt as needed.
