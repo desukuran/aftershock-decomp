@@ -3,6 +3,7 @@
 #
 #   make -f Makefile.xbox -j4          build/xbox/default.xbe
 #   make -f Makefile.xbox info         show what was found
+#   make -f Makefile.xbox xiso         build/xbox/MadnessInteractiveSX.iso
 #
 # XDK is the XDK's folder (default ./xdk): an installed one (xbox/bin,
 # xbox/include, xbox/lib) or a flat copy (bin, include, lib). The game was
@@ -97,7 +98,22 @@ $(OUT)/default.xbe: $(OUT)/default.exe
 	$(PYTHON) -I tools/xbe.py retail $(OUT)/debug.xbe $@
 	@echo "Built $@"
 
+# The disc: the rebuilt default.xbe with the original game's media/ (from
+# your copy, next to ORIGINAL). extract-xiso is UnleashX's build of it.
+EXTRACT_XISO ?= $(HOME)/decomp/unleashx/build/xbox/tools/extract-xiso
+MEDIA ?= $(dir $(ORIGINAL))media
+XISO_DIR := $(OUT)/disc
+$(OUT)/MadnessInteractiveSX.iso: $(OUT)/default.xbe $(shell find $(MEDIA) -type f 2>/dev/null)
+	rm -rf $(XISO_DIR) && mkdir -p $(XISO_DIR)
+	cp -r $(MEDIA) $(XISO_DIR)/media
+	cp $(OUT)/default.xbe $(XISO_DIR)/default.xbe
+	rm -f $@
+	$(EXTRACT_XISO) -c $(XISO_DIR) $@ > $(OUT)/xiso.log || (cat $(OUT)/xiso.log; false)
+	@echo "Built $@"
+
+xiso: $(OUT)/MadnessInteractiveSX.iso
+
 clean:
 	rm -rf $(OUT)
 
-.PHONY: all info objs clean
+.PHONY: all info objs clean xiso
