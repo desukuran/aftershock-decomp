@@ -68,20 +68,51 @@ quirks of the original that show up in testing are documented in the code.
 
 ## Building
 
-You need:
+Either way you need the **Xbox XDK 5558**, which isn't included. `./xdk`
+should point at it: the folder with `xbox/bin/vc71/CL.exe`, `xbox/include`
+and `xbox/lib` (or pass `XDK=<path>` to make). `make -f Makefile.xbox info`
+shows which compiler, linker and `imagebld` it found.
 
-* the Xbox XDK 5558 (not included; `./xdk` should point at it),
-* Wine, to run its compiler, linker and `imagebld` on Linux,
-* Python 3.
+The result is `build/xbox/default.xbe`. Put it next to the original
+release's `media/` folder (on a disc image, or an Xbox/xemu hard disk) to
+play. The build also compiles `build/layout_check.cpp`, which asserts that
+every class layout in `src/` matches the original's offsets.
+
+### Linux (and WSL)
+
+The XDK's tools run under Wine:
 
 ```
-make -f Makefile.xbox
+sudo apt install make wine python3
+ln -s /path/to/xdk5558 xdk
+make -f Makefile.xbox -j4
 ```
 
-builds `build/xbox/default.xbe`. Put it next to the original release's
-`media/` folder (on a disc image, or an Xbox/xemu hard disk) to play. The
-build also compiles `build/layout_check.cpp`, which asserts that every class
-layout in `src/` matches the original's offsets.
+### Windows
+
+*Not tested yet. Reports welcome.*
+
+The XDK's tools run natively; the Makefile only needs a Unix-style shell for
+`mkdir`, `grep` and `rm`, which Git for Windows provides.
+
+1. Install [Git for Windows](https://gitforwindows.org) (use its **Git Bash**),
+   GNU make (`winget install ezwinports.make`, or `pacman -S make` in
+   MSYS2) and [Python 3](https://www.python.org) with "Add to PATH" ticked.
+2. Link the XDK into the repository without spaces in the path, since make
+   can't handle them. From a Command Prompt in the repository folder:
+   ```
+   mklink /J xdk "C:\Program Files\Microsoft Xbox SDK"
+   ```
+   (or copy the XDK somewhere like `C:\xdk5558` and pass `XDK=C:/xdk5558`).
+3. From Git Bash in the repository folder:
+   ```
+   make -f Makefile.xbox info
+   make -f Makefile.xbox
+   ```
+
+If the compiler can't find `mspdb71.dll`, copy it next to `CL.exe`. If make
+tries to run `wine`, your shell isn't reporting `OS=Windows_NT`; add `WINE=`
+to the command.
 
 The original game is **not** part of this repository. To use the analysis
 tools, put the release in `aftershock_pool_sx/` (the target is `default.xbe`,

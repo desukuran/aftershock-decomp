@@ -14,10 +14,12 @@ OBJ := $(OUT)/obj
 
 ifeq ($(OS),Windows_NT)
 WINE :=
+# python3 is often only the Microsoft Store alias on Windows.
+PYTHON ?= python
 else
 WINE ?= WINEDEBUG=-all wine
-endif
 PYTHON ?= python3
+endif
 
 XDK_ROOT := $(firstword $(wildcard $(XDK)/xbox/include $(XDK)/Xbox/include $(XDK)/Xbox/Include))
 XDK_ROOT := $(if $(XDK_ROOT),$(patsubst %/,%,$(dir $(XDK_ROOT))),$(XDK))
