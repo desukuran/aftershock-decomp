@@ -54,7 +54,7 @@
 000a6100 s_dwLastParticle data:DWORD
 000a6108 g_Credits data:CCredits
 000a6120 g_Config data:BYTE
-000a6121 g_unknownA6121 data:bool
+000a6121 g_bLevelStarting data:bool
 000a6128 g_Game data:CGame
 000a9e34 g_Sound data:CSound
 000a2278 g_CreditsText data
@@ -112,5 +112,5 @@
 00014040 UpdateTutorial void __cdecl UpdateTutorial(void)
 000145a0 RenderTutorialText void __cdecl RenderTutorialText(void)
 00013840 RenderMusicMenu void __cdecl RenderMusicMenu(void)
-000136a0 StartSandbox void __cdecl StartSandbox(void)
+000136a0 StartExperiment void __cdecl StartExperiment(void)
 00013ad0 StartTutorial void __cdecl StartTutorial(void)

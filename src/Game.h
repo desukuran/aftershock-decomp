@@ -351,10 +351,10 @@ public:
     float        frameTime;             // +0x44C
     float        bulletTimeDrain;       // +0x450
     DWORD        menuInputTime;         // +0x454 menus: the last stick move (they repeat every 150 ms)
-    LPDIRECT3DVERTEXBUFFER8 pQuadVB;    // +0x458
-    LPDIRECT3DVERTEXBUFFER8 pVB45C;     // +0x45C
-    LPDIRECT3DVERTEXBUFFER8 pVB460;     // +0x460
-    LPDIRECT3DVERTEXBUFFER8 pVB464;     // +0x464
+    LPDIRECT3DVERTEXBUFFER8 pQuadVB;    // +0x458 the sprite quads (CreateVertexBuffers)
+    LPDIRECT3DVERTEXBUFFER8 pMirroredVB; // +0x45C
+    LPDIRECT3DVERTEXBUFFER8 pVB460;     // +0x460 upside down (with the mirrored lookup, sprites facing left)
+    LPDIRECT3DVERTEXBUFFER8 pShadedVB;  // +0x464 darker on the right
     LPDIRECT3DDEVICE8 pDevice;          // +0x468
     LPDIRECT3DTEXTURE8 texBlack;        // +0x46C black.tga
     int          numHeads;              // +0x470 35
@@ -385,7 +385,7 @@ public:
     float        barTopY;               // +0x94C the letterbox bars between levels
     float        unknown950;            // +0x950
     float        barBottomY;            // +0x954
-    int          sandboxWeapon;         // +0x958
+    int          experimentWeapon;      // +0x958 WEAPON_*: what Red spawns
     SWeaponType* pWeaponTypes;          // +0x95C [NUM_WEAPON_TYPES]
     SCharacter*  pCharacters;           // +0x960 [maxCharacters]
     SItem*       pItems;                // +0x964 [maxItems]
@@ -404,6 +404,21 @@ bool CornerInBox(float x, float y, float z, float dx, float dy, const D3DXVECTOR
 
 extern CGame g_Game;
 extern CConfig g_Config;
-extern bool g_unknownA6121;
+extern bool g_bLevelStarting;
+
+// Main.cpp
+void InitDevice();
+void CreateVertexBuffers();
+void LoadTextures();
+
+// Update.cpp, Render.cpp
+void Update();
+void Render();
+void StartGame();
+void StartExperiment();
+void StartTutorial();
+void UpdateTutorial();
+void RenderTutorialText();
+void RenderMusicMenu();
 
 #endif
