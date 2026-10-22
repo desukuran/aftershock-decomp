@@ -26,7 +26,7 @@ for frame like the original in the differential test (below).
 * It shares the gamepad (`CInput`), the music player (`CMusicManager`, the
   XDK's BackgroundMusic sample) and the font with the other AfterShock games,
   in earlier versions (`../../tools/crossmatch.py pool --near 0.7`).
-* `funcdiff.py -x`: 103 of 118 functions compile to the original's
+* `funcdiff.py -x`: 105 of 118 functions compile to the original's
   instructions, registers and order included; the rest differ in register
   allocation, instruction order or stack slots.
 

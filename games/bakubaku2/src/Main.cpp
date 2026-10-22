@@ -108,8 +108,8 @@ void RenderFrame()
 
         // 0-100: the volume's amplitude in percent.
         float fHeight = (float)pow(10.0, (double)(g_Music.m_fVolume * 0.0005f)) * 100.0f;
-        int nGreen = (int)(fHeight * 2) - 1;
-        D3DCOLOR color = D3DCOLOR_ARGB(250, 255 - nGreen, nGreen, 0);
+        int nLevel = (int)(fHeight + fHeight);
+        D3DCOLOR color = D3DCOLOR_ARGB(250, 256 - nLevel, nLevel - 1, 0);
         COLORVERTEX v[4] =
         {
             { -1.0f,  1.0f, 0.0f, color },
@@ -125,9 +125,10 @@ void RenderFrame()
         g_pBarVB->Unlock();
 
         fHeight *= 0.5f;
-        D3DXMatrixScaling(&matScale, 10.0f, fHeight, 1.0f);
-        D3DXMatrixTranslation(&matTrans, 220.0f, fHeight - 170.0f, 1.0f);
-        D3DXMatrixMultiply(&matWorld, &matScale, &matTrans);
+        D3DXMATRIX matBarScale, matBarTrans;
+        D3DXMatrixScaling(&matBarScale, 10.0f, fHeight, 1.0f);
+        D3DXMatrixTranslation(&matBarTrans, 220.0f, fHeight - 170.0f, 1.0f);
+        D3DXMatrixMultiply(&matWorld, &matBarScale, &matBarTrans);
         g_pDevice->SetTransform(D3DTS_WORLD, &matWorld);
         g_pDevice->SetTexture(0, NULL);
         g_pDevice->SetStreamSource(0, g_pBarVB, sizeof(COLORVERTEX));
@@ -167,19 +168,19 @@ void __cdecl main()
     D3DXCreateTextureFromFileExA(g_pDevice, "D:\\shizno.png", 0, 0, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED,
                                  D3DX_FILTER_LINEAR, D3DX_FILTER_LINEAR, 0, NULL, NULL, &g_pSplashTexture);
 
-    COLORVERTEX cv[4] =
-    {
-        { -1.0f,  1.0f, 0.0f, 0x80FF8080 },
-        {  1.0f,  1.0f, 0.0f, 0x80FF8080 },
-        { -1.0f, -1.0f, 0.0f, 0x80FF8080 },
-        {  1.0f, -1.0f, 0.0f, 0x80FF8080 },
-    };
     QUADVERTEX qv[4] =
     {
         { -1.0f,  1.0f, 0.0f, 0.0f, 0.0f },
         {  1.0f,  1.0f, 0.0f, 1.0f, 0.0f },
         { -1.0f, -1.0f, 0.0f, 0.0f, 1.0f },
         {  1.0f, -1.0f, 0.0f, 1.0f, 1.0f },
+    };
+    COLORVERTEX cv[4] =
+    {
+        { -1.0f,  1.0f, 0.0f, 0x80FF8080 },
+        {  1.0f,  1.0f, 0.0f, 0x80FF8080 },
+        { -1.0f, -1.0f, 0.0f, 0x80FF8080 },
+        {  1.0f, -1.0f, 0.0f, 0x80FF8080 },
     };
     void* pVertices;
     if (g_pQuadVB == NULL)
@@ -209,6 +210,8 @@ void __cdecl main()
     g_Font.Create(g_pDevice, NULL);
 
     strcpy(g_Config.m_strSkin, "D:\\skins\\default\\");
+    g_Settings.nMode = MODE_FREE_FOR_ALL;
+    g_Settings.nBoards = 8;
     g_Settings.nControl[0] = CONTROL_PAD1;
     g_Settings.nControl[1] = CONTROL_PAD1 + 1;
     g_Settings.nControl[2] = CONTROL_PAD1 + 2;
@@ -228,8 +231,6 @@ void __cdecl main()
     g_Settings.nRed = 4;
     g_Settings.nBlue = 4;
     g_Settings.nPlayers = 8;
-    g_Settings.nMode = MODE_FREE_FOR_ALL;
-    g_Settings.nBoards = 8;
     g_Game.Create(g_pDevice, &g_Textures, &g_Input);
 
     g_bSoundEffects = true;

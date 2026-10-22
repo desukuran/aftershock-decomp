@@ -11,7 +11,7 @@ original, quirks included. You need your own copy of each game for its
 | [AfterShock Pool SX](games/pool/README.md) | `games/pool` | 109 of 109 (~158 KB), 100% | Side by side in an emulator, frame by frame |
 | [Madness Interactive SX](games/madness/README.md) | `games/madness` | 93 of 93 (~91 KB), 100% | Screenshots in xemu, pixel-identical to the original |
 | [Star Wars: A New Hope for Homebrew](games/starwars/README.md) | `games/starwars` | 238 of 238 (~97 KB), 100% | Frame by frame against the original (`tools/difftest.py`), every scenario bit-identical; `funcdiff.py` |
-| [Baku Baku X2](games/bakubaku2/README.md) | `games/bakubaku2` | 119 of 119 (~38 KB), 100% | Frame by frame against the original (`tools/difftest.py`): menus, 8-player matches, fuzzed input; `funcdiff.py -x` 103 of 118 instruction for instruction |
+| [Baku Baku X2](games/bakubaku2/README.md) | `games/bakubaku2` | 119 of 119 (~38 KB), 100% | Frame by frame against the original (`tools/difftest.py`): menus, 8-player matches, fuzzed input; `funcdiff.py -x` 105 of 118 instruction for instruction |
 
 <p align="center">
   <img src="games/pool/docs/screenshots/8ball-aim.png" width="400" alt="AfterShock Pool SX: lining up the break">

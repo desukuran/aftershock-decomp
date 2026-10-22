@@ -251,32 +251,34 @@ void CBoard::SetupPieces(LPDIRECT3DDEVICE8 pDevice, CTextures* pTextures, int nC
     m_pDevice = pDevice;
     m_pTextures = pTextures;
 
-    m_pieces[0].m_y = y;
-    m_pieces[0].m_z = z;
     m_pieces[0].m_pDevice = pDevice;
+    m_pieces[0].m_pTextures = pTextures;
     m_pieces[0].m_nCell = nCell;
     m_pieces[0].m_nScale = nScale;
-    m_pieces[0].m_pTextures = pTextures;
-    m_pieces[0].m_type = 0;
     m_pieces[0].m_x = x;
-    m_pieces[1].m_y = y;
+    m_pieces[0].m_y = y;
+    m_pieces[0].m_z = z;
+    m_pieces[0].m_type = 0;
     m_pieces[1].m_pDevice = pDevice;
-    m_pieces[1].m_x = x;
-    m_pieces[1].m_z = z;
+    m_pieces[1].m_pTextures = pTextures;
     m_pieces[1].m_nCell = nCell;
     m_pieces[1].m_nScale = nScale;
-    m_pieces[1].m_pTextures = pTextures;
-    g_nPieceFrame = 0;
+    m_pieces[1].m_x = x;
+    m_pieces[1].m_y = y;
+    m_pieces[1].m_z = z;
     m_pieces[1].m_type = 0;
+    g_nPieceFrame = 0;
 
-    m_x = x;
-    m_z = z;
     m_nCell = nCell;
     m_nScale = nScale;
+    m_x = x;
     m_y = y;
+    m_z = z;
 
     for (int i = 0; i < 5; i++)
     {
+        float fy = (float)(m_y + m_nCell * 10);
+        float fx = nCell + (float)((4 - i) * m_nCell + m_x);
         m_preview[i].pDevice = pDevice;
         m_preview[i].pTextures = pTextures;
         m_preview[i].nScale = nScale;
@@ -284,8 +286,8 @@ void CBoard::SetupPieces(LPDIRECT3DDEVICE8 pDevice, CTextures* pTextures, int nC
         m_preview[i].x = x;
         m_preview[i].y = y;
         m_preview[i].z = z;
-        m_preview[i].fx = nCell + (float)((4 - i) * m_nCell + m_x);
-        m_preview[i].fy = (float)(m_y + m_nCell * 10);
+        m_preview[i].fx = fx;
+        m_preview[i].fy = fy;
         m_preview[i].type = rand() % 8 + 1;
         m_preview[i].type = rand() % 8 + 1;
     }
@@ -477,8 +479,9 @@ void CBoard::Settle()
     {
         if (m_bAlive)
         {
-            m_topX = m_botX = (float)(m_nCellSize * 3 + m_bx);
+            m_botX = (float)(m_nCellSize * 3 + m_bx);
             m_botY = (float)m_by;
+            m_topX = m_botX;
             m_topY = (float)(m_by + m_nCellSize * 9);
             m_bLost = true;
         }
@@ -836,14 +839,14 @@ void CEater::Init(LPDIRECT3DDEVICE8 pDevice, CTextures* pTextures, int* pGrid, i
     m_pTextures = pTextures;
     m_pParticles = pParticles;
     m_pGrid = pGrid;
+    m_index = index;
     m_nCell = nCell;
     m_nScale = nScale;
     m_x = x;
-    m_homeX = (float)x;
-    m_z = z;
-    m_index = index;
-    m_homeY = (float)(y + nCell * 10);
     m_y = y;
+    m_z = z;
+    m_homeX = (float)x;
+    m_homeY = (float)(y + nCell * 10);
     m_nSpeed = 5;
     memset(m_eat, -1, sizeof(m_eat));
     m_fScaleX = m_fScaleY = m_fCell;
@@ -1012,9 +1015,10 @@ void CBoard::Init(LPDIRECT3DDEVICE8 pDevice, CTextures* pTextures, int nCell, in
     {
         m_crumbs[i].m_pTextures = pTextures;
         m_crumbs[i].m_pDevice = pDevice;
+        float z = (float)m_bz;
         for (int j = 0; j < 4; j++)
         {
-            m_crumbs[i].m_crumbs[j].z = (float)m_bz;
+            m_crumbs[i].m_crumbs[j].z = z;
             m_crumbs[i].m_crumbs[j].fScale = 5.0f;
         }
     }
@@ -1081,7 +1085,7 @@ void CBoard::Update()
             continue;
         if (m_eaters[i].m_nEat == 0)
             m_bEating[i] = false;
-        if (m_eaters[i].m_nEat > 1)
+        if (m_eaters[i].m_nEat >= 2)
         {
             m_bEating[i] = true;
             if (m_nGarbage)
@@ -1106,7 +1110,7 @@ void CBoard::Update()
         if (m_pieces[0].m_type && m_pieces[1].m_type)
             Drop(m_nBoost + m_nSpeed);
         m_nBoost = 0;
-        if ((m_pieces[0].m_type != 0) != (m_pieces[1].m_type != 0))
+        if ((m_pieces[0].m_type ? true : false) != (m_pieces[1].m_type ? true : false))
             Drop(m_nSpeed * 5);
         if (!m_bFalling && !m_pieces[0].m_type && !m_pieces[1].m_type)
             FindMatches();
@@ -1122,8 +1126,9 @@ void CBoard::Update()
             {
                 if (m_bAlive)
                 {
-                    m_topX = m_botX = (float)(m_nCellSize * 3 - m_nCellSize / 2 + m_bx);
+                    m_botX = (float)(m_nCellSize * 3 - m_nCellSize / 2 + m_bx);
                     m_botY = (float)m_by;
+                    m_topX = m_botX;
                     m_topY = (float)(m_by + m_nCellSize * 9);
                     m_bLost = true;
                 }
@@ -1155,10 +1160,16 @@ void CBoard::Update()
             m_botY += 1.0f;
         if (m_by + m_nCellSize * 6 < m_topY)
             m_topY -= 1.0f;
+    }
+    if (!m_bShut)
+    {
         if (m_botY != m_nCellSize / 2 + m_by + m_nCellSize)
             return;
         if (m_topY != m_by + m_nCellSize * 6)
             return;
+    }
+    if (!m_bShut)
+    {
         m_dwShutTime = GetTickCount();
         m_bShut = true;
     }
@@ -1227,7 +1238,7 @@ void CBoard::Render()
             {
                 m_pDevice->SetStreamSource(0, g_pQuadVB, sizeof(QUADVERTEX));
                 m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
-                m_pTextures->Set(m_grid[row * BOARD_COLS + col]);
+                m_pTextures2->Set(m_grid[row * BOARD_COLS + col]);
             }
             m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
             m_pDevice->SetTexture(0, NULL);
@@ -1269,7 +1280,7 @@ void CBoard::Render()
         m_pDevice->SetTransform(D3DTS_WORLD, &matBar);
         m_pDevice->SetStreamSource(0, g_pQuadVB, sizeof(QUADVERTEX));
         m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
-        m_pTextures->Set(m_preview[i].type);
+        m_preview[i].pTextures->Set(m_preview[i].type);
         m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
         m_pDevice->SetTexture(0, NULL);
     }
@@ -1280,7 +1291,7 @@ void CBoard::Render()
     m_pDevice->SetTransform(D3DTS_WORLD, &matBar);
     m_pDevice->SetStreamSource(0, g_pQuadVB, sizeof(QUADVERTEX));
     m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
-    m_pTextures->Set(m_portrait.type);
+    m_portrait.pTextures->Set(m_portrait.type);
     m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
     m_pDevice->SetTexture(0, NULL);
 
@@ -1292,7 +1303,7 @@ void CBoard::Render()
         m_pDevice->SetTransform(D3DTS_WORLD, &matBar);
         m_pDevice->SetStreamSource(0, g_pQuadVB, sizeof(QUADVERTEX));
         m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
-        m_pTextures->Set(46);
+        m_pTextures2->Set(46);
         m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
         m_pDevice->SetTexture(0, NULL);
 
@@ -1302,7 +1313,7 @@ void CBoard::Render()
         m_pDevice->SetTransform(D3DTS_WORLD, &matBar);
         m_pDevice->SetStreamSource(0, g_pQuadVB, sizeof(QUADVERTEX));
         m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
-        m_pTextures->Set(45);
+        m_pTextures2->Set(45);
         m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
         m_pDevice->SetTexture(0, NULL);
     }
