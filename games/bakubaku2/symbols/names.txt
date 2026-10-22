@@ -1,0 +1,168 @@
+# address name [signature]: the game's own names, by hand
+
+# ---- the game (src/) ----
+00011000 CCrumbs::Start void __thiscall CCrumbs::Start(CCrumbs *this, float x, float y, int type)
+00011070 CCrumbs::Update void __thiscall CCrumbs::Update(CCrumbs *this)
+000111c0 CCrumbs::Render void __thiscall CCrumbs::Render(CCrumbs *this)
+000112d0 CBoard::Drop void __thiscall CBoard::Drop(CBoard *this, int nSteps)
+000116f0 CBoard::SlideLeft void __thiscall CBoard::SlideLeft(CBoard *this, int nSteps)
+00011820 CBoard::SlideRight void __thiscall CBoard::SlideRight(CBoard *this, int nSteps)
+00011950 CBoard::SetupPieces void __thiscall CBoard::SetupPieces(CBoard *this, void * pDevice, CTextures * pTextures, int nCell, int nScale, int x, int y, int z, int portrait)
+00011b60 CBoard::NextPair void __thiscall CBoard::NextPair(CBoard *this)
+00011d70 CBoard::Rotate void __thiscall CBoard::Rotate(CBoard *this)
+00011fa0 CBoard::Begin void __thiscall CBoard::Begin(CBoard *this)
+00011fb0 CBoard::DropGarbage void __thiscall CBoard::DropGarbage(CBoard *this)
+00012020 CBoard::Settle void __thiscall CBoard::Settle(CBoard *this)
+000120f0 CBoard::Set void __thiscall CBoard::Set(CBoard *this, int col, int row, int value)
+00012110 CBoard::Get int __thiscall CBoard::Get(CBoard *this, int col, int row)
+00012130 CBoard::MoveLeft void __thiscall CBoard::MoveLeft(CBoard *this)
+000121a0 CBoard::MoveRight void __thiscall CBoard::MoveRight(CBoard *this)
+00012220 CBoard::Think void __thiscall CBoard::Think(CBoard *this, bool bHard)
+00012330 CBoard::IsListed bool __thiscall CBoard::IsListed(CBoard *this, int eater, int cell)
+00012370 CBoard::List void __thiscall CBoard::List(CBoard *this, int eater, int cell)
+000123b0 CEater::EatNext void __thiscall CEater::EatNext(CEater *this)
+000124e0 CEater::Aim void __thiscall CEater::Aim(CEater *this, int unused)
+00012620 CPiece::UpdateVertices void __thiscall CPiece::UpdateVertices(CPiece *this)
+00012880 CPiece::Render void __thiscall CPiece::Render(CPiece *this)
+00012980 CBoard::Reset void __thiscall CBoard::Reset(CBoard *this)
+000129e0 CBoard::Flood void __thiscall CBoard::Flood(CBoard *this, int col, int row, int type)
+00012db0 CEater::Init void __thiscall CEater::Init(CEater *this, void * pDevice, CTextures * pTextures, int * pGrid, int index, int nCell, int nScale, int x, int y, int z, CParticles * pParticles)
+00012e80 CEater::Update void __thiscall CEater::Update(CEater *this)
+000132b0 CEater::UpdateVertices void __thiscall CEater::UpdateVertices(CEater *this)
+00013850 CBoard::Init void __thiscall CBoard::Init(CBoard *this, void * pDevice, CTextures * pTextures, int nCell, int nScale, int x, int y, int z, CParticles * pParticles, int portrait)
+000139b0 CBoard::FindMatches void __thiscall CBoard::FindMatches(CBoard *this)
+000139f0 CEater::Render void __thiscall CEater::Render(CEater *this)
+00013b00 CBoard::Update void __thiscall CBoard::Update(CBoard *this)
+00014160 CBoard::Render void __thiscall CBoard::Render(CBoard *this)
+00014740 CGame::Create void __thiscall CGame::Create(CGame *this, void * pDevice, CTextures * pTextures, CInput * pInput)
+000147a0 CGame::LoadSettings void __thiscall CGame::LoadSettings(CGame *this)
+000147d0 CGame::UpdateInput void __thiscall CGame::UpdateInput(CGame *this)
+00014e20 CGame::Render void __thiscall CGame::Render(CGame *this)
+000152b0 CGame::StartMatch void __thiscall CGame::StartMatch(CGame *this)
+000158f0 CGame::UpdateGarbageBar void __thiscall CGame::UpdateGarbageBar(CGame *this)
+000159d0 CGame::ShareGarbage void __thiscall CGame::ShareGarbage(CGame *this)
+00015bb0 CGame::UpdateTimers void __thiscall CGame::UpdateTimers(CGame *this)
+00015c40 CGame::Update void __thiscall CGame::Update(CGame *this)
+000160f0 CInput::CreateGamepads HRESULT __thiscall CInput::CreateGamepads(CInput *this)
+00016180 CInput::Init void __thiscall CInput::Init(CInput *this)
+000161a0 CInput::BlackPressed bool __thiscall CInput::BlackPressed(CInput *this, int pad)
+000161c0 CInput::WhitePressed bool __thiscall CInput::WhitePressed(CInput *this, int pad)
+000161e0 CInput::YPressed bool __thiscall CInput::YPressed(CInput *this, int pad)
+00016200 CInput::BPressed bool __thiscall CInput::BPressed(CInput *this, int pad)
+00016220 CInput::XPressed bool __thiscall CInput::XPressed(CInput *this, int pad)
+00016240 CInput::APressed bool __thiscall CInput::APressed(CInput *this, int pad)
+00016260 CInput::StartDown bool __thiscall CInput::StartDown(CInput *this, int pad)
+00016280 CInput::BackDown bool __thiscall CInput::BackDown(CInput *this, int pad)
+000162a0 CInput::LeftThumbUp float __thiscall CInput::LeftThumbUp(CInput *this, int pad)
+000162d0 CInput::LeftThumbDown float __thiscall CInput::LeftThumbDown(CInput *this, int pad)
+00016300 CInput::LeftThumbLeft float __thiscall CInput::LeftThumbLeft(CInput *this, int pad)
+00016330 CInput::LeftThumbRight float __thiscall CInput::LeftThumbRight(CInput *this, int pad)
+00016360 CInput::DPadUp bool __thiscall CInput::DPadUp(CInput *this, int pad)
+00016380 CInput::DPadDown bool __thiscall CInput::DPadDown(CInput *this, int pad)
+000163a0 CInput::DPadRight bool __thiscall CInput::DPadRight(CInput *this, int pad)
+000163c0 CInput::DPadLeft bool __thiscall CInput::DPadLeft(CInput *this, int pad)
+000163e0 CInput::RightThumbUp float __thiscall CInput::RightThumbUp(CInput *this, int pad)
+00016410 CInput::RightThumbDown float __thiscall CInput::RightThumbDown(CInput *this, int pad)
+00016440 CInput::RightThumbLeft float __thiscall CInput::RightThumbLeft(CInput *this, int pad)
+00016470 CInput::RightThumbRight float __thiscall CInput::RightThumbRight(CInput *this, int pad)
+000164a0 CInput::Update void __thiscall CInput::Update(CInput *this)
+00016810 InitDevice void __cdecl InitDevice(void)
+000169a0 RenderFrame void __cdecl RenderFrame(void)
+00016dc0 ShowSplash void __cdecl ShowSplash(void)
+00016e90 main void __cdecl main(void)
+000172b0 CMenu::Update void __thiscall CMenu::Update(CMenu *this)
+000180d0 CMenu::Render void __thiscall CMenu::Render(CMenu *this)
+00018ca0 CMenu::CreateVertexBuffers void __thiscall CMenu::CreateVertexBuffers(CMenu *this)
+00019030 CMenu::Create void __thiscall CMenu::Create(CMenu *this, void * pDevice, CTextures * pTextures, CInput * pInput, CParticles * pParticles)
+00019110 CMusicManager::CMusicManager CMusicManager * __thiscall CMusicManager::CMusicManager(CMusicManager *this)
+00019160 CMusicManager::Pause HRESULT __thiscall CMusicManager::Pause(CMusicManager *this)
+000191a0 CMusicManager::SetRandom HRESULT __thiscall CMusicManager::SetRandom(CMusicManager *this, BOOL bRandom)
+000191b0 CMusicManager::SetGlobal HRESULT __thiscall CMusicManager::SetGlobal(CMusicManager *this, BOOL bGlobal)
+000191c0 CMusicManager::SetVolume HRESULT __thiscall CMusicManager::SetVolume(CMusicManager *this, float fVolume)
+00019200 CMusicManager::GetCurrentInfo HRESULT __thiscall CMusicManager::GetCurrentInfo(CMusicManager *this, wchar_t * strSoundtrack, wchar_t * strSong, DWORD * pdwLength)
+00019250 CMusicManager::GetPlaybackPosition float __thiscall CMusicManager::GetPlaybackPosition(CMusicManager *this)
+00019270 CMusicManager::LoadSoundtracks HRESULT __thiscall CMusicManager::LoadSoundtracks(CMusicManager *this)
+00019410 CMusicManager::Cleanup HRESULT __thiscall CMusicManager::Cleanup(CMusicManager *this)
+00019450 CMusicManager::FindFreePacket BOOL __thiscall CMusicManager::FindFreePacket(CMusicManager *this, DWORD * pdwPacket, DWORD dwStream)
+000194a0 StreamCallback void __stdcall StreamCallback(void * pStreamContext, void * pPacketContext, DWORD dwStatus)
+000194c0 CSoundtrack::GetSongInfo void __thiscall CSoundtrack::GetSongInfo(CSoundtrack *this, uint uSongIndex, DWORD * pdwID, DWORD * pdwLength, wchar_t * strName)
+00019520 CMusicManager::~CMusicManager void __thiscall CMusicManager::~CMusicManager(CMusicManager *this)
+00019590 CMusicManager::Stop HRESULT __thiscall CMusicManager::Stop(CMusicManager *this)
+00019600 CMusicManager::Prepare HRESULT __thiscall CMusicManager::Prepare(CMusicManager *this)
+00019690 CMusicManager::Initialize HRESULT __thiscall CMusicManager::Initialize(CMusicManager *this)
+00019810 CMusicManager::Play HRESULT __thiscall CMusicManager::Play(CMusicManager *this)
+00019860 CMusicManager::NextSong HRESULT __thiscall CMusicManager::NextSong(CMusicManager *this)
+000198a0 CMusicManager::PrevSong HRESULT __thiscall CMusicManager::PrevSong(CMusicManager *this)
+000198e0 CMusicManager::SelectSoundtrack HRESULT __thiscall CMusicManager::SelectSoundtrack(CMusicManager *this, DWORD dwSoundtrack)
+00019910 CMusicManager::FindNextSong HRESULT __thiscall CMusicManager::FindNextSong(CMusicManager *this)
+000199f0 CMusicManager::ProcessSource HRESULT __thiscall CMusicManager::ProcessSource(CMusicManager *this, DWORD dwPacket, void * pxmp)
+00019ac0 CMusicManager::NextSoundtrack HRESULT __thiscall CMusicManager::NextSoundtrack(CMusicManager *this)
+00019b10 CMusicManager::RandomSong HRESULT __thiscall CMusicManager::RandomSong(CMusicManager *this, BOOL bAnySoundtrack)
+00019ba0 CMusicManager::Process HRESULT __thiscall CMusicManager::Process(CMusicManager *this)
+00019c40 CParticles::Create void __thiscall CParticles::Create(CParticles *this, void * pDevice, CTextures * pTextures, int nParticles, float fScale)
+00019c90 CParticles::Add void __thiscall CParticles::Add(CParticles *this, float x, float y, float z)
+00019d20 CParticles::Update void __thiscall CParticles::Update(CParticles *this)
+00019d70 CParticles::Render void __thiscall CParticles::Render(CParticles *this)
+00019e60 CConfig::Load void __thiscall CConfig::Load(CConfig *this)
+00019f30 CConfig::Save void __thiscall CConfig::Save(CConfig *this)
+0001a260 CSkins::Find void __thiscall CSkins::Find(CSkins *this, void * pDevice, CTextures * pTextures)
+0001a4f0 CSkins::Prev void __thiscall CSkins::Prev(CSkins *this)
+0001a510 CSkins::Next void __thiscall CSkins::Next(CSkins *this)
+0001a530 CSkins::LoadSaved void __thiscall CSkins::LoadSaved(CSkins *this)
+0001a6a0 CSkins::Apply void __thiscall CSkins::Apply(CSkins *this)
+0001a7f0 CSkins::RenderPreview void __thiscall CSkins::RenderPreview(CSkins *this)
+0001a8b0 CSoundEffect::Play void __thiscall CSoundEffect::Play(CSoundEffect *this)
+0001a8e0 InitDirectMusic void __cdecl InitDirectMusic(void)
+0001a970 CSoundEffect::Load void __thiscall CSoundEffect::Load(CSoundEffect *this, char * strFile)
+0001a9b0 CFont::Create void __thiscall CFont::Create(CFont *this, void * pDevice, wchar_t * strFile)
+0001a9f0 CFont::DrawText void __thiscall CFont::DrawText(CFont *this, wchar_t * strText, float x, float y, DWORD r, DWORD g, DWORD b)
+0001aaa0 CTextures::SetDevice void __thiscall CTextures::SetDevice(CTextures *this, void * pDevice)
+0001aab0 CTextures::Load void __thiscall CTextures::Load(CTextures *this, char * strFile, int id)
+0001ab00 CTextures::Set void __thiscall CTextures::Set(CTextures *this, int id)
+
+# ---- not Ghidra functions, or wrongly split ----
+000112d9 !nofunc
+
+# ---- the XDK libraries, unmatched by libmatch ----
+000240f0 DirectMusicCreateDefaultHeap HRESULT __stdcall DirectMusicCreateDefaultHeap(void **ppHeap)
+00024310 DirectMusicCreateDefaultPhysicalHeap HRESULT __stdcall DirectMusicCreateDefaultPhysicalHeap(void **ppHeap)
+00088fbb operator_delete void __cdecl operator_delete(void *p)
+
+# ---- data ----
+000f72fc g_GameSongs data:GAMESONG[5]
+000f7338 FADE_TIME data:float
+000ff6e0 s_eaterUV data:SFrameUV
+000ff700 g_nPieceFrame data:int
+000ff704 s_dwEaterTime data:DWORD
+000ff708 s_pieceUV data:SFrameUV
+000ff728 s_pEaterVB data:void *
+000ff72c s_dwPieceTime data:DWORD
+000ff730 s_pPieceVB data:void *
+000ff734 s_pieceFrame data:SFrame
+000ff744 s_eaterFrame data:SFrame
+000ff754 g_nBackground data:int
+000ff760 g_pDSound data:void *
+000ff764 g_pQuadVB data:void *
+000ff768 g_bMusicOn data:bool
+000ff770 g_Input data:CInput
+000ffb38 g_pDevice data:void *
+000ffb40 g_bShowMusicHud data:bool
+000ffb41 g_bRandomMusic data:bool
+000ffb44 g_nBackgrounds data:int
+000ffb48 g_dwMusicHudTime data:DWORD
+000ffb50 g_Settings data:SMatchSettings
+000ffba4 g_SoundGo data:CSoundEffect
+000ffba8 g_pColorQuadVB data:void *
+000ffbac g_Font data:CFont
+000ffbb8 g_bSoundEffects data:bool
+000ffbc0 g_Textures data:CTextures
+000ffdd0 g_SoundEat data:CSoundEffect
+000ffdd4 g_pSplashTexture data:void *
+000ffdd8 g_nPieceSet data:int
+000ffde0 g_Config data:CConfig
+000ffee0 g_pBarVB data:void *
+000ffee8 g_Music data:CMusicManager
+00100040 g_Game data:CGame
+001070e4 s_menuFrame data:SFrame
+001070f4 g_pLoader data:void *
+001070f8 g_pPerformance data:void *

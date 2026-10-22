@@ -10,10 +10,15 @@ original, quirks included. You need your own copy of each game for its
 |------|--------|---------------------|----------|
 | [AfterShock Pool SX](games/pool/README.md) | `games/pool` | 109 of 109 (~158 KB), 100% | Side by side in an emulator, frame by frame |
 | [Madness Interactive SX](games/madness/README.md) | `games/madness` | 93 of 93 (~91 KB), 100% | Screenshots in xemu, pixel-identical to the original |
+| [Star Wars: A New Hope for Homebrew](games/starwars/README.md) | `games/starwars` | 238 of 238 (~97 KB), 100% | Frame by frame against the original (`tools/difftest.py`), every scenario bit-identical; `funcdiff.py` |
+| [Baku Baku X2](games/bakubaku2/README.md) | `games/bakubaku2` | 119 of 119 (~38 KB), 100% | Frame by frame against the original (`tools/difftest.py`): menus, 8-player matches, fuzzed input; `funcdiff.py` 77 of 118 identical |
 
 <p align="center">
   <img src="games/pool/docs/screenshots/8ball-aim.png" width="400" alt="AfterShock Pool SX: lining up the break">
   <img src="games/madness/docs/screenshots/level1-fight.png" width="400" alt="Madness Interactive SX: the first level">
+</p>
+<p align="center">
+  <img src="games/starwars/docs/screenshots/battle.png" width="400" alt="Star Wars: A New Hope for Homebrew: the space battle">
 </p>
 
 The games were written by the same people with the same engine code (the
@@ -116,6 +121,11 @@ build never has these workarounds.
     from `src/*.h`; `gen_consts.py`, `libmatch.py`, `gen_xdk_symbols.py`.
   * `crossmatch.py <other game>` — functions this game shares with another,
     by instruction shape: where to start on a new game.
+  * `funcdiff.py [-v] [function ...]` — each function of the rebuild against
+    the original's: the calls, constants (floats and strings by value),
+    compares (signed or unsigned, by threshold) and struct offsets only one
+    side has. Codegen differences remain; a constant, compare or call that
+    differs is usually a mistake in `src/`.
   * `xemu_drive.py <xemu.toml> "<script>" <outdir>` — boots xemu with a
     virtual (uinput) gamepad and plays a script of waits, button presses,
     stick pushes, screenshots (`shot:`), memory dumps (`mem:`) and whole-RAM
