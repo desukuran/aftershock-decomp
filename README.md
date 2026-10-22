@@ -19,6 +19,7 @@ original, quirks included. You need your own copy of each game for its
 </p>
 <p align="center">
   <img src="games/starwars/docs/screenshots/battle.png" width="400" alt="Star Wars: A New Hope for Homebrew: the space battle">
+  <img src="games/bakubaku2/docs/screenshots/match.png" width="400" alt="Baku Baku X2: an 8-player match">
 </p>
 
 The games were written by the same people with the same engine code (the
@@ -51,8 +52,9 @@ The XDK's tools run under Wine:
 sudo apt install make wine python3 gcc
 ln -s /path/to/xdk5558 xdk
 make -j4                 # every game
-make madness             # one game
-cd games/pool && make info
+make bakubaku2           # one game: pool, madness, starwars or bakubaku2
+cd games/<game> && make  # the same, from the game's folder
+make info                # (in a game's folder) the toolchain and paths it uses
 ```
 
 Each game's result is `games/<game>/build/xbox/default.xbe`. To get a disc
@@ -77,9 +79,10 @@ The XDK's tools run natively; the Makefiles only need a Unix-style shell for
    mklink /J xdk "C:\Program Files\Microsoft Xbox SDK"
    ```
    (or copy the XDK somewhere like `C:\xdk5558` and pass `XDK=C:/xdk5558`).
-3. From Git Bash in the repository folder:
+3. From Git Bash in the repository folder, for each game you want
+   (`pool`, `madness`, `starwars`, `bakubaku2`):
    ```
-   cd games/pool
+   cd games/<game>
    make info
    make
    ```

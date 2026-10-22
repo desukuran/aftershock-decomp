@@ -11,6 +11,13 @@ run time and custom soundtracks.
 (100% by `tools/progress.py`), the rebuild runs in xemu, and it plays frame
 for frame like the original in the differential test (below).
 
+<p align="center">
+  <img src="docs/screenshots/main-menu.png" width="400" alt="Main menu">
+  <img src="docs/screenshots/match.png" width="400" alt="An 8-player match: four on pads, four computer players">
+</p>
+
+*Screenshots are of the rebuilt XBE running in [xemu](https://xemu.app).*
+
 * The XBE was built with the Xbox XDK 5558 (every library's version, and
   4144 library functions match 5558 byte for byte, against 4056 for 5933
   and 2989 for 4361). Its own code is ~38 KB at 0x11000-0x1AB25; the rest
