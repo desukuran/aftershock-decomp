@@ -28,7 +28,7 @@ from xbe import Xbe  # noqa: E402
 # The libraries that went into Default.xbe (its library versions list), with
 # their 5933 file names. LTCG and debug variants are skipped.
 LIBS = ['xapilib.lib', 'libcmt.lib', 'libcpmt.lib', 'd3d8.lib', 'd3dx8.lib', 'xgraphics.lib', 'dsound.lib',
-        'xkbd.lib', 'xmv.lib', 'xnet.lib', 'xacteng.lib']
+        'xkbd.lib', 'xmv.lib', 'xnet.lib', 'xacteng.lib', 'dmusic.lib']
 
 IMAGE_REL_I386_DIR32 = 0x06
 IMAGE_REL_I386_DIR32NB = 0x07

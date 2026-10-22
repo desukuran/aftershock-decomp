@@ -19,6 +19,13 @@
 #   TITLE_ID, TITLE_NAME, INIT_FLAGS   the original's certificate
 #   ISO_NAME                           the disc image's name
 # and may set:
+#   DATA_DIRS                          the release's folders (and files) for
+#                                      the disc (default media)
+#   TITLE_VERSION                      the certificate's version (default 0, as the originals)
+#   LINK_FLAGS                         extra linker flags the original was
+#                                      linked with
+#   EXTRA_LIBS                         XDK libraries beyond the usual ones
+#   EXTRA_CFLAGS                       compiler flags the original differs in
 #   GENERATED                          files the sources include from $(GEN),
 #                                      with rules to make them
 #   XEMU_PATCH                         a script <in.xbe> <out.xbe> that gives
@@ -35,7 +42,9 @@ endif
 OBJ := $(OUT)/obj
 GEN := $(OUT)/gen
 ORIGINAL ?= original/default.xbe
-MEDIA ?= $(dir $(ORIGINAL))media
+# The release's data folders that go on the disc next to default.xbe.
+DATA_DIRS ?= media
+MEDIA := $(addprefix $(dir $(ORIGINAL)),$(DATA_DIRS))
 
 ifeq ($(OS),Windows_NT)
 WINE :=
@@ -65,14 +74,14 @@ IMAGEBLD = $(WINE) $(abspath $(IMAGEBLD_EXE))
 
 # As the originals: optimized, buffer security checks, SSE, C++ exceptions
 # (for std::string), no RTTI.
-CFLAGS := /nologo /c /Z7 /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 $(XEMU_DEFS) \
+CFLAGS := /nologo /c /Z7 /O2 /GS /arch:SSE /EHsc /GR- /MT /W3 /D_XBOX /DNDEBUG /DWIN32 $(XEMU_DEFS) $(EXTRA_CFLAGS) \
 	/I$(XDK_INC) /I$(GEN)
 
 SRCS := $(sort $(wildcard src/*.cpp))
 OBJS := $(patsubst src/%.cpp,$(OBJ)/%.obj,$(SRCS))
 HEADERS := $(wildcard src/*.h)
 
-LIBS := xapilib.lib d3d8.lib d3dx8.lib xgraphics.lib dsound.lib xacteng.lib xboxkrnl.lib libcmt.lib libcpmt.lib
+LIBS := $(EXTRA_LIBS) xapilib.lib d3d8.lib d3dx8.lib xgraphics.lib dsound.lib xacteng.lib xboxkrnl.lib libcmt.lib libcpmt.lib
 
 all: $(OUT)/default.xbe
 
@@ -104,13 +113,14 @@ objs: $(OBJS) $(OBJ)/layout_check.obj
 
 $(OUT)/default.exe: $(OBJS) $(OBJ)/layout_check.obj
 	@echo "Linking $@"
-	@$(LINK) /nologo /SUBSYSTEM:XBOX /FIXED:NO /DEBUG /INCREMENTAL:NO /OUT:$@ /MAP:$(OUT)/default.map \
+	@$(LINK) /nologo /SUBSYSTEM:XBOX /FIXED:NO /DEBUG /INCREMENTAL:NO $(LINK_FLAGS) /OUT:$@ /MAP:$(OUT)/default.map \
 		/LIBPATH:$(XDK_LIB) $(OBJS) $(LIBS) > $(OUT)/link.log 2>&1 || (cat $(OUT)/link.log; false)
 
 # The original's certificate: title ID, media types, regions, version 1.00.
+TITLE_VERSION ?= 0x0
 IMAGEBLD_FLAGS := /NOLOGO /NOLIBWARN /STACK:0x10000 /INITFLAGS:$(INIT_FLAGS) /TESTID:$(TITLE_ID) \
 	"/TESTNAME:$(TITLE_NAME)" /TESTMEDIATYPES:0x207 /TESTREGION:0x80000007 /TESTRATINGS:0xFFFFFFFF \
-	/TESTVERSION:0x100
+	/TESTVERSION:$(TITLE_VERSION)
 
 $(OUT)/default.xbe: $(OUT)/default.exe
 	cd $(OUT) && $(IMAGEBLD) $(IMAGEBLD_FLAGS) /IN:default.exe /OUT:debug.xbe
@@ -127,7 +137,7 @@ $(REPO)/build/tools/extract-xiso: $(REPO)/thirdparty/extract-xiso/extract-xiso.c
 XISO_DIR := $(OUT)/disc
 $(OUT)/$(ISO_NAME).iso: $(OUT)/default.xbe $(EXTRACT_XISO) $(shell find $(MEDIA) -type f 2>/dev/null)
 	rm -rf $(XISO_DIR) && mkdir -p $(XISO_DIR)
-	cp -r $(MEDIA) $(XISO_DIR)/media
+	cp -r $(MEDIA) $(XISO_DIR)/
 	cp $(OUT)/default.xbe $(XISO_DIR)/default.xbe
 	rm -f $@
 	$(EXTRACT_XISO) -c $(XISO_DIR) $@ > $(OUT)/xiso.log || (cat $(OUT)/xiso.log; false)
@@ -140,7 +150,7 @@ xiso: $(OUT)/$(ISO_NAME).iso
 ORIG_DIR := $(OUT)/disc_orig
 $(OUT)/Original.iso: $(ORIGINAL) $(EXTRACT_XISO) $(XEMU_PATCH)
 	rm -rf $(ORIG_DIR) && mkdir -p $(ORIG_DIR)
-	cp -r $(MEDIA) $(ORIG_DIR)/media
+	cp -r $(MEDIA) $(ORIG_DIR)/
 ifeq ($(XEMU)$(if $(XEMU_PATCH),1),11)
 	$(PYTHON) -I $(XEMU_PATCH) $(ORIGINAL) $(ORIG_DIR)/default.xbe
 else

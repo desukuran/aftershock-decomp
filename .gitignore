@@ -1,5 +1,7 @@
 # Each game's original release (copyrighted): default.xbe and its media.
 /games/*/original/
+# The release archives they come from.
+*.rar
 # Generated: Ghidra projects, exports, flat images, builds.
 /games/*/build/
 /build/

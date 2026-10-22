@@ -17,8 +17,16 @@ comment. The source headers stay the one place a layout is written down.
 Pointers to types this script knows keep their type, other pointers become
 void *; Xbox/STL types are mapped to their symbols/types.h equivalents.
 
+A class derived from another one here (class CTie : public CShip) gets
+its base's members first, and a class that declares a virtual function
+without a base gets a vftable pointer at +0x00.
+
 build/layout_check.cpp asserts every offset and size at compile time
 (the build compiles it), so the C++ layouts can't drift from the binary's.
+
+  gen_src_structs.py --pads     lists the gaps in the C++ classes, where the
+                                compiler would pack later members too early
+  gen_src_structs.py --pads fix inserts the BYTE padXXXX[n] members for them
 
 With DISCOVER=1 in the environment, gaps become DWORD slots named u_XXX
 (bytes where unaligned) instead of byte arrays, so Ghidra's decompiler names
@@ -60,7 +68,10 @@ BASIC = {
     'XINPUT_STATE': ('XINPUT_STATE', 0x16), 'XBGAMEPAD': ('XBGAMEPAD', 0xDC),
 }
 
-CLASS = re.compile(r'^(?:class|struct)\s+(\w+)\s*(?::[^{]*)?$')
+# XDK structs that symbols/types.h doesn't declare: opaque bytes for Ghidra.
+OPAQUE = {'WAVEFORMATEX': 0x12, 'WMAXMOFileContDesc': 0x1E, 'WMAXMOFileHeader': 0x14}
+
+CLASS = re.compile(r'^(?:class|struct)\s+(\w+)\s*(?::\s*(?:public\s+)?(\w+)[^{]*)?$')
 MEMBER = re.compile(r'^\s*(?:struct\s+)?([\w:]+(?:\s*\*+)?)\s+(\w+)\s*(?:\[([^\]]+)\])?\s*;\s*//\s*\+0x([0-9A-Fa-f]+)')
 END = re.compile(r'^\};\s*(?://\s*0x([0-9A-Fa-f]+) bytes)?')
 
@@ -84,16 +95,18 @@ def evaluate(expr, macros):
 
 
 def parse(path, macros):
-    """Yields (name, size or None, [(offset, type, member, count)])."""
+    """Yields (name, size or None, [(offset, type, member, count)], base, virtual)."""
     name, members = None, []
     for line in open(path):
         line = line.rstrip()
         m = CLASS.match(line)
         if m:
-            name, members = m.group(1), []
+            name, base, virtual, members = m.group(1), m.group(2), False, []
             continue
         if name is None:
             continue
+        if re.match(r'^\s*virtual\b', line):
+            virtual = True
         m = MEMBER.match(line)
         if m:
             typ, member, count, off = m.groups()
@@ -102,8 +115,8 @@ def parse(path, macros):
             continue
         m = END.match(line)
         if m:
-            if members:
-                yield name, int(m.group(1), 16) if m.group(1) else None, members
+            if members or base:
+                yield name, int(m.group(1), 16) if m.group(1) else None, members, base, virtual
             name = None
 
 
@@ -111,9 +124,22 @@ def main():
     headers = sorted(glob.glob(os.path.join(ROOT, 'src/*.h')))
     macros = defines(headers)
     structs = {}
+    parsed = {}
     for path in headers:
-        for name, size, members in parse(path, macros):
-            structs[name] = (size, members, os.path.basename(path))
+        for name, size, members, base, virtual in parse(path, macros):
+            parsed[name] = (size, members, os.path.basename(path), base, virtual)
+
+    def inherited(name):
+        """A class's own members after its base's (and the vftable of a root class with virtuals)."""
+        size, members, src, base, virtual = parsed[name]
+        if base in parsed:
+            return inherited(base) + members
+        if virtual:
+            return [(0, 'void*', 'vftable', None)] + members
+        return members
+
+    structs = {name: (v[0], inherited(name), v[2]) for name, v in parsed.items()}
+    own = {name: v[1] for name, v in parsed.items()}
 
     sizes = {k: v[1] for k, v in BASIC.items()}
     out_types = {}
@@ -131,6 +157,8 @@ def main():
             return 'void *', 4, None
         if typ in BASIC:
             return BASIC[typ][0], BASIC[typ][1], None
+        if typ in OPAQUE:
+            return 'BYTE', OPAQUE[typ], None
         if typ in structs:
             return f'struct {typ}', None, typ
         raise ValueError(f'unknown type {typ!r}')
@@ -167,6 +195,9 @@ def main():
                 sys.exit(f'{src}: {name}::{member} at {off:#x} overlaps the previous member (ends {pos:#x})')
             if off > pos:
                 body += gap(pos, off)
+            if typ in OPAQUE:
+                count = n * (count or 1)
+                n = 1
             body.append(f'\t{c} {member}{f"[{count}]" if count else ""}; /* +{off:#x} */')
             pos = off + n * (count or 1)
         if size is None:
@@ -177,6 +208,8 @@ def main():
             body += gap(pos, size)
         sizes[name] = size
         out += [f'struct {name} {{', *body, '};', '']
+    if '--pads' in sys.argv:
+        return pads(parsed, structs, sizes, ctype, '--pads' != sys.argv[-1] and sys.argv[-1] == 'fix')
     os.makedirs(os.path.join(ROOT, 'build'), exist_ok=True)
     with open(os.path.join(ROOT, 'build/src_structs.h'), 'w') as f:
         f.write('\n'.join(out))
@@ -184,8 +217,8 @@ def main():
     check = ['// Generated by tools/gen_src_structs.py -- do not edit', '#include <stddef.h>']
     check += [f'#include "{os.path.basename(p)}"' for p in headers]
     for name in order:
-        size, members, _ = structs[name]
-        for off, _, member, _ in members:
+        size = structs[name][0]
+        for off, _, member, _ in own[name]:
             if re.fullmatch(r'pad[0-9A-Fa-f]+', member):
                 continue
             check.append(f'C_ASSERT(offsetof({name}, {member}) == {off:#x});')
@@ -194,6 +227,56 @@ def main():
     with open(os.path.join(ROOT, 'build/layout_check.cpp'), 'w') as f:
         f.write('\n'.join(check) + '\n')
     print(f'{len(order)} structs from src/')
+
+
+ALIGN1 = ('char', 'BYTE', 'bool') + tuple(OPAQUE)
+ALIGN2 = ('WORD', 'short', 'SHORT', 'WCHAR', 'wchar_t')
+
+
+def pads(parsed, structs, sizes, ctype, fix):
+    """Where a class's members leave a gap the compiler won't (it only pads
+    to each member's alignment), list it, or with fix insert a BYTE padXXXX
+    member into the header."""
+    def align(typ):
+        if typ in ALIGN1:
+            return 1
+        if typ in ALIGN2:
+            return 2
+        return 4
+
+    edits = {}
+    for name, (size, members, src, base, virtual) in parsed.items():
+        pos = sizes[base] if base in parsed else (4 if virtual else 0)
+        gaps = []
+        for off, typ, member, count in sorted(members):
+            c, n, dep = ctype(typ)
+            if dep:
+                n = sizes[dep]
+            a = align(typ)
+            natural = (pos + a - 1) // a * a
+            if off > natural and not re.fullmatch(r'pad[0-9A-Fa-f]+', member):
+                gaps.append((pos, off, member))
+            pos = max(pos, off + n * (count or 1))
+        if size is not None and size > (pos + 3) // 4 * 4:
+            gaps.append((pos, size, None))
+        for lo, hi, member in gaps:
+            print(f'{src}: {name} +{lo:#x}..+{hi:#x} ({hi - lo:#x} bytes) before {member or "the end"}')
+            edits.setdefault(src, []).append((name, lo, hi, member))
+    if not fix:
+        return
+    for src, items in edits.items():
+        path = os.path.join(ROOT, 'src', src)
+        lines = open(path).read().split('\n')
+        for name, lo, hi, member in items:
+            start = next(i for i, l in enumerate(lines) if CLASS.match(l) and CLASS.match(l).group(1) == name)
+            for i in range(start + 1, len(lines)):
+                if (member and re.search(r'\b%s\s*(\[[^\]]*\])?\s*;\s*//' % member, lines[i])) or \
+                        (not member and END.match(lines[i])):
+                    width = len(f'{sizes.get(name, hi):x}') if hi > 0xFF else 2
+                    pad = f'    BYTE         pad{lo:0{width}X}[0x{hi - lo:X}];'
+                    lines.insert(i, f'{pad:<40}// +0x{lo:0{max(width, 2)}X}')
+                    break
+        open(path, 'w').write('\n'.join(lines))
 
 
 if __name__ == '__main__':

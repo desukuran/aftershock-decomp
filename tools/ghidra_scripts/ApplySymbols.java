@@ -153,10 +153,13 @@ public class ApplySymbols extends GhidraScript {
 		boolean isData = sig != null && (sig.equals("data") || sig.startsWith("data:"));
 		if (b == null || !b.isExecute() || isData) {
 			Symbol s = st.getPrimarySymbol(a);
-			if (s != null && s.getSource() != SourceType.DEFAULT && s.getName(true).equals(fullName)) {
+			boolean named = s != null && s.getSource() != SourceType.DEFAULT && s.getName(true).equals(fullName);
+			if (named && (sig == null || !sig.startsWith("data:"))) {
 				return;
 			}
-			createLabel(a, name, ns, true, SourceType.USER_DEFINED);
+			if (!named) {
+				createLabel(a, name, ns, true, SourceType.USER_DEFINED);
+			}
 			if (sig != null && sig.startsWith("data:")) {
 				DataType dt = new ghidra.util.data.DataTypeParser(currentProgram.getDataTypeManager(), null, null,
 					ghidra.util.data.DataTypeParser.AllowedDataTypes.FIXED_LENGTH).parse(sig.substring(5).trim());

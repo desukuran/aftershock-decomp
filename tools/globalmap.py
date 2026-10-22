@@ -15,7 +15,7 @@ from capstone import Cs, CS_ARCH_X86, CS_MODE_32  # noqa: E402
 from capstone.x86 import X86_OP_MEM, X86_OP_IMM  # noqa: E402
 from xbe import Xbe  # noqa: E402
 
-from gameconf import ORIGINAL  # noqa: E402
+from gameconf import ROOT, ORIGINAL, APP_RANGES  # noqa: E402
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
         for line in f:
             a, size, block, name = line.split('\t')[:4]
             a = int(a, 16)
-            if block == '.text' and 0x11000 <= a < 0x279AC:
+            if block == '.text' and any(lo_ <= a < hi_ for lo_, hi_ in APP_RANGES):
                 funcs.append((a, int(size), name))
     md = Cs(CS_ARCH_X86, CS_MODE_32)
     md.detail = True
