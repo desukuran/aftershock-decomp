@@ -16,7 +16,7 @@
 #define MAX_SOUNDTRACK_NAME 32
 #define MAX_SONG_NAME       32
 
-extern const FLOAT FADE_TIME;
+extern FLOAT FADE_TIME;
 
 enum MM_STATE
 {

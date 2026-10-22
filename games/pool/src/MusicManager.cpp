@@ -2,13 +2,14 @@
 #include "MusicManager.h"
 #include "Game.h"
 
-const FLOAT FADE_TIME = PACKET_COUNT * PACKET_TIME;
-
 // 0x000B6C4C
 GAMESONG g_GameSongs[NUM_GAME_SONGS] =
 {
     { L"Push Black!", "D:\\nomotherfuckingsongs.wma", 0 },
 };
+
+// 0x000B6C58 (not const, so it is read at run time)
+FLOAT FADE_TIME = PACKET_COUNT * PACKET_TIME;
 
 // 0x00036C60
 // A packet finished playing: count it if it was on the current stream.

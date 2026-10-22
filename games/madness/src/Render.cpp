@@ -363,7 +363,7 @@ void Render()
 
     if (g_Game.state != STATE_LOADING && g_Game.musicMenuTime != 0 && g_Game.bShowMusicMenu)
     {
-        if ((int)(GetTickCount() - g_Game.musicMenuTime) > 1999)
+        if (GetTickCount() - g_Game.musicMenuTime > 1999)
             g_Game.musicMenuTime = 0;
         RenderMusicMenu();
     }

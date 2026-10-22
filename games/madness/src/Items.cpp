@@ -434,7 +434,7 @@ void SItem::Update(int owner, float delay)
         // a bat knocking a flying head about
         if (i != 0 && ch.bHeadless && type == WEAPON_BAT && speed > 2.0f &&
             CornerInBox(pos.x, pos.y, pos.z, s, c, ch.headPos, 5.0f, 5.0f) &&
-            (int)(GetTickCount() - g_Game.pCharacters[i].lastHitTime) > 399 &&
+            GetTickCount() - g_Game.pCharacters[i].lastHitTime > 399 &&
             (bHeld == true || (this == g_Game.pCharacters[0].pThrown && bounces < 3)))
         {
             g_Game.pCharacters[i].lastHitTime = GetTickCount();
@@ -479,7 +479,7 @@ void SItem::Update(int owner, float delay)
         }
 
         float hitSpeed = D3DXVec3Length(&vel);
-        if ((hitSpeed >= 5.0f || hitSpeed <= -5.0f) && (int)(GetTickCount() - tc.lastHitTime) > 399 && tc.health > 0)
+        if ((hitSpeed >= 5.0f || hitSpeed <= -5.0f) && GetTickCount() - tc.lastHitTime > 399 && tc.health > 0)
         {
             g_Game.pCharacters[i].lastHitTime = GetTickCount();
             g_Game.pCharacters[i].vel = (pos - lastPos) * 5.0f;

@@ -6,7 +6,7 @@
 // Has `ms` passed since the last menu input?
 static bool InputReady(int ms)
 {
-    return (int)(GetTickCount() - g_Game.lastInputTime) >= ms;
+    return GetTickCount() - g_Game.lastInputTime >= (DWORD)ms;
 }
 
 // Copies the chosen profiles' names to the players.

@@ -232,7 +232,7 @@ void UpdateTutorial()
     if (g_Game.bBulletTime)
     {
         g_Game.frameTime = g_Game.frameMs * 0.0002f;
-        if ((int)(GetTickCount() - g_Game.bulletTimeSoundTime) > 1199)
+        if (GetTickCount() - g_Game.bulletTimeSoundTime > 1199)
         {
             g_Game.bulletTimeSoundTime = GetTickCount();
             g_Sound.Play(SOUND_HEARTBEAT);

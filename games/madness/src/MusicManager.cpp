@@ -2,14 +2,15 @@
 #include "MusicManager.h"
 #include "Game.h"
 
-const FLOAT FADE_TIME = PACKET_COUNT * PACKET_TIME;
-
 // 0x000A2C5C
 // The theme song (by Devastating Supremacy), 4:20 long.
 GAMESONG g_GameSongs[NUM_GAME_SONGS] =
 {
     { L"Cold Fields of Death", "D:\\Media\\coldfields.wma", 260400 },
 };
+
+// 0x000A2C68 (not const, so it is read at run time)
+FLOAT FADE_TIME = PACKET_COUNT * PACKET_TIME;
 
 // 0x0001A740
 // A packet finished playing: count it if it was on the current stream.

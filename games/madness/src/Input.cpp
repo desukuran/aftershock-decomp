@@ -4,7 +4,7 @@
 // Dead zones applied when scaling the thumbsticks to [-1,+1]. The right
 // stick's X axis has a bigger one than the sample's 0.24.
 #define DEADZONE        0.24f
-#define DEADZONE_RIGHTX 0.36f
+#define DEADZONE_RIGHTX 0.359999985f    // 0x3EB851EB: a bit under 0.36f
 
 // The accessors' threshold, applied again on the scaled value.
 #define THUMB_THRESHOLD 0.24f
@@ -102,8 +102,7 @@ void CInput::Update()
         m_Gamepads[0].bAnalogButtons[XINPUT_GAMEPAD_RIGHT_TRIGGER] &&
         m_Gamepads[0].bPressedAnalogButtons[XINPUT_GAMEPAD_BLACK])
     {
-        LAUNCH_DATA ld;
-        ZeroMemory(&ld, sizeof(ld));
+        LAUNCH_DATA ld = { 0 };
         XLaunchNewImage(NULL, &ld);
     }
 }

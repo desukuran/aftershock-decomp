@@ -5,7 +5,7 @@
 
 static bool InputReady(int ms)
 {
-    return (int)(GetTickCount() - g_Game.lastInputTime) >= ms;
+    return GetTickCount() - g_Game.lastInputTime >= (DWORD)ms;
 }
 
 // The balls (types, textures, count) and player count for the game type.

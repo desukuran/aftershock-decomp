@@ -122,7 +122,7 @@ void SCharacter::Render()
     if (bRespawning)
     {
         respawnFade -= g_Game.bulletTimeDrain;
-        if ((int)(GetTickCount() - respawnTime) > 2999)
+        if (GetTickCount() - respawnTime > 2999)
         {
             respawnTime = 0;
             bRespawning = false;

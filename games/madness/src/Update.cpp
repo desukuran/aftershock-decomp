@@ -44,7 +44,7 @@ static void ToggleBulletTime()
 static void SlowDown()
 {
     g_Game.frameTime = g_Game.frameMs * 0.0002f;
-    if ((int)(GetTickCount() - g_Game.bulletTimeSoundTime) > 1199)
+    if (GetTickCount() - g_Game.bulletTimeSoundTime > 1199)
     {
         g_Game.bulletTimeSoundTime = GetTickCount();
         g_Sound.Play(SOUND_HEARTBEAT);
@@ -68,7 +68,7 @@ static void UpdateMusicMenu()
     if (g_Game.musicMenuTime == 0)
         return;
 
-    if (g_Game.input.WhitePressed(0) && (int)(GetTickCount() - g_Game.whiteTime) > 299)
+    if (g_Game.input.WhitePressed(0) && GetTickCount() - g_Game.whiteTime > 299)
     {
         g_Game.musicMenuTime = GetTickCount();
         g_Game.music.Stop(&g_Game);
@@ -428,7 +428,7 @@ static void BarsOut()
 static void UpdatePlaying()
 {
     g_Game.spawnTimer -= g_Game.frameTime;
-    if ((int)(GetTickCount() - g_Game.menuInputTime) > 149)
+    if (GetTickCount() - g_Game.menuInputTime > 149)
     {
         g_Game.menuInputTime = GetTickCount();
         if (g_Game.input.StartDown(0))
@@ -489,7 +489,7 @@ static void UpdatePlaying()
         }
         if (!bEnemyLeft && g_Game.levelClearTime == 0)
             g_Game.levelClearTime = GetTickCount();
-        if ((int)(GetTickCount() - g_Game.levelClearTime) > 3999)
+        if (GetTickCount() - g_Game.levelClearTime > 3999)
         {
             if (!g_Game.bLevelClear)
             {
