@@ -2,7 +2,7 @@
 #include "Game.h"
 
 // 0x00019C40
-// Quirk: the old array is freed with free(), not delete.
+// Quirk: the old array is freed with delete, not delete[].
 void CParticles::Create(LPDIRECT3DDEVICE8 pDevice, CTextures* pTextures, int nParticles, float fScale)
 {
     m_pDevice = pDevice;
@@ -10,7 +10,7 @@ void CParticles::Create(LPDIRECT3DDEVICE8 pDevice, CTextures* pTextures, int nPa
     m_nParticles = nParticles;
     m_fScale = fScale;
     if (m_pParticles)
-        free(m_pParticles);
+        delete m_pParticles;
     m_pParticles = new SParticle[m_nParticles];
 }
 
@@ -41,12 +41,8 @@ void CParticles::Update()
 {
     for (int i = 0; i < m_nParticles; i++)
     {
-        if (m_pParticles[i].bActive)
-        {
-            SParticle* p = &m_pParticles[i];
-            if (GetTickCount() - p->dwStart >= 600)
-                p->bActive = false;
-        }
+        if (m_pParticles[i].bActive && GetTickCount() - m_pParticles[i].dwStart >= 600)
+            m_pParticles[i].bActive = false;
     }
 }
 

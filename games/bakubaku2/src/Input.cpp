@@ -43,52 +43,52 @@ HRESULT CInput::CreateGamepads()
 // 0x000164A0
 void CInput::Update()
 {
+    XBGAMEPAD* pGamepads = m_Gamepads;
+
     DWORD dwInsertions, dwRemovals;
     XGetDeviceChanges(XDEVICE_TYPE_GAMEPAD, &dwInsertions, &dwRemovals);
 
     for (DWORD i = 0; i < 4; i++)
     {
-        XBGAMEPAD* pPad = &m_Gamepads[i];
-
-        pPad->bRemoved = (dwRemovals & (1 << i)) != 0;
-        if (pPad->bRemoved)
+        pGamepads[i].bRemoved = (dwRemovals & (1 << i)) != 0;
+        if (pGamepads[i].bRemoved)
         {
-            if (pPad->hDevice)
-                XInputClose(pPad->hDevice);
-            pPad->hDevice = NULL;
-            pPad->Feedback.Rumble.wLeftMotorSpeed = 0;
-            pPad->Feedback.Rumble.wRightMotorSpeed = 0;
+            if (pGamepads[i].hDevice)
+                XInputClose(pGamepads[i].hDevice);
+            pGamepads[i].hDevice = NULL;
+            pGamepads[i].Feedback.Rumble.wLeftMotorSpeed = 0;
+            pGamepads[i].Feedback.Rumble.wRightMotorSpeed = 0;
         }
 
-        pPad->bInserted = (dwInsertions & (1 << i)) != 0;
-        if (pPad->bInserted)
+        pGamepads[i].bInserted = (dwInsertions & (1 << i)) != 0;
+        if (pGamepads[i].bInserted)
         {
-            pPad->hDevice = XInputOpen(XDEVICE_TYPE_GAMEPAD, i, XDEVICE_NO_SLOT, NULL);
-            if (pPad->hDevice)
-                XInputGetCapabilities(pPad->hDevice, &pPad->caps);
+            pGamepads[i].hDevice = XInputOpen(XDEVICE_TYPE_GAMEPAD, i, XDEVICE_NO_SLOT, NULL);
+            if (pGamepads[i].hDevice)
+                XInputGetCapabilities(pGamepads[i].hDevice, &pGamepads[i].caps);
         }
 
-        if (pPad->hDevice)
+        if (pGamepads[i].hDevice)
         {
-            XInputGetState(pPad->hDevice, &m_InputStates[i]);
-            memcpy(pPad, &m_InputStates[i].Gamepad, sizeof(XINPUT_GAMEPAD));
+            XInputGetState(pGamepads[i].hDevice, &m_InputStates[i]);
+            memcpy(&pGamepads[i], &m_InputStates[i].Gamepad, sizeof(XINPUT_GAMEPAD));
 
-            pPad->fX1 = ScaleThumb(pPad->sThumbLX);
-            pPad->fY1 = ScaleThumb(pPad->sThumbLY);
-            pPad->fX2 = ScaleThumb(pPad->sThumbRX);
-            pPad->fY2 = ScaleThumb(pPad->sThumbRY);
+            pGamepads[i].fX1 = ScaleThumb(pGamepads[i].sThumbLX);
+            pGamepads[i].fY1 = ScaleThumb(pGamepads[i].sThumbLY);
+            pGamepads[i].fX2 = ScaleThumb(pGamepads[i].sThumbRX);
+            pGamepads[i].fY2 = ScaleThumb(pGamepads[i].sThumbRY);
 
-            pPad->wPressedButtons = (pPad->wLastButtons ^ pPad->wButtons) & pPad->wButtons;
-            pPad->wLastButtons = pPad->wButtons;
+            pGamepads[i].wPressedButtons = (pGamepads[i].wLastButtons ^ pGamepads[i].wButtons) & pGamepads[i].wButtons;
+            pGamepads[i].wLastButtons = pGamepads[i].wButtons;
 
             for (DWORD b = 0; b < 8; b++)
             {
-                BOOL bDown = pPad->bAnalogButtons[b] > XINPUT_GAMEPAD_MAX_CROSSTALK;
+                BOOL bDown = pGamepads[i].bAnalogButtons[b] > XINPUT_GAMEPAD_MAX_CROSSTALK;
                 if (bDown)
-                    pPad->bPressedAnalogButtons[b] = !pPad->bLastAnalogButtons[b];
+                    pGamepads[i].bPressedAnalogButtons[b] = !pGamepads[i].bLastAnalogButtons[b];
                 else
-                    pPad->bPressedAnalogButtons[b] = FALSE;
-                pPad->bLastAnalogButtons[b] = bDown;
+                    pGamepads[i].bPressedAnalogButtons[b] = FALSE;
+                pGamepads[i].bLastAnalogButtons[b] = bDown;
             }
         }
     }
@@ -117,17 +117,17 @@ bool CInput::BlackPressed(int pad) { return m_Gamepads[pad].bPressedAnalogButton
 bool CInput::WhitePressed(int pad) { return m_Gamepads[pad].bPressedAnalogButtons[XINPUT_GAMEPAD_WHITE] ? true : false; }
 
 // 0x00016360
-bool CInput::DPadUp(int pad) { return (m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0; }
+bool CInput::DPadUp(int pad) { return m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_UP ? true : false; }
 // 0x00016380
-bool CInput::DPadDown(int pad) { return (m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0; }
+bool CInput::DPadDown(int pad) { return m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_DOWN ? true : false; }
 // 0x000163C0
-bool CInput::DPadLeft(int pad) { return (m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0; }
+bool CInput::DPadLeft(int pad) { return m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_LEFT ? true : false; }
 // 0x000163A0
-bool CInput::DPadRight(int pad) { return (m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0; }
+bool CInput::DPadRight(int pad) { return m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_DPAD_RIGHT ? true : false; }
 // 0x00016260
-bool CInput::StartDown(int pad) { return (m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_START) != 0; }
+bool CInput::StartDown(int pad) { return m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_START ? true : false; }
 // 0x00016280
-bool CInput::BackDown(int pad) { return (m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_BACK) != 0; }
+bool CInput::BackDown(int pad) { return m_Gamepads[pad].wButtons & XINPUT_GAMEPAD_BACK ? true : false; }
 
 // 0x000162A0
 float CInput::LeftThumbUp(int pad)

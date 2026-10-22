@@ -35,12 +35,12 @@ void InitDevice()
 {
     D3DPRESENT_PARAMETERS pp;
     ZeroMemory(&pp, sizeof(pp));
-    pp.BackBufferWidth = 640;
-    pp.BackBufferHeight = 480;
-    pp.BackBufferFormat = D3DFMT_X8R8G8B8;
-    pp.BackBufferCount = 1;
-    pp.EnableAutoDepthStencil = TRUE;
     pp.AutoDepthStencilFormat = D3DFMT_F24S8;
+    pp.BackBufferCount = 1;
+    pp.BackBufferFormat = D3DFMT_X8R8G8B8;
+    pp.BackBufferHeight = 480;
+    pp.BackBufferWidth = 640;
+    pp.EnableAutoDepthStencil = TRUE;
     pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
     pp.FullScreen_RefreshRateInHz = 0;
     Direct3D_CreateDevice(0, D3DDEVTYPE_HAL, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, &g_pDevice);
@@ -125,11 +125,10 @@ void RenderFrame()
         g_pBarVB->Unlock();
 
         fHeight *= 0.5f;
-        D3DXMATRIX matBarScale, matBarTrans, matBar;
-        D3DXMatrixScaling(&matBarScale, 10.0f, fHeight, 1.0f);
-        D3DXMatrixTranslation(&matBarTrans, 220.0f, fHeight - 170.0f, 1.0f);
-        D3DXMatrixMultiply(&matBar, &matBarScale, &matBarTrans);
-        g_pDevice->SetTransform(D3DTS_WORLD, &matBar);
+        D3DXMatrixScaling(&matScale, 10.0f, fHeight, 1.0f);
+        D3DXMatrixTranslation(&matTrans, 220.0f, fHeight - 170.0f, 1.0f);
+        D3DXMatrixMultiply(&matWorld, &matScale, &matTrans);
+        g_pDevice->SetTransform(D3DTS_WORLD, &matWorld);
         g_pDevice->SetTexture(0, NULL);
         g_pDevice->SetStreamSource(0, g_pBarVB, sizeof(COLORVERTEX));
         g_pDevice->SetVertexShader(D3DFVF_COLORVERTEX);

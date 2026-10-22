@@ -55,8 +55,8 @@ void CCrumbs::Update()
         m_crumbs[0].x -= m_crumbs[0].dx;
         m_crumbs[1].x -= m_crumbs[1].dx;
         m_crumbs[2].y += m_crumbs[2].dy;
-        m_crumbs[2].x += m_crumbs[2].dx;
         m_crumbs[3].y += m_crumbs[3].dy * 0.5f;
+        m_crumbs[2].x += m_crumbs[2].dx;
         m_crumbs[3].x += m_crumbs[3].dx;
     }
     if (GetTickCount() - m_dwStart > 500)
@@ -180,7 +180,11 @@ void CBoard::Drop(int nSteps)
                         if (m_pieces[1].m_type)
                         {
                             m_pieces[1].m_bLanded = true;
-                            Place(this, m_pieces[1]);
+                            if (Get(m_pieces[1].m_col, m_pieces[1].m_row))
+                                m_pieces[1].m_row++;
+                            Set(m_pieces[1].m_col, m_pieces[1].m_row, m_pieces[1].m_type);
+                            m_pieces[1].m_bLanded = false;
+                            m_pieces[1].m_type = 0;
                         }
                         m_pieces[0].m_bLanded = true;
                         if (m_pieces[0].m_type)
@@ -375,8 +379,8 @@ void CBoard::Rotate()
     case 0:
         if (m_pieces[0].m_row > 0 && !Get(m_pieces[0].m_col, m_pieces[0].m_row - 1))
         {
-            m_pieces[1].m_col--;
             m_pieces[1].m_row--;
+            m_pieces[1].m_col--;
             m_pieces[1].m_fx = m_pieces[0].m_fx;
             m_pieces[1].m_fy = m_pieces[0].m_fy - m_nScale * 2;
             m_rotation++;
@@ -387,8 +391,8 @@ void CBoard::Rotate()
         {
             m_pieces[1].m_row++;
             m_pieces[1].m_col--;
-            m_pieces[1].m_fy = m_pieces[0].m_fy;
             m_pieces[1].m_fx = m_pieces[0].m_fx - m_nScale * 2;
+            m_pieces[1].m_fy = m_pieces[0].m_fy;
             m_rotation++;
         }
         break;
@@ -449,7 +453,7 @@ void CBoard::DropGarbage()
 // nine rows: the board is full, and the lion comes for it.
 void CBoard::Settle()
 {
-    bool bMoved = false;
+    BYTE bMoved = FALSE;
     bool bFull = true;
     for (int row = 0; row < 9; row++)
     {
@@ -468,7 +472,7 @@ void CBoard::Settle()
             }
         }
     }
-    m_bFalling = bMoved;
+    m_bFalling = bMoved != 0;
     if (bFull)
     {
         if (m_bAlive)
@@ -541,7 +545,7 @@ void CBoard::Think(bool bHard)
             {
                 if (bFound)
                     break;
-                if (!m_bAimed && (Get(col, row) == m_pieces[0].m_type || Get(col, row) == m_pieces[0].m_type - 4))
+                if (!m_bAimed && (m_pieces[0].m_type == Get(col, row) || m_pieces[0].m_type - 4 == Get(col, row)))
                 {
                     if (m_pieces[0].m_col < col)
                     {
@@ -554,6 +558,7 @@ void CBoard::Think(bool bHard)
                     if (m_pieces[0].m_col == col)
                         m_bAimed = true;
                     bFound = true;
+                    break;
                 }
             }
         }
@@ -649,15 +654,17 @@ void CEater::Aim(int unused)
 {
     m_tx = -1.0f;
     m_ty = -1.0f;
+    int i = 0;
     for (int row = 0; row < BOARD_ROWS; row++)
     {
         for (int col = 0; col < BOARD_COLS; col++)
         {
-            if (row * BOARD_COLS + col == m_eat[0])
+            if (i == m_eat[0])
             {
                 m_tx = (float)(m_x + col * m_nCell);
                 m_ty = (float)(m_nCell * row + m_y);
             }
+            i++;
         }
     }
 }
@@ -665,21 +672,17 @@ void CEater::Aim(int unused)
 // ---- the falling pair, drawn -------------------------------------------------------------
 
 // A quad from -1 to 1 (a triangle strip), facing the camera or mirrored.
-static __forceinline void SetQuad(QUADVERTEX* v, const SFrameUV& uv)
-{
-    v[0].x = -1.0f; v[0].y =  1.0f; v[0].z = 0.0f; v[0].tu = uv.tu1; v[0].tv = uv.tv2;
-    v[1].x =  1.0f; v[1].y =  1.0f; v[1].z = 0.0f; v[1].tu = uv.tu2; v[1].tv = uv.tv1;
-    v[2].x = -1.0f; v[2].y = -1.0f; v[2].z = 0.0f; v[2].tu = uv.tu4; v[2].tv = uv.tv3;
-    v[3].x =  1.0f; v[3].y = -1.0f; v[3].z = 0.0f; v[3].tu = uv.tu3; v[3].tv = uv.tv4;
-}
+#define SET_QUAD(v, uv) \
+    v[0].x = -1.0f; v[0].y =  1.0f; v[0].z = 0.0f; v[0].tu = uv.tu1; v[0].tv = uv.tv2; \
+    v[1].x =  1.0f; v[1].y =  1.0f; v[1].z = 0.0f; v[1].tu = uv.tu2; v[1].tv = uv.tv1; \
+    v[2].x = -1.0f; v[2].y = -1.0f; v[2].z = 0.0f; v[2].tu = uv.tu4; v[2].tv = uv.tv3; \
+    v[3].x =  1.0f; v[3].y = -1.0f; v[3].z = 0.0f; v[3].tu = uv.tu3; v[3].tv = uv.tv4
 
-static __forceinline void SetQuadMirrored(QUADVERTEX* v, const SFrameUV& uv)
-{
-    v[0].x = -1.0f; v[0].y =  1.0f; v[0].z = 0.0f; v[0].tu = uv.tu2; v[0].tv = uv.tv1;
-    v[1].x =  1.0f; v[1].y =  1.0f; v[1].z = 0.0f; v[1].tu = uv.tu1; v[1].tv = uv.tv2;
-    v[2].x = -1.0f; v[2].y = -1.0f; v[2].z = 0.0f; v[2].tu = uv.tu3; v[2].tv = uv.tv4;
-    v[3].x =  1.0f; v[3].y = -1.0f; v[3].z = 0.0f; v[3].tu = uv.tu4; v[3].tv = uv.tv3;
-}
+#define SET_QUAD_MIRRORED(v, uv) \
+    v[0].x = -1.0f; v[0].y =  1.0f; v[0].z = 0.0f; v[0].tu = uv.tu2; v[0].tv = uv.tv1; \
+    v[1].x =  1.0f; v[1].y =  1.0f; v[1].z = 0.0f; v[1].tu = uv.tu1; v[1].tv = uv.tv2; \
+    v[2].x = -1.0f; v[2].y = -1.0f; v[2].z = 0.0f; v[2].tu = uv.tu3; v[2].tv = uv.tv4; \
+    v[3].x =  1.0f; v[3].y = -1.0f; v[3].z = 0.0f; v[3].tu = uv.tu4; v[3].tv = uv.tv3
 
 // 0x00012620
 // The spin, every 50 ms: frame 0 of the 4x2 sheet for 14 steps, then its
@@ -691,11 +694,13 @@ void CPiece::UpdateVertices()
         return;
     s_dwPieceTime = GetTickCount();
 
-    if (g_nPieceFrame < 14)
-        SetFrame(s_pieceFrame, s_pieceUV, 0, 4, 2);
+    SFrameUV& uv = s_pieceUV;
+    if (g_nPieceFrame > 13)
+        { SET_FRAME(s_pieceFrame, uv, g_nPieceFrame - 13, 4, 2); }
     else
-        SetFrame(s_pieceFrame, s_pieceUV, g_nPieceFrame - 13, 4, 2);
-    SetQuad(m_v, s_pieceUV);
+        { SET_FRAME(s_pieceFrame, uv, 0, 4, 2); }
+    SET_QUAD(m_v, uv);
+
 
     if (s_pPieceVB == NULL)
         m_pDevice->CreateVertexBuffer(4 * sizeof(m_v), 0, 0, 0, &s_pPieceVB);
@@ -722,13 +727,13 @@ void CPiece::Render()
     D3DXMatrixTranslation(&matTrans, m_fx, m_fy, (float)m_z);
     D3DXMatrixMultiply(&matWorld, &matScale, &matTrans);
     m_pDevice->SetTransform(D3DTS_WORLD, &matWorld);
-    if (g_nPieceFrame < 14)
+    if (g_nPieceFrame <= 13)
     {
         m_pDevice->SetStreamSource(0, g_pQuadVB, sizeof(QUADVERTEX));
         m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
         m_pTextures->Set(m_type);
     }
-    if (g_nPieceFrame >= 14)
+    if (g_nPieceFrame > 13)
     {
         m_pDevice->SetStreamSource(0, s_pPieceVB, sizeof(QUADVERTEX));
         m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
@@ -746,7 +751,9 @@ void CBoard::Reset()
     memset(m_bEating, 0, sizeof(m_bEating));
     m_bUnused928 = false;
     m_nLevel = 1;
-    memset(m_grid, 0, sizeof(m_grid));
+    for (int i = 0; i < BOARD_ROWS * BOARD_COLS; i++)
+        m_grid[i] = 0;
+
     m_pieces[0].m_type = 0;
     m_pieces[1].m_type = 0;
     m_bFalling = false;
@@ -760,8 +767,8 @@ void CBoard::Reset()
 // From a head, lists the food of its kind touching it, and the food
 // touching that, for its animal (type 5 + n: animal n). Past the first
 // piece, a cell of the head's own kind next to food carries on the chain.
-// The first cell listed is the head itself (with List; the others are
-// written out, as in the original).
+// The first cell listed is the head itself. List is inlined into some of
+// the calls and not others, as in the original.
 void CBoard::Flood(int col, int row, int type)
 {
     // Below.
@@ -773,14 +780,12 @@ void CBoard::Flood(int col, int row, int type)
         {
             if (m_eaters[type - 5].m_nEat == 0)
                 List(type - 5, row * BOARD_COLS + col);
-            m_eaters[type - 5].m_eat[m_eaters[type - 5].m_nEat] = (row - 1) * BOARD_COLS + col;
-            m_eaters[type - 5].m_nEat++;
-            m_nSend++;
+            List(type - 5, (row - 1) * BOARD_COLS + col);
             Flood(col, row - 1, type);
         }
     }
     // Left.
-    if (col - 1 >= 0 &&
+    if (col > 0 &&
         (Get(col - 1, row) == type - 4 ||
          (Get(col - 1, row) == type && m_eaters[type - 5].m_nEat > 0 && Get(col, row) == type - 4)))
     {
@@ -788,9 +793,7 @@ void CBoard::Flood(int col, int row, int type)
         {
             if (m_eaters[type - 5].m_nEat == 0)
                 List(type - 5, row * BOARD_COLS + col);
-            m_eaters[type - 5].m_eat[m_eaters[type - 5].m_nEat] = row * BOARD_COLS + col - 1;
-            m_eaters[type - 5].m_nEat++;
-            m_nSend++;
+            List(type - 5, row * BOARD_COLS + col - 1);
             Flood(col - 1, row, type);
         }
     }
@@ -803,14 +806,12 @@ void CBoard::Flood(int col, int row, int type)
         {
             if (m_eaters[type - 5].m_nEat == 0)
                 List(type - 5, row * BOARD_COLS + col);
-            m_eaters[type - 5].m_eat[m_eaters[type - 5].m_nEat] = (row + 1) * BOARD_COLS + col;
-            m_eaters[type - 5].m_nEat++;
-            m_nSend++;
+            List(type - 5, (row + 1) * BOARD_COLS + col);
             Flood(col, row + 1, type);
         }
     }
     // Right.
-    if (col + 1 <= 5 &&
+    if (col < 5 &&
         (Get(col + 1, row) == type - 4 ||
          (Get(col + 1, row) == type && m_eaters[type - 5].m_nEat > 0 && Get(col, row) == type - 4)))
     {
@@ -818,9 +819,7 @@ void CBoard::Flood(int col, int row, int type)
         {
             if (m_eaters[type - 5].m_nEat == 0)
                 List(type - 5, row * BOARD_COLS + col);
-            m_eaters[type - 5].m_eat[m_eaters[type - 5].m_nEat] = row * BOARD_COLS + col + 1;
-            m_eaters[type - 5].m_nEat++;
-            m_nSend++;
+            List(type - 5, row * BOARD_COLS + col + 1);
             Flood(col + 1, row, type);
         }
     }
@@ -872,15 +871,17 @@ void CEater::Update()
         {
             int first = m_eat[0];
             m_bHome = false;
+            int i = 0;
             for (int row = 0; row < BOARD_ROWS; row++)
             {
                 for (int col = 0; col < BOARD_COLS; col++)
                 {
-                    if (row * BOARD_COLS + col == first)
+                    if (i == first)
                     {
                         m_fx = (float)(m_x + col * m_nCell);
                         m_fy = (float)(m_nCell * row + m_y);
                     }
+                    i++;
                 }
             }
         }
@@ -891,9 +892,7 @@ void CEater::Update()
     if (m_pParticles)
         m_pParticles->Add(m_fx, (float)(rand() % (int)m_fCell) + (m_fy - m_fCell), (float)m_z);
 
-    if (m_bHome)
-        return;
-    if (m_nEat == 0)
+    if (!m_bHome && m_nEat == 0)
     {
         for (int i = 0; i < m_nSpeed; i++)
         {
@@ -943,28 +942,27 @@ void CEater::Update()
 // vertex buffer.
 void CEater::UpdateVertices()
 {
+    SFrameUV& uv = s_eaterUV;
     if (m_nChomp == 0)
-        SetFrame(s_eaterFrame, s_eaterUV, m_frame, 4, 2);
+        { SET_FRAME(s_eaterFrame, uv, m_frame, 4, 2); }
     if (m_nChomp != 0)
-        SetFrame(s_eaterFrame, s_eaterUV, 1, 1, 1);
-    SetQuad(m_v, s_eaterUV);
+        { SET_FRAME(s_eaterFrame, uv, 1, 1, 1); }
 
-    if (!m_bHome)
+    { SET_QUAD(m_v, uv); }
+
+    if (!m_bHome && m_nEat == 0)
     {
-        if (m_nEat == 0)
-        {
-            if (m_fx <= m_homeX)
-                SetQuad(m_v, s_eaterUV);
-            if (m_homeX <= m_fx)
-                SetQuadMirrored(m_v, s_eaterUV);
-        }
-        if (m_nEat != 0)
-        {
-            if (m_fx <= m_tx)
-                SetQuad(m_v, s_eaterUV);
-            if (m_tx <= m_fx)
-                SetQuadMirrored(m_v, s_eaterUV);
-        }
+        if (m_fx <= m_homeX)
+            { SET_QUAD(m_v, uv); }
+        if (m_homeX <= m_fx)
+            { SET_QUAD_MIRRORED(m_v, uv); }
+    }
+    if (!m_bHome && m_nEat != 0)
+    {
+        if (m_fx <= m_tx)
+            { SET_QUAD(m_v, uv); }
+        if (m_tx <= m_fx)
+            { SET_QUAD_MIRRORED(m_v, uv); }
     }
 
     if (s_pEaterVB == NULL)

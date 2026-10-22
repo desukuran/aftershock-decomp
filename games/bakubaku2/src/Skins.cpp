@@ -134,12 +134,12 @@ void CSkins::LoadSaved()
             {
                 fscanf(fp, "%i%s", &id, strName);
                 sprintf(strFile, "%s%s", m_pSkins[m_nCurrent].strPath, strName);
-                if (id >= 0x6E && id <= 0x78)
+                if ((id >= 0x6E) & (id <= 0x78))
                 {
                     if (!bBackgrounds)
                         g_nBackgrounds = 0;
-                    g_nBackgrounds++;
                     bBackgrounds = true;
+                    g_nBackgrounds++;
                 }
                 m_pTextures->Load(strFile, id);
             }
@@ -162,33 +162,34 @@ void CSkins::Apply()
     strcpy(g_Config.m_strSkin, m_pSkins[m_nCurrent].strPath);
     sprintf(strCfg, "%sskin.cfg", m_pSkins[m_nCurrent].strPath);
     FILE* fp = fopen(strCfg, "r");
-    if (fp == NULL)
-        return;
-    int line = 0;
-    do
+    if (fp != NULL)
     {
-        if (line == 0)
+        int line = 0;
+        do
         {
-            fscanf(fp, "%s", strName);
-        }
-        else
-        {
-            fscanf(fp, "%i%s", &id, strName);
-            sprintf(strFile, "%s%s", m_pSkins[m_nCurrent].strPath, strName);
-            if (id >= 0x6E && id <= 0x78)
+            if (line == 0)
             {
-                if (!bBackgrounds)
-                {
-                    g_nBackgrounds = 0;
-                    g_nBackground = 0x6E;
-                }
-                g_nBackgrounds++;
-                bBackgrounds = true;
+                fscanf(fp, "%s", strName);
             }
-            m_pTextures->Load(strFile, id);
-        }
-        line++;
-    } while (!feof(fp));
+            else
+            {
+                fscanf(fp, "%i%s", &id, strName);
+                sprintf(strFile, "%s%s", m_pSkins[m_nCurrent].strPath, strName);
+                if ((id >= 0x6E) & (id <= 0x78))
+                {
+                    if (!bBackgrounds)
+                    {
+                        g_nBackgrounds = 0;
+                        g_nBackground = 0x6E;
+                    }
+                    bBackgrounds = true;
+                    g_nBackgrounds++;
+                }
+                m_pTextures->Load(strFile, id);
+            }
+            line++;
+        } while (!feof(fp));
+    }
 }
 
 // 0x0001A7F0

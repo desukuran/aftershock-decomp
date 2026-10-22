@@ -2,7 +2,7 @@
 """Compare each function of the rebuild with the original's, instruction by
 instruction, to find where the source says something else than the original.
 
-  funcdiff.py [-v] [-o] [ADDR|name ...]      (from the game's folder)
+  funcdiff.py [-v] [-o] [-x] [ADDR|name ...]      (from the game's folder)
 
 The original's functions are the `// 0xADDR` comments in src/ right above a
 definition; ours are found by that definition's name in build/xbox/default.map.
@@ -16,6 +16,7 @@ branch. Prints one
 line per function that isn't the same, with the calls and constants only one
 side has (-o: also the struct and stack offsets, which register allocation
 makes noisy), and with -v or named functions the differing instructions.
+-x: only functions the same instruction for instruction count as the same.
 """
 import difflib
 import os
@@ -138,6 +139,7 @@ class Image:
         code = bytes(self.img[a - self.x.base:a - self.x.base + size])
         out, facts = [], []
         cmp = None      # (index in facts, constant) of a cmp with a constant
+        reach = a       # the furthest jump target inside the function so far
         for i in self.md.disasm(code, a):
             if i.mnemonic == 'int3':
                 break
@@ -159,12 +161,13 @@ class Image:
                     i.operands[0].reg == i.operands[1].reg:
                 facts.append('0x0')         # test r, r: a compare with 0
                 cmp = (len(facts) - 1, 0)
-            if i.mnemonic == 'call' or i.mnemonic.startswith('j'):
-                if HEX.fullmatch(ops):
-                    t = int(ops, 16)
-                    if i.mnemonic == 'call' or not a <= t < a + size:
-                        facts.append('call ' + self.names.get(t, '?'))
-                    ops = 'T'
+            if (i.mnemonic == 'call' or i.mnemonic.startswith('j')) and HEX.fullmatch(ops):
+                t = int(ops, 16)
+                if a <= t < a + size:
+                    reach = max(reach, t)
+                if i.mnemonic == 'call' or not a <= t < a + size:
+                    facts.append('call ' + self.names.get(t, '?'))
+                ops = 'T'
             else:
                 def sub(m):
                     v = int(m.group(0), 16)
@@ -184,12 +187,16 @@ class Image:
                             c = self.content(op.mem.disp & 0xFFFFFFFF)
                             if c:
                                 facts.append(c)
+                        elif self.x.base <= op.mem.disp & 0xFFFFFFFF < self.x.base + len(self.img):
+                            facts.append('G[]')                         # a global array, indexed
                         elif base not in ('esp', 'ebp') and op.mem.disp:
                             facts.append('+' + hex(op.mem.disp))
             if cmp and cmp[0] == 'after':
                 cmp = (len(facts) - 1, cmp[1])
             out.append(i.mnemonic + ' ' + ops)
-            if i.mnemonic == 'ret' and i.address + i.size >= a + size - 16:
+            # The end: a ret that no jump goes past (the sizes include padding,
+            # and code after a ret can still be the function's).
+            if i.mnemonic == 'ret' and i.address + i.size > reach:
                 break
         return out, facts
 
@@ -217,7 +224,8 @@ def main():
     args = sys.argv[1:]
     verbose = '-v' in args
     offsets = '-o' in args
-    args = [a for a in args if a not in ('-v', '-o')]
+    strict = '-x' in args
+    args = [a for a in args if a not in ('-v', '-o', '-x')]
     funcs = src_functions()
     orig_x, our_x = Xbe(ORIGINAL), Xbe(OURS)
     mine, our_names = our_functions(our_x)
@@ -236,7 +244,7 @@ def main():
             want.add(int(a, 16))
         else:
             want |= {k for k, v in funcs.items() if v == a or v.endswith('::' + a)}
-    same = differ = 0
+    same = differ = exact = 0
     for a, name in sorted(funcs.items()):
         if want and a not in want:
             continue
@@ -245,6 +253,11 @@ def main():
             print('%08x %-40s not in the map' % (a, name))
             continue
         theirs, tf = orig.disasm(a, sizes.get(a, 0x400))
+        if theirs and not theirs[-1].startswith(('ret', 'jmp')):
+            # Ghidra ended it at a call it took for one that doesn't return
+            # (the stack cookie check): read on to the ret.
+            nxt = min([b for b in sizes if b > a] + [a + sizes.get(a, 0x400) + 0x40])
+            theirs, tf = orig.disasm(a, min(nxt - a, sizes.get(a, 0x400) + 0x40))
         best = None
         for b, size in cands:
             m, mf = ours.disasm(b, size)
@@ -254,8 +267,9 @@ def main():
             if best is None or score < best[0]:
                 best = (score, b, m, miss, extra)
         score, b, m, miss, extra = best
-        if not score and len(theirs) == len(m):
+        if not score and len(theirs) == len(m) and (theirs == m or not strict):
             same += 1
+            exact += theirs == m
             if not want:
                 continue
         else:
@@ -277,6 +291,7 @@ def main():
                     print('      %-44s | %s' % (t, o))
                 print('      ' + '-' * 44)
     print('%d functions the same (constants, offsets, calls and length), %d differ' % (same, differ))
+    print('%d of them instruction for instruction (registers and order too)' % exact)
 
 
 if __name__ == '__main__':

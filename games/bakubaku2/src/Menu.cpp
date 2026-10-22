@@ -18,30 +18,47 @@ static __forceinline FLOAT ClampVolume(FLOAT fVolume)
 // Music on or off (the options' first item).
 static __forceinline void ToggleMusic()
 {
-    if (!g_bMusicOn)
-    {
-        g_bMusicOn = true;
-        g_Music.Play();
-    }
-    else
+    if (g_bMusicOn)
     {
         g_bMusicOn = false;
         g_Music.Stop();
+    }
+    else
+    {
+        g_bMusicOn = true;
+        g_Music.Play();
     }
 }
 
 static __forceinline void ToggleRandomMusic()
 {
-    if (!g_bRandomMusic)
-    {
-        g_bRandomMusic = true;
-        g_Music.SetRandom(TRUE);
-    }
-    else
+    if (g_bRandomMusic)
     {
         g_bRandomMusic = false;
         g_Music.SetRandom(FALSE);
     }
+    else
+    {
+        g_bRandomMusic = true;
+        g_Music.SetRandom(TRUE);
+    }
+}
+
+// A setting one step down (from the lowest, round to the highest) and up.
+static __forceinline void CycleDown(int& n, int nMin, int nMax)
+{
+    if (n == nMin)
+        n = nMax;
+    else if (n > nMin)
+        n--;
+}
+
+static __forceinline void CycleUp(int& n, int nMin, int nMax)
+{
+    if (n == nMax)
+        n = nMin;
+    else if (n < nMax)
+        n++;
 }
 
 // 0x000172B0
@@ -69,7 +86,7 @@ void CMenu::Update()
         if (m_pages[PAGE_SETUP].item < 2)
             m_pParticles->Add((float)(rand() % 300 - 230), (float)(rand() % 20 - m_pages[m_page].item * 31 + 178),
                               (float)(rand() % 30));
-        if (m_pages[m_page].item > 1)
+        if (m_pages[m_page].item >= 2)
             m_pParticles->Add((float)(rand() % 360 - 230), (float)(rand() % 22 - m_pages[m_page].item * 31 + 112),
                               (float)(rand() % 30));
     }
@@ -200,26 +217,11 @@ void CMenu::Update()
         if (m_page == PAGE_SETUP)
         {
             if (m_pages[PAGE_SETUP].item == 0)
-            {
-                if (m_settings.nPlayers == 2)
-                    m_settings.nPlayers = 8;
-                else if (m_settings.nPlayers > 2)
-                    m_settings.nPlayers--;
-            }
+                CycleDown(m_settings.nPlayers, 2, 8);
             if (m_pages[PAGE_SETUP].item == 1)
-            {
-                if (m_settings.nMode == MODE_FREE_FOR_ALL)
-                    m_settings.nMode = MODE_TEAMS;
-                else if (m_settings.nMode > MODE_FREE_FOR_ALL)
-                    m_settings.nMode--;
-            }
+                CycleDown(m_settings.nMode, MODE_FREE_FOR_ALL, MODE_TEAMS);
             if (m_pages[PAGE_SETUP].item > 1)
-            {
-                if (m_settings.nControl[m_pages[PAGE_SETUP].item - 2] == CONTROL_PAD1)
-                    m_settings.nControl[m_pages[PAGE_SETUP].item - 2] = CONTROL_HARD;
-                else if (m_settings.nControl[m_pages[PAGE_SETUP].item - 2] > CONTROL_PAD1)
-                    m_settings.nControl[m_pages[PAGE_SETUP].item - 2]--;
-            }
+                CycleDown(m_settings.nControl[m_pages[PAGE_SETUP].item - 2], CONTROL_PAD1, CONTROL_HARD);
         }
     }
 
@@ -254,26 +256,11 @@ void CMenu::Update()
         if (m_page == PAGE_SETUP)
         {
             if (m_pages[PAGE_SETUP].item == 0)
-            {
-                if (m_settings.nPlayers == 8)
-                    m_settings.nPlayers = 2;
-                else if (m_settings.nPlayers < 8)
-                    m_settings.nPlayers++;
-            }
+                CycleUp(m_settings.nPlayers, 2, 8);
             if (m_pages[PAGE_SETUP].item == 1)
-            {
-                if (m_settings.nMode == MODE_TEAMS)
-                    m_settings.nMode = MODE_FREE_FOR_ALL;
-                else if (m_settings.nMode < MODE_TEAMS)
-                    m_settings.nMode++;
-            }
+                CycleUp(m_settings.nMode, MODE_FREE_FOR_ALL, MODE_TEAMS);
             if (m_pages[PAGE_SETUP].item > 1)
-            {
-                if (m_settings.nControl[m_pages[PAGE_SETUP].item - 2] == CONTROL_HARD)
-                    m_settings.nControl[m_pages[PAGE_SETUP].item - 2] = CONTROL_PAD1;
-                else if (m_settings.nControl[m_pages[PAGE_SETUP].item - 2] < CONTROL_HARD)
-                    m_settings.nControl[m_pages[PAGE_SETUP].item - 2]++;
-            }
+                CycleUp(m_settings.nControl[m_pages[PAGE_SETUP].item - 2], CONTROL_PAD1, CONTROL_HARD);
         }
     }
 
@@ -334,19 +321,9 @@ void CMenu::Update()
             break;
         case PAGE_SETUP:
             if (m_pages[PAGE_SETUP].item == 0)
-            {
-                if (m_settings.nPlayers == 8)
-                    m_settings.nPlayers = 2;
-                else if (m_settings.nPlayers < 8)
-                    m_settings.nPlayers++;
-            }
+                CycleUp(m_settings.nPlayers, 2, 8);
             if (m_pages[PAGE_SETUP].item == 1)
-            {
-                if (m_settings.nMode == MODE_TEAMS)
-                    m_settings.nMode = MODE_FREE_FOR_ALL;
-                else if (m_settings.nMode < MODE_TEAMS)
-                    m_settings.nMode++;
-            }
+                CycleUp(m_settings.nMode, MODE_FREE_FOR_ALL, MODE_TEAMS);
             if (m_pages[PAGE_SETUP].item > 1)
             {
                 if (m_settings.nControl[m_pages[PAGE_SETUP].item - 2] == CONTROL_HARD)
@@ -427,21 +404,41 @@ void CMenu::Update()
     }
 }
 
-// Draws the unit quad from vertex buffer pVB, scaled and moved.
-static __forceinline void DrawQuad(CMenu* pMenu, LPDIRECT3DVERTEXBUFFER8 pVB, int texture, float sx, float sy,
-                                   float x, float y, float z)
-{
-    D3DXMATRIX matScale, matTrans, matWorld;
-    D3DXMatrixScaling(&matScale, sx, sy, 1.0f);
-    D3DXMatrixTranslation(&matTrans, x, y, z);
-    D3DXMatrixMultiply(&matWorld, &matScale, &matTrans);
-    pMenu->m_pDevice->SetTransform(D3DTS_WORLD, &matWorld);
-    pMenu->m_pDevice->SetStreamSource(0, pVB, sizeof(MENUVERTEX));
-    pMenu->m_pTextures->Set(texture);
-    pMenu->m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
-    pMenu->m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-    pMenu->m_pDevice->SetTexture(0, NULL);
-}
+// Draws the unit quad from vertex buffer pVB, scaled and moved (with the
+// caller's matScale, matTrans and matWorld). A macro: the arguments are
+// worked out where they are used.
+#define DRAW_QUAD(pVB, texture, sx, sy, x, y, z) \
+    D3DXMATRIX matScale, matTrans, matWorld; \
+    D3DXMatrixScaling(&matScale, sx, sy, 1.0f); \
+    D3DXMatrixTranslation(&matTrans, x, y, z); \
+    D3DXMatrixMultiply(&matWorld, &matScale, &matTrans); \
+    m_pDevice->SetTransform(D3DTS_WORLD, &matWorld); \
+    m_pDevice->SetStreamSource(0, pVB, sizeof(MENUVERTEX)); \
+    m_pTextures->Set(texture); \
+    m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX); \
+    m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2); \
+    m_pDevice->SetTexture(0, NULL)
+
+// The same with the highlighted item's buffer when bLit, the plain one
+// otherwise.
+#define SET_ITEM_VB(bLit) \
+    if (bLit) \
+        m_pDevice->SetStreamSource(0, m_pVB[1], sizeof(MENUVERTEX)); \
+    else \
+        m_pDevice->SetStreamSource(0, m_pVB[0], sizeof(MENUVERTEX))
+
+// DRAW_QUAD with SET_ITEM_VB.
+#define DRAW_ITEM(bLit, texture, sx, sy, x, y, z) \
+    D3DXMATRIX matScale, matTrans, matWorld; \
+    D3DXMatrixScaling(&matScale, sx, sy, 1.0f); \
+    D3DXMatrixTranslation(&matTrans, x, y, z); \
+    D3DXMatrixMultiply(&matWorld, &matScale, &matTrans); \
+    m_pDevice->SetTransform(D3DTS_WORLD, &matWorld); \
+    SET_ITEM_VB(bLit); \
+    m_pTextures->Set(texture); \
+    m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX); \
+    m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2); \
+    m_pDevice->SetTexture(0, NULL)
 
 // 0x000180D0
 // The skins page's preview, the help page, or the background; the setup
@@ -452,30 +449,51 @@ void CMenu::Render()
     if (m_page == PAGE_SKINS)
         m_skins.RenderPreview();
     if (m_page == PAGE_HELP)
-        DrawQuad(this, m_pVB[2], m_pages[PAGE_HELP].texture + m_pages[PAGE_HELP].item, 500.0f, 410.0f, 0.0f,
-                 0.0f, 500.0f);
+        { DRAW_QUAD(m_pVB[2], m_pages[PAGE_HELP].texture + m_pages[PAGE_HELP].item, 500.0f, 410.0f, 0.0f,
+                 0.0f, 500.0f); }
     if (m_page != PAGE_SETUP && m_page != PAGE_HELP)
-        DrawQuad(this, m_pVB[2], 79, 545.0f, 430.0f, 20.0f, -60.0f, 400.0f);
+        { DRAW_QUAD(m_pVB[2], 79, 545.0f, 430.0f, 20.0f, -60.0f, 400.0f); }
 
     if (m_page == PAGE_SETUP)
     {
-        DrawQuad(this, m_pVB[2], 130, 130.0f, 10.0f, 0.0f, -178.0f, 1.0f);
-        DrawQuad(this, m_pages[m_page].item == 0 ? m_pVB[1] : m_pVB[0], 67, 100.0f, 10.0f, -130.0f, 180.0f, 1.0f);
-        DrawQuad(this, m_pVB[2], m_pages[m_page].texture + m_settings.nPlayers, 10.0f, 10.0f, 0.0f, 180.0f, 1.0f);
+        { DRAW_QUAD(m_pVB[2], 130, 130.0f, 10.0f, 0.0f, -178.0f, 1.0f); }
+        { DRAW_ITEM(m_pages[m_page].item == 0, 67, 100.0f, 10.0f, -130.0f, 180.0f, 1.0f); }
+        { DRAW_QUAD(m_pVB[2], m_pages[m_page].texture + m_settings.nPlayers, 10.0f, 10.0f, 0.0f, 180.0f, 1.0f); }
         if (m_settings.nMode == MODE_TEAMS)
-            DrawQuad(this, m_pVB[2], 109, 50.0f, 130.0f, 150.0f, -45.0f, 1.0f);
-        DrawQuad(this, m_pages[m_page].item == 1 ? m_pVB[1] : m_pVB[0], 68, 100.0f, 10.0f, -135.0f, 150.0f, 1.0f);
-        DrawQuad(this, m_pages[m_page].item == 1 ? m_pVB[1] : m_pVB[0], m_settings.nMode == MODE_TEAMS ? 70 : 69,
-                 80.0f, 10.0f, 40.0f, 150.0f, 1.0f);
+            { DRAW_QUAD(m_pVB[2], 109, 50.0f, 130.0f, 150.0f, -45.0f, 1.0f); }
+        { DRAW_ITEM(m_pages[m_page].item == 1, 68, 100.0f, 10.0f, -135.0f, 150.0f, 1.0f); }
+        {
+            D3DXMATRIX matScale, matTrans, matWorld;
+            D3DXMatrixScaling(&matScale, 80.0f, 10.0f, 1.0f);
+            D3DXMatrixTranslation(&matTrans, 40.0f, 150.0f, 1.0f);
+            D3DXMatrixMultiply(&matWorld, &matScale, &matTrans);
+            m_pDevice->SetTransform(D3DTS_WORLD, &matWorld);
+            SET_ITEM_VB(m_pages[m_page].item == 1);
+            switch (m_settings.nMode)
+            {
+            case MODE_FREE_FOR_ALL:
+                m_pTextures->Set(69);
+                break;
+            case MODE_TEAMS:
+                m_pTextures->Set(70);
+                break;
+            default:
+                m_pTextures->Set(69);
+                break;
+            }
+            m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
+            m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+            m_pDevice->SetTexture(0, NULL);
+        }
 
         for (int i = 2; i < m_settings.nPlayers + 2; i++)
         {
             float y = (float)(60 - (i - 2) * 30);
-            DrawQuad(this, i == m_pages[m_page].item ? m_pVB[1] : m_pVB[0], 47, 100.0f, 10.0f, -130.0f, y, 1.0f);
+            { DRAW_ITEM(i == m_pages[m_page].item, 47, 100.0f, 10.0f, -130.0f, y, 1.0f); }
             // The player's number (the digits follow the page's texture, 0).
-            DrawQuad(this, m_pVB[2], m_pages[m_page].texture - 1 + i, 10.0f, 12.0f, -60.0f, y, 1.0f);
-            DrawQuad(this, m_pVB[2], m_pages[m_page].texture + 9 + m_settings.nControl[i - 2], 20.0f, 12.0f, 20.0f,
-                     y, 1.0f);
+            { DRAW_QUAD(m_pVB[2], m_pages[m_page].texture - 1 + i, 10.0f, 12.0f, -60.0f, y, 1.0f); }
+            { DRAW_QUAD(m_pVB[2], m_pages[m_page].texture + 9 + m_settings.nControl[i - 2], 20.0f, 12.0f, 20.0f,
+                     y, 1.0f); }
 
             D3DXMATRIX matScale, matTrans, matWorld;
             D3DXMatrixScaling(&matScale, 20.0f, 12.0f, 1.0f);
@@ -500,25 +518,23 @@ void CMenu::Render()
 
     if (m_page != PAGE_SETUP && m_page != PAGE_HELP)
     {
-        DrawQuad(this, m_pVB[2], 39, 210.0f, 40.0f, 0.0f, 120.0f, 1.0f);
+        { DRAW_QUAD(m_pVB[2], 39, 210.0f, 40.0f, 0.0f, 120.0f, 1.0f); }
         for (int i = 0; i < m_pages[m_page].nItems; i++)
         {
             D3DXMATRIX matScale, matTrans, matWorld;
-            int y;
             if (m_page == PAGE_OPTIONS)
             {
                 D3DXMatrixScaling(&matScale, 90.0f, 15.0f, 1.0f);
-                y = i * -40;
+                D3DXMatrixTranslation(&matTrans, -100.0f, (float)(40 - i * 40), 1.0f);
             }
             else
             {
                 D3DXMatrixScaling(&matScale, 100.0f, 20.0f, 1.0f);
-                y = i * -50;
+                D3DXMatrixTranslation(&matTrans, -100.0f, (float)(40 - i * 50), 1.0f);
             }
-            D3DXMatrixTranslation(&matTrans, -100.0f, (float)(y + 40), 1.0f);
             D3DXMatrixMultiply(&matWorld, &matScale, &matTrans);
             m_pDevice->SetTransform(D3DTS_WORLD, &matWorld);
-            m_pDevice->SetStreamSource(0, i == m_pages[m_page].item ? m_pVB[1] : m_pVB[0], sizeof(MENUVERTEX));
+            SET_ITEM_VB(i == m_pages[m_page].item);
             m_pTextures->Set(m_pages[m_page].texture + i);
             m_pDevice->SetVertexShader(D3DFVF_QUADVERTEX);
             m_pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
@@ -530,10 +546,10 @@ void CMenu::Render()
                 break;
             // The option's value.
             D3DXMatrixScaling(&matScale, 40.0f, 15.0f, 1.0f);
-            D3DXMatrixTranslation(&matTrans, 130.0f, (float)(i * -40 + 40), 1.0f);
+            D3DXMatrixTranslation(&matTrans, 130.0f, (float)(40 - i * 40), 1.0f);
             D3DXMatrixMultiply(&matWorld, &matScale, &matTrans);
             m_pDevice->SetTransform(D3DTS_WORLD, &matWorld);
-            m_pDevice->SetStreamSource(0, i == m_pages[m_page].item ? m_pVB[1] : m_pVB[0], sizeof(MENUVERTEX));
+            SET_ITEM_VB(i == m_pages[m_page].item);
             if (i == 0)
             {
                 if (g_bMusicOn)
@@ -550,12 +566,18 @@ void CMenu::Render()
             }
             else if (i == 2)
             {
-                if (g_nPieceSet == 0)
+                switch (g_nPieceSet)
+                {
+                case 0:
                     m_pTextures->Set(34);
-                else if (g_nPieceSet == 1)
+                    break;
+                case 1:
                     m_pTextures->Set(35);
-                else if (g_nPieceSet == 2)
+                    break;
+                case 2:
                     m_pTextures->Set(36);
+                    break;
+                }
             }
             else if (i == 3)
             {
@@ -574,13 +596,16 @@ void CMenu::Render()
 // One vertex buffer: the unit quad with frame n of nCols.
 static __forceinline void FillVB(CMenu* pMenu, LPDIRECT3DVERTEXBUFFER8* ppVB, int n, int nCols)
 {
-    SetFrame(s_menuFrame, pMenu->m_uv, n, nCols, 1);
-    MENUVERTEX* v = pMenu->m_v;
+    SET_FRAME(s_menuFrame, pMenu->m_uv, n, nCols, 1);
     const SFrameUV& uv = pMenu->m_uv;
-    v[0].x = -1.0f; v[0].y =  1.0f; v[0].z = 0.0f; v[0].tu = uv.tu1; v[0].tv = uv.tv2;
-    v[1].x =  1.0f; v[1].y =  1.0f; v[1].z = 0.0f; v[1].tu = uv.tu2; v[1].tv = uv.tv1;
-    v[2].x = -1.0f; v[2].y = -1.0f; v[2].z = 0.0f; v[2].tu = uv.tu4; v[2].tv = uv.tv3;
-    v[3].x =  1.0f; v[3].y = -1.0f; v[3].z = 0.0f; v[3].tu = uv.tu3; v[3].tv = uv.tv4;
+    pMenu->m_v[0].tu = uv.tu1; pMenu->m_v[0].tv = uv.tv2;
+    pMenu->m_v[1].tu = uv.tu2; pMenu->m_v[1].tv = uv.tv1;
+    pMenu->m_v[2].tu = uv.tu4; pMenu->m_v[2].tv = uv.tv3;
+    pMenu->m_v[3].tu = uv.tu3; pMenu->m_v[3].tv = uv.tv4;
+    pMenu->m_v[0].x = -1.0f; pMenu->m_v[0].y = 1.0f; pMenu->m_v[0].z = 0.0f;
+    pMenu->m_v[1].x = 1.0f; pMenu->m_v[1].y = 1.0f; pMenu->m_v[1].z = 0.0f;
+    pMenu->m_v[2].x = -1.0f; pMenu->m_v[2].y = -1.0f; pMenu->m_v[2].z = 0.0f;
+    pMenu->m_v[3].x = 1.0f; pMenu->m_v[3].y = -1.0f; pMenu->m_v[3].z = 0.0f;
     if (*ppVB == NULL)
         pMenu->m_pDevice->CreateVertexBuffer(4 * sizeof(pMenu->m_v), 0, 0, 0, ppVB);
     void* pVertices;
@@ -604,12 +629,12 @@ void CMenu::CreateVertexBuffers()
 // vertex buffers, and the skins (the saved one loaded).
 void CMenu::Create(LPDIRECT3DDEVICE8 pDevice, CTextures* pTextures, CInput* pInput, CParticles* pParticles)
 {
+    m_pDevice = pDevice;
     m_pTextures = pTextures;
     m_pParticles = pParticles;
     m_pInput = pInput;
     m_page = PAGE_MAIN;
     m_bStart = false;
-    m_pDevice = pDevice;
     m_pages[PAGE_MAIN].texture = 21;
     m_pages[PAGE_MAIN].nItems = 4;
     m_pages[PAGE_SETUP].nItems = 10;

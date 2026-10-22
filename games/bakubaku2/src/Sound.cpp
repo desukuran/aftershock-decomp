@@ -9,7 +9,8 @@ static IDirectMusicPerformance8* g_pPerformance;
 
 // 0x0001A8E0
 // Quirk: the default audio path type is 1, not one of the DMUS_APATH types.
-static void InitDirectMusic()
+// A member, though it uses nothing of the effect's.
+void CSoundEffect::InitDirectMusic()
 {
     IDirectMusicHeap* pNormalHeap;
     IDirectMusicHeap* pPhysicalHeap;

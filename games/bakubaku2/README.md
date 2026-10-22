@@ -26,9 +26,9 @@ for frame like the original in the differential test (below).
 * It shares the gamepad (`CInput`), the music player (`CMusicManager`, the
   XDK's BackgroundMusic sample) and the font with the other AfterShock games,
   in earlier versions (`../../tools/crossmatch.py pool --near 0.7`).
-* `funcdiff.py`: 77 of 118 functions compile to the original's
-  instructions; the rest differ in register allocation and instruction
-  order (a few only because funcdiff stops at a function's first `ret`).
+* `funcdiff.py -x`: 103 of 118 functions compile to the original's
+  instructions, registers and order included; the rest differ in register
+  allocation, instruction order or stack slots.
 
 ## The source
 
@@ -49,10 +49,13 @@ overflows into); skin files are never closed and the last line of a
 garbage with no other board alive never ends; pad 1's player keeps resetting
 the 75 ms input timer.
 
-Two compiler details: `CBoard::IsListed` and `CBoard::List` are
-`__declspec(noinline)`, since the original calls them where our compiler
-would inline them; and the shared `tools/xbox.mk` gained `EXTRA_LIBS` and
-`EXTRA_CFLAGS`.
+Some of the source's shape is there for the compiler, to give the
+original's code: the frame helpers `SET_FRAME`, `SET_QUAD` and the menu's
+`DRAW_QUAD` are macros (a global passed by reference is read back after
+every store through a pointer, an inline function's arguments are worked out
+before its body), while `CycleUp`/`CycleDown` take a reference (the original
+reads the page's item back after each change). The shared `tools/xbox.mk`
+gained `EXTRA_LIBS` and `EXTRA_CFLAGS`.
 
 ## Differential testing
 

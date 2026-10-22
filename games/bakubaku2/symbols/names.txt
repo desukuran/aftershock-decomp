@@ -112,7 +112,7 @@
 0001a6a0 CSkins::Apply void __thiscall CSkins::Apply(CSkins *this)
 0001a7f0 CSkins::RenderPreview void __thiscall CSkins::RenderPreview(CSkins *this)
 0001a8b0 CSoundEffect::Play void __thiscall CSoundEffect::Play(CSoundEffect *this)
-0001a8e0 InitDirectMusic void __cdecl InitDirectMusic(void)
+0001a8e0 CSoundEffect::InitDirectMusic void __thiscall CSoundEffect::InitDirectMusic(CSoundEffect *this)
 0001a970 CSoundEffect::Load void __thiscall CSoundEffect::Load(CSoundEffect *this, char * strFile)
 0001a9b0 CFont::Create void __thiscall CFont::Create(CFont *this, void * pDevice, wchar_t * strFile)
 0001a9f0 CFont::DrawText void __thiscall CFont::DrawText(CFont *this, wchar_t * strText, float x, float y, DWORD r, DWORD g, DWORD b)

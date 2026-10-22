@@ -441,7 +441,8 @@ void CGame::StartMatch()
 void CGame::UpdateGarbageBar()
 {
     DWORD dwSeconds = (GetTickCount() - m_dwGarbageTime) / 1000;
-    D3DCOLOR color = D3DCOLOR_ARGB(250, dwSeconds * 4, 255 - dwSeconds * 4, 0);
+    DWORD dwRed = dwSeconds * 4;
+    D3DCOLOR color = D3DCOLOR_ARGB(250, dwRed, 255 - dwRed, 0);
     COLORVERTEX v[4] =
     {
         { -1.0f,  1.0f, 0.0f, color },
@@ -622,8 +623,9 @@ void CGame::Update()
         int nOut = 0;
         int nRedOut = 0;
         int nBlueOut = 0;
-        if (m_pSettings->nMode == MODE_FREE_FOR_ALL)
+        switch (m_pSettings->nMode)
         {
+        case MODE_FREE_FOR_ALL:
             for (int i = 0; i < m_pSettings->nPlayers; i++)
             {
                 if (!m_boards[i].m_bAlive)
@@ -633,19 +635,18 @@ void CGame::Update()
             {
                 for (int i = 0; i < m_pSettings->nPlayers; i++)
                 {
+                    if (!m_boards[i].m_bAlive)
+                        m_boards[i].m_nLosses++;
                     if (m_boards[i].m_bAlive)
                         m_boards[i].m_nWins++;
-                    else
-                        m_boards[i].m_nLosses++;
                     m_boards[i].m_bAlive = false;
                 }
                 m_bOver = false;
                 m_dwResultTime = GetTickCount();
                 m_state = STATE_RESULT;
             }
-        }
-        else if (m_pSettings->nMode == MODE_TEAMS)
-        {
+            break;
+        case MODE_TEAMS:
             for (int i = 0; i < m_pSettings->nPlayers; i++)
             {
                 if (!m_boards[i].m_bAlive)
@@ -684,6 +685,7 @@ void CGame::Update()
                 m_dwResultTime = GetTickCount();
                 m_state = STATE_RESULT;
             }
+            break;
         }
         for (int i = 0; i < m_pSettings->nPlayers; i++)
             m_boards[i].Update();
@@ -698,14 +700,14 @@ void CGame::Update()
             if (m_pSettings->nMode == MODE_FREE_FOR_ALL)
             {
                 m_state = STATE_NEXT;
-                if (!m_bOver)
+                if (m_bOver)
                 {
-                    m_menu.m_bStart = true;
-                    Update();
+                    m_state = STATE_MENU;
                 }
                 else
                 {
-                    m_state = STATE_MENU;
+                    m_menu.m_bStart = true;
+                    Update();
                 }
             }
             if (m_pSettings->nMode == MODE_TEAMS)

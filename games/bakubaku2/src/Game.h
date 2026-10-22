@@ -63,6 +63,7 @@ public:
 
     void Load(const char* strFile);
     void Play();
+    void InitDirectMusic();
 };                                                  // 0x04 bytes
 
 // ---- skins ----------------------------------------------------------------------------------
@@ -146,6 +147,23 @@ static __forceinline void SetFrame(SFrame& f, SFrameUV& uv, int n, int nCols, in
     uv.tu4 = uv.tu1;
     uv.tv4 = uv.tv3;
 }
+
+// The same as a macro, for the menu: the
+// frame globals' addresses are never taken, so writing the UVs through a
+// pointer doesn't make the compiler read them back.
+#define SET_FRAME(frm, uv, n, nCols, nRows) \
+    frm.nRow = (n) / (nCols); \
+    frm.nCol = (int)fmod((double)(n), (double)(nCols)); \
+    frm.fWidth = 1.0f / (nCols); \
+    frm.fHeight = 1.0f / (nRows); \
+    uv.tu1 = frm.nCol * frm.fWidth; \
+    uv.tv1 = frm.nRow * frm.fHeight; \
+    uv.tu3 = uv.tu1 + frm.fWidth; \
+    uv.tv3 = uv.tv1 + frm.fHeight; \
+    uv.tu2 = uv.tu3; \
+    uv.tv2 = uv.tv1; \
+    uv.tu4 = uv.tu1; \
+    uv.tv4 = uv.tv3
 
 // ---- particles ------------------------------------------------------------------------------
 
@@ -455,8 +473,8 @@ public:
     void MoveRight();
     void Think(bool bHard);
     // Not inlined in the original (and only called from Flood).
-    __declspec(noinline) bool IsListed(int eater, int cell);
-    __declspec(noinline) void List(int eater, int cell);
+    bool IsListed(int eater, int cell);
+    void List(int eater, int cell);
     void Drop(int nSteps);
     void SlideLeft(int nSteps);
     void SlideRight(int nSteps);

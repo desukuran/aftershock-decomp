@@ -45,6 +45,8 @@ public:
     UINT  m_uSoundtrackID;                  // +0x48 (the game soundtrack: an index)
 
     void GetSongInfo(UINT uSongIndex, DWORD* pdwID, DWORD* pdwLength, WCHAR* strName);
+    HANDLE OpenSong(DWORD dwSongID);
+    UINT GetSongCount() { return m_uSongCount; }
 };
 
 class CMusicManager
@@ -93,12 +95,13 @@ public:
 private:
     HRESULT LoadSoundtracks();
     HRESULT SelectSoundtrack(DWORD dwSoundtrack);
-    void    SelectSong(DWORD dwSong);
+    HRESULT SelectSong(DWORD dwSong);
     HRESULT FindNextSong();
     HRESULT Prepare();
     HRESULT Cleanup();
     BOOL    FindFreePacket(DWORD* pdwPacket, DWORD dwStream);
     HRESULT ProcessSource(DWORD dwPacket, XMEDIAPACKET* pxmp);
+    HRESULT ProcessStream(DWORD dwPacket, XMEDIAPACKET* pxmp);
 
     friend void CALLBACK StreamCallback(LPVOID pStreamContext, LPVOID pPacketContext, DWORD dwStatus);
 };                                              // 0x158 bytes

@@ -40,6 +40,16 @@ void CSoundtrack::GetSongInfo(UINT uSongIndex, DWORD* pdwID, DWORD* pdwLength, W
     }
 }
 
+// (inlined into Prepare)
+HANDLE CSoundtrack::OpenSong(DWORD dwSongID)
+{
+    if (m_bGameSoundtrack)
+        return CreateFile(g_GameSongs[dwSongID].strFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                          FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+    else
+        return XOpenSoundtrackSong(dwSongID, TRUE);
+}
+
 // 0x00019110
 CMusicManager::CMusicManager()
 {
@@ -222,19 +232,21 @@ FLOAT CMusicManager::GetPlaybackPosition()
 // 0x00019AC0
 HRESULT CMusicManager::NextSoundtrack()
 {
-    if (m_mmState != MM_STOPPED)
-        return S_FALSE;
-    SelectSoundtrack((m_uCurrentSoundtrack + 1) % m_uSoundtrackCount);
-    return S_OK;
+    if (m_mmState == MM_STOPPED)
+    {
+        return SelectSoundtrack((m_uCurrentSoundtrack + 1) % m_uSoundtrackCount);
+    }
+    return S_FALSE;
 }
 
 // 0x00019860
 HRESULT CMusicManager::NextSong()
 {
-    if (m_mmState != MM_STOPPED)
-        return S_FALSE;
-    SelectSong((m_dwSong + 1) % m_aSoundtracks[m_uCurrentSoundtrack].m_uSongCount);
-    return S_OK;
+    if (m_mmState == MM_STOPPED)
+    {
+        return SelectSong((m_dwSong + 1) % m_aSoundtracks[m_uCurrentSoundtrack].GetSongCount());
+    }
+    return S_FALSE;
 }
 
 // 0x000198A0
@@ -242,32 +254,41 @@ HRESULT CMusicManager::NextSong()
 // not the last song.
 HRESULT CMusicManager::PrevSong()
 {
-    if (m_mmState != MM_STOPPED)
-        return S_FALSE;
-    SelectSong((m_dwSong - 1) % m_aSoundtracks[m_uCurrentSoundtrack].m_uSongCount);
-    return S_OK;
+    if (m_mmState == MM_STOPPED)
+    {
+        return SelectSong((m_dwSong - 1) % m_aSoundtracks[m_uCurrentSoundtrack].GetSongCount());
+    }
+    return S_FALSE;
 }
 
 // 0x00019B10
 // A random song of this soundtrack, or of a random one.
 HRESULT CMusicManager::RandomSong(BOOL bAnySoundtrack)
 {
-    if (m_mmState != MM_STOPPED)
+    if (m_mmState == MM_STOPPED)
+    {
+        if (bAnySoundtrack)
+        {
+            SelectSoundtrack(rand() % m_uSoundtrackCount);
+        }
+        return SelectSong(rand() % m_aSoundtracks[m_uCurrentSoundtrack].GetSongCount());
+    }
+    else
         return S_FALSE;
-    if (bAnySoundtrack)
-        SelectSoundtrack(rand() % m_uSoundtrackCount);
-    SelectSong(rand() % m_aSoundtracks[m_uCurrentSoundtrack].m_uSongCount);
-    return S_OK;
 }
 
 // 0x00019270
 // The game soundtrack first, then the user's soundtracks that have songs.
 HRESULT CMusicManager::LoadSoundtracks()
 {
+    HANDLE hSoundtrack;
+    XSOUNDTRACK_DATA stData;
+    UINT uAllocatedSoundtracks;
+
     m_aSoundtracks = (CSoundtrack*)malloc(sizeof(CSoundtrack));
-    if (m_aSoundtracks == NULL)
+    if (!m_aSoundtracks)
         return E_OUTOFMEMORY;
-    UINT uAllocated = 1;
+    uAllocatedSoundtracks = 1;
 
     m_aSoundtracks[0].m_bGameSoundtrack = TRUE;
     m_aSoundtracks[0].m_uSoundtrackID = 0;
@@ -275,47 +296,51 @@ HRESULT CMusicManager::LoadSoundtracks()
     wcscpy(m_aSoundtracks[0].m_strName, L"Game Soundtrack");
     m_uSoundtrackCount = 1;
 
-    XSOUNDTRACK_DATA stData;
-    HANDLE hFind = XFindFirstSoundtrack(&stData);
-    if (hFind != INVALID_HANDLE_VALUE)
+    hSoundtrack = XFindFirstSoundtrack(&stData);
+    if (INVALID_HANDLE_VALUE != hSoundtrack)
     {
         do
         {
-            if (m_uSoundtrackCount + 1 > uAllocated)
+            // Double the buffer when it is full.
+            if (m_uSoundtrackCount + 1 > uAllocatedSoundtracks)
             {
-                CSoundtrack* pNew = (CSoundtrack*)realloc(m_aSoundtracks, uAllocated * 2 * sizeof(CSoundtrack));
-                if (pNew == NULL)
+                void* pNewAlloc = realloc(m_aSoundtracks, (uAllocatedSoundtracks * 2) * sizeof(CSoundtrack));
+                if (!pNewAlloc)
                 {
                     free(m_aSoundtracks);
                     m_aSoundtracks = NULL;
-                    XFindClose(hFind);
+                    XFindClose(hSoundtrack);
                     return E_OUTOFMEMORY;
                 }
-                m_aSoundtracks = pNew;
-                uAllocated *= 2;
+                m_aSoundtracks = (CSoundtrack*)pNewAlloc;
+                uAllocatedSoundtracks *= 2;
             }
 
             if (stData.uSongCount > 0)
             {
-                CSoundtrack* pST = &m_aSoundtracks[m_uSoundtrackCount];
-                pST->m_bGameSoundtrack = FALSE;
-                pST->m_uSoundtrackID = stData.uSoundtrackId;
-                pST->m_uSongCount = stData.uSongCount;
-                wcscpy(pST->m_strName, stData.szName);
+                m_aSoundtracks[m_uSoundtrackCount].m_bGameSoundtrack = FALSE;
+                m_aSoundtracks[m_uSoundtrackCount].m_uSoundtrackID = stData.uSoundtrackId;
+                m_aSoundtracks[m_uSoundtrackCount].m_uSongCount = stData.uSongCount;
+                wcscpy(m_aSoundtracks[m_uSoundtrackCount].m_strName, stData.szName);
+
                 m_uSoundtrackCount++;
             }
-        } while (XFindNextSoundtrack(hFind, &stData));
-        XFindClose(hFind);
+        } while (XFindNextSoundtrack(hSoundtrack, &stData));
+
+        XFindClose(hSoundtrack);
     }
 
-    CSoundtrack* pNew = (CSoundtrack*)realloc(m_aSoundtracks, m_uSoundtrackCount * sizeof(CSoundtrack));
-    if (pNew == NULL)
+    // Shrink it to what is used.
+    VOID* pRealloc = realloc(m_aSoundtracks, m_uSoundtrackCount * sizeof(CSoundtrack));
+    if (!pRealloc)
     {
         free(m_aSoundtracks);
         m_aSoundtracks = NULL;
         return E_OUTOFMEMORY;
     }
-    m_aSoundtracks = pNew;
+
+    m_aSoundtracks = (CSoundtrack*)pRealloc;
+
     return S_OK;
 }
 
@@ -328,10 +353,12 @@ HRESULT CMusicManager::SelectSoundtrack(DWORD dwSoundtrack)
 }
 
 // (inlined everywhere)
-void CMusicManager::SelectSong(DWORD dwSong)
+HRESULT CMusicManager::SelectSong(DWORD dwSong)
 {
     m_dwSong = dwSong;
     m_aSoundtracks[m_uCurrentSoundtrack].GetSongInfo(m_dwSong, &m_dwSongID, &m_dwLength, m_strSong);
+
+    return S_OK;
 }
 
 // 0x00019910
@@ -340,17 +367,22 @@ HRESULT CMusicManager::FindNextSong()
     if (m_bRandom)
     {
         if (m_bGlobal)
+        {
             SelectSoundtrack(rand() % m_uSoundtrackCount);
-        SelectSong(rand() % m_aSoundtracks[m_uCurrentSoundtrack].m_uSongCount);
-    }
-    else if (m_bGlobal && m_dwSong == m_aSoundtracks[m_uCurrentSoundtrack].m_uSongCount - 1)
-    {
-        SelectSoundtrack((m_uCurrentSoundtrack + 1) % m_uSoundtrackCount);
+        }
+        SelectSong(rand() % m_aSoundtracks[m_uCurrentSoundtrack].GetSongCount());
     }
     else
     {
-        SelectSong((m_dwSong + 1) % m_aSoundtracks[m_uCurrentSoundtrack].m_uSongCount);
+        if (m_bGlobal &&
+            m_dwSong == m_aSoundtracks[m_uCurrentSoundtrack].GetSongCount() - 1)
+        {
+            SelectSoundtrack((m_uCurrentSoundtrack + 1) % m_uSoundtrackCount);
+        }
+        else
+            SelectSong((m_dwSong + 1) % m_aSoundtracks[m_uCurrentSoundtrack].GetSongCount());
     }
+
     return S_OK;
 }
 
@@ -358,17 +390,17 @@ HRESULT CMusicManager::FindNextSong()
 // Opens the current song and creates a WMA decoder for it.
 HRESULT CMusicManager::Prepare()
 {
-    if (m_aSoundtracks[m_uCurrentSoundtrack].m_bGameSoundtrack)
-        m_hDecodingFile = CreateFileA(g_GameSongs[m_dwSongID].strFile, GENERIC_READ, FILE_SHARE_READ, NULL,
-                                      OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, NULL);
-    else
-        m_hDecodingFile = XOpenSoundtrackSong(m_dwSongID, TRUE);
+    m_hDecodingFile = m_aSoundtracks[m_uCurrentSoundtrack].OpenSong(m_dwSongID);
 
-    WMAXMODECODERPARAMETERS params = { 0 };
-    params.hFile = m_hDecodingFile;
-    params.dwLookaheadBufferSize = 64 * 1024;
-    HRESULT hr = XWmaDecoderCreateMediaObject(&params, &m_pDecoder);
-    return SUCCEEDED(hr) ? S_OK : hr;
+    WMAXMODECODERPARAMETERS Params = { 0 };
+    Params.hFile = m_hDecodingFile;
+    Params.dwLookaheadBufferSize = 64 * 1024;
+
+    HRESULT hr = XWmaDecoderCreateMediaObject((LPCWMAXMODECODERPARAMETERS)&Params, &m_pDecoder);
+    if (FAILED(hr))
+        return hr;
+
+    return S_OK;
 }
 
 // 0x00019410
@@ -440,27 +472,48 @@ HRESULT CMusicManager::ProcessSource(DWORD dwPacket, XMEDIAPACKET* pxmp)
 // Called every frame.
 HRESULT CMusicManager::Process()
 {
+    HRESULT hr;
+    DWORD dwPacket;
+
     if (m_pDecoder)
     {
         m_pDecoder->DoWork();
 
-        DWORD dwPacket;
         while (FindFreePacket(&dwPacket, m_dwStream))
         {
             XMEDIAPACKET xmp;
-            HRESULT hr = ProcessSource(dwPacket, &xmp);
+            hr = ProcessSource(dwPacket, &xmp);
             if (FAILED(hr))
                 return hr;
-            if (xmp.dwMaxSize == 0)
-                return S_OK;
 
-            xmp.pdwStatus = &m_adwStatus[dwPacket];
-            xmp.pdwCompletedSize = NULL;
-            xmp.pContext = (LPVOID)m_dwStream;
-            hr = m_pStream[m_dwStream]->Process(&xmp, NULL);
-            if (FAILED(hr))
-                return hr;
+            // Nothing decoded: the end of the song, or the decoder isn't
+            // ready yet.
+            if (xmp.dwMaxSize > 0)
+            {
+                hr = ProcessStream(dwPacket, &xmp);
+                if (FAILED(hr))
+                    return hr;
+            }
+            else
+                break;
         }
     }
+
+    return S_OK;
+}
+
+// (inlined into Process)
+HRESULT CMusicManager::ProcessStream(DWORD dwPacket, XMEDIAPACKET* pxmp)
+{
+    HRESULT hr;
+
+    pxmp->pdwStatus = &m_adwStatus[dwPacket];
+    pxmp->pdwCompletedSize = NULL;
+    pxmp->pContext = (LPVOID)m_dwStream;
+
+    hr = m_pStream[m_dwStream]->Process(pxmp, NULL);
+    if (FAILED(hr))
+        return hr;
+
     return S_OK;
 }
